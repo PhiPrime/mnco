@@ -1,3 +1,6 @@
+#Libraries
+library(lubridate)
+
 #### Update functions:
 
 ### Update.All
@@ -39,20 +42,8 @@ Update.All <- function(get = FALSE){
 
 ### Update.Accounts
 Update.Accounts <- function(get = FALSE, date = Sys.Date()){
-  fileName <- paste0("Account Export  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
-  
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
-  
+  #Update Initialize
+  dat <- Update.Init("Account Export  ")
   
   accounts <- filter(dat, Enrollment_Status == "Active")
   inactive <- filter(dat, Enrollment_Status == "Inactive")
@@ -67,19 +58,9 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date()){
 
 ### Update.Students
 Update.Students <- function(get = FALSE, date = Sys.Date()){
-  fileName <- paste0("Students Export  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
+  #Update Initialize
+  dat <- Update.Init("Students Export  ")
   
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
   dat <- mutate(dat, 
                 Last_Attendance_Date = mdy(Last_Attendance_Date))
   #"failed to parse" warning gets thrown
@@ -97,19 +78,39 @@ Update.Students <- function(get = FALSE, date = Sys.Date()){
 
 ### Update.Progress
 Update.Progress <- function(get = FALSE, date = Sys.Date()) {
-  fileName <- paste0("Current Batch Detail Export  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
+  #Update Initialize
+  fileRoot <- "Current Batch Detail Export  "
+  filePath <- as.dataFilePath(fileRoot)
   
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
+  if(!file.exists(filePath)){
+    #Try to move from downloads
+    moveDataDownloads(gsub(".*/", "", filePath))
     if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
+      #Check for "bootstrap" files
+      fileRoot2 <- "Student Report  "
+      dat <- Update.Init(fileRoot2)
+        
+      print(paste0("Notice: ", as.dataFilePath(fileRoot2), 
+                   " is being used instead of ", filePath))
+      dat <- mutate(dat,
+             Student = dat$Student_Name,
+             Guardian = dat$Guardians,
+             Account = dat$Account_Name, #Unsure of formatting
+             Active_Learning_Plans = dat$Active_LPs,
+             Attendances = dat$Attendance,
+             Skills_Mastered = dat$Skills_Mastered,
+             Skills_Currently_Assigned = dat$Skills_Assigned,
+             Enrollment_Status = dat$Enrollment_Status,
+             BPR_Comment = NA,
+             Last_PR_Send_Date = dat$Last_PR_Sent,
+             Email_Opt_Out = NA,
+      )
+      }
+    }#filePath should exist
+  
+  if(file.exists(filePath)){
+    dat <- Update.Init(fileRoot)
     }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
   
   tdat <- dat[which(!dat$Attendances<5 & !dat$Skills_Mastered<2),]
   tdat <- mutate(tdat, Pest = Skills_Mastered/Attendances)
@@ -136,20 +137,8 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
 
 ### Update.Payments
 Update.Payments <- function(get = FALSE, date = Sys.Date()){
-  # yes the file name is stupid
-  fileName <- paste0("Payments.xlsx  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
-  
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
+  #Update Initialize
+  dat <- Update.Init("Payments.xlsx  ")
   
   if(get) {
     return(dat)
@@ -160,19 +149,8 @@ Update.Payments <- function(get = FALSE, date = Sys.Date()){
 
 ### Update.Enrollments
 Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
-  fileName <- paste0("Enrolled Report  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
-  
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
+  #Update Initialize
+  dat <- Update.Init("Enrolled Report  ")
   
   if (get) {
     return(dat)
@@ -183,19 +161,8 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
 
 ### Update.Curriculum
 Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
-  fileName <- paste0("Curriculum Library Export  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
-  
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
+  #Update Initialize
+  dat <- Update.Init("Curriculum Library Export  ")
   
   if(get) {
     return(dat)
@@ -207,21 +174,10 @@ Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
 
 ### Update.Attendance
 Update.Attendance <- function(date = Sys.Date()) {
-  fileName <- paste0("Student Attendance Report Export  ", as.radiusDate(date), ".xlsx")
-  filePath <- file.path(dataDir, fileName)
+  #Update Initialize
+  dat <- Update.Init("Student Attendance Report Export  ")
   
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
-  
-  logfile <- file.path(dataDir, "/studentAttendanceLog.csv")
+  logfile <- file.path(paste0(getwd(),"/Data"), "studentAttendanceLog.csv")
   
   if(!file.exists(logfile)){
     stop(paste0("While running Update.Attendance ", logfile,
@@ -252,5 +208,68 @@ Update.Attendance <- function(date = Sys.Date()) {
   ### NOT FINISHED
   ###
   
+  
+}#eof
+
+### Update Initialize
+Update.Init <- function(fileName, date = Sys.Date()) {
+  #set file name
+  fileName <- paste0(fileName, 
+                     paste(month(date), day(date), year(date), sep = "_"), 
+                     ".xlsx")
+  filePath <- file.path(paste0(getwd(),"/Data"), fileName)
+    
+  if(!file.exists(filePath)) {
+    #Try to move fileName from downloads
+    moveDataDownloads(fileName)
+    if(!file.exists(filePath)){
+      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
+    }
+  }
+    
+  #Implied else, file must exists
+  dat <- read_excel(filePath, .name_repair = "unique_quiet")
+  names(dat) <- gsub(" ", "_", names(dat))
+  
+  return(dat)
+}#eof
+
+as.dataFilePath <- function(fileName, date = Sys.Date()){
+  #I made one big line  
+  return(
+    file.path(paste0(getwd(),"/Data"), 
+      paste0(fileName, 
+         paste(month(date), day(date), year(date), sep = "_"), 
+         ".xlsx")))
+}
+
+### radiusDate
+as.radiusDate <- function(date = Sys.Date()) {
+  return(paste(month(date), day(date), year(date), sep = "_"))
+}#eof
+
+
+moveDataDownloads <- function(fileNames) {
+  rmPath <- gsub("^.*[/].*[/].*[/].*?", "", getwd())
+  downloadPath <- paste0(gsub(rmPath, "", getwd()), "Downloads/")
+  filePaths <- paste0(downloadPath, fileNames)
+  
+  if(!grepl("Overview$", getwd())) {
+    stop("while trying to moveDataDownloads,\n",
+         getwd(), "\nis the working directory but does not\n",
+         "end with \"Overview\"")
+  }
+  
+  fileDests <- paste0(getwd(), "/Data/", fileNames)
+  
+  for(i in 1:length(filePaths)){
+    if(file.exists(filePaths[i])){
+      file.rename(filePaths[i], fileDests[i])
+      print(paste0(filePaths[i], "-- moved to --> ", fileDests[i]))
+    } else {
+      print(paste0("Notice: the file ", filePaths[i],
+                   " could not be found."))
+    }
+  }
   
 }#eof
