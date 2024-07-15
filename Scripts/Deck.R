@@ -129,27 +129,4 @@ removeDeckSuppression <- function(studentRows = data.frame(
   setSuppressedStudents(dat)
 }#eof
 
-moveDataDownloads <- function(fileNames) {
-  rmPath <- gsub("^.*[/].*[/].*[/].*?", "", getwd())
-  downloadPath <- paste0(gsub(rmPath, "", getwd()), "Downloads/")
-  filePaths <- paste0(downloadPath, fileNames)
-  
-  if(!grepl("Overview$", getwd())) {
-    stop("while trying to moveDataDownloads,\n",
-         getwd(), "\nis the working directory but does not\n",
-         "end with \"Overview\"")
-  }
-  
-  fileDests <- paste0(getwd(), "/Data/", fileNames)
-  
-  for(i in 1:length(filePaths)){
-    if(file.exists(filePaths[i])){
-      file.rename(filePaths[i], fileDests[i])
-      print(paste0(filePaths[i], "-- moved to --> ", fileDests[i]))
-    } else {
-      print(paste0("Notice: the file ", filePaths[i],
-                   " could not be found."))
-    }
-  }
-  
-}#eof
+
