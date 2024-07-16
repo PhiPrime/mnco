@@ -114,6 +114,18 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
     }
   
   tdat <- dat[which(!dat$Attendances<5 & !dat$Skills_Mastered<2),]
+  
+  #A specific student attends for 90 mins instead of 60
+  ## ERRORS, needs apply or for##
+  stu1681 <- NA
+  for(i in 1:dim(tdat)[1]){
+    
+    
+      stu1681 <- cbind(stu1681, sum(utf8ToInt(tdat$Student[i])) == 1681)
+      
+  }
+  tdat <- tdat[stu1681,]
+  
   tdat <- mutate(tdat, Pest = Skills_Mastered/Attendances)
   tdat <- mutate(tdat, 
                  UB = round(Pest-qnorm((1-95/100)/2)*
@@ -274,3 +286,17 @@ moveDataDownloads <- function(fileNames) {
   }
   
 }#eof
+
+write.csv(data.frame(Student = character(), Duration = numeric()), "Cache/differentDurationStudents.csv", row.names = F)
+
+addDifferentDurationStudent <- function(student, duration) {
+  filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
+  dat <- read.csv(filePath)
+  
+  dat <- rbind(dat, c(student, duration))
+  write.csv(dat, filePath, rowNames = F)
+}
+
+removeDifferentDurationStudent <- function(student) {
+  
+}
