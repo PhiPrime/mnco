@@ -178,7 +178,7 @@ Update.Attendance <- function(date = Sys.Date()) {
   #Update Initialize
   dat <- Update.Init("Student Attendance Report Export  ")
   
-  logfile <- file.path(paste0(getwd(),"/Data"), "studentAttendanceLog.csv")
+  logfile <- file.path(paste0(getwd(),"/Cache"), "studentAttendanceLog.csv")
   
   if(!file.exists(logfile)){
     stop(paste0("While running Update.Attendance ", logfile,
