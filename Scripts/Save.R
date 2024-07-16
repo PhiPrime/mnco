@@ -2,7 +2,7 @@
 
 ### Save.All
 Save.All <- function(silent = FALSE) {
-  fileName <- "Data/Student_Progress_History.csv"
+  fileName <- "Data/studentProgressHistory.csv"
   filePath <- file.path(getwd(), fileName)
   
   progress <- mutate(Update.All(get=TRUE), Date = Sys.Date())
