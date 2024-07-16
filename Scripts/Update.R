@@ -218,7 +218,7 @@ Update.Init <- function(fileName, date = Sys.Date()) {
   fileName <- paste0(fileName, 
                      paste(month(date), day(date), year(date), sep = "_"), 
                      ".xlsx")
-  filePath <- file.path(paste0(getwd(),"/Data"), fileName)
+  filePath <- file.path(paste0(getwd(),"/Raw_Data"), fileName)
     
   if(!file.exists(filePath)) {
     #Try to move fileName from downloads
@@ -238,7 +238,7 @@ Update.Init <- function(fileName, date = Sys.Date()) {
 as.dataFilePath <- function(fileName, date = Sys.Date()){
   #I made one big line  
   return(
-    file.path(paste0(getwd(),"/Data"), 
+    file.path(paste0(getwd(),"/Raw_Data"), 
       paste0(fileName, 
          paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")))
@@ -261,7 +261,7 @@ moveDataDownloads <- function(fileNames) {
          "end with \"Overview\"")
   }
   
-  fileDests <- paste0(getwd(), "/Data/", fileNames)
+  fileDests <- paste0(getwd(), "/Raw_Data/", fileNames)
   
   for(i in 1:length(filePaths)){
     if(file.exists(filePaths[i])){
