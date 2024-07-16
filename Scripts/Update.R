@@ -287,16 +287,23 @@ moveDataDownloads <- function(fileNames) {
   
 }#eof
 
-write.csv(data.frame(Student = character(), Duration = numeric()), "Cache/differentDurationStudents.csv", row.names = F)
+# Put this into a function?
+# write.csv(data.frame(Student = character(), Duration = numeric()), "Cache/differentDurationStudents.csv", row.names = F)
 
 addDifferentDurationStudent <- function(student, duration) {
+  # need to add file check
   filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
   dat <- read.csv(filePath)
   
-  dat <- rbind(dat, c(student, duration))
-  write.csv(dat, filePath, rowNames = F)
+  dat <- rbind(dat, data.frame(Student = student, Duration = duration))
+  write.csv(dat, filePath, row.names = F)
 }
 
 removeDifferentDurationStudent <- function(student) {
+  # need to add file check
+  filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
+  dat <- read.csv(filePath)
   
+  dat <- dat[dat$Student != student,]
+  write.csv(dat, filePath, row.names = F)
 }
