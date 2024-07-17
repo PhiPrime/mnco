@@ -71,7 +71,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
 
 ### getSuppressedStudents
 getSuppressedStudents <- function(){
-  fileLoc <- paste0(getwd(), "/Data/suppressedStudents", ".csv")
+  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".csv")
   if(!file.exists(fileLoc)){
     #Run null constructor
     setSuppressedStudents()
@@ -92,7 +92,7 @@ setSuppressedStudents <- function(dat = data.frame(
   #Check for expired stints
   dat <- dat[which((today()<dat$expDate)),]
   
-  fileLoc <- paste0(getwd(), "/Data/suppressedStudents", ".csv")
+  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".csv")
   if(dim(dat)[1]==0){
     
     #Prompt file is about to be empty and check to continue
