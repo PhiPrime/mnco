@@ -73,22 +73,6 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
                      ".xlsx")))
 }
 
-### Update.Accounts
-Update.Accounts <- function(get = FALSE, date = Sys.Date()){
-  #Update Initialize
-  dat <- Update.Init("Account Export  ")
-  
-  accounts <- filter(dat, Enrollment_Status == "Active")
-  inactive <- filter(dat, Enrollment_Status == "Inactive")
-  
-  if(get) {
-    return(dat)
-  } else {
-    assign("accounts",accounts,envir = .GlobalEnv)
-    assign("inactiveAccounts",inactive,envir = .GlobalEnv)
-  }
-}#eof
-
 ### Update.Students
 Update.Students <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
@@ -107,6 +91,22 @@ Update.Students <- function(get = FALSE, date = Sys.Date()){
   } else {
     assign("students",students,envir = .GlobalEnv)
     assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
+  }
+}#eof
+
+### Update.Accounts
+Update.Accounts <- function(get = FALSE, date = Sys.Date()){
+  #Update Initialize
+  dat <- Update.Init("Account Export  ")
+  
+  accounts <- filter(dat, Enrollment_Status == "Active")
+  inactive <- filter(dat, Enrollment_Status == "Inactive")
+  
+  if(get) {
+    return(dat)
+  } else {
+    assign("accounts",accounts,envir = .GlobalEnv)
+    assign("inactiveAccounts",inactive,envir = .GlobalEnv)
   }
 }#eof
 
