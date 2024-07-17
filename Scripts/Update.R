@@ -147,7 +147,7 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date()){
 
 ### Update.Progress
 Update.Progress <- function(get = FALSE, date = Sys.Date()) {
-  #Update Initialize
+  # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
   filePath <- as.dataFilePath(fileRoot)
   
