@@ -43,17 +43,18 @@ Update.All <- function(get = FALSE){
 }
 
 ### Update.Init
-Update.Init <- function(fileName, date = Sys.Date()) {
+Update.Init <- function(fileRoot, date = Sys.Date()) {
   #set file name
-  fileName <- paste0(fileName, 
+  fileName <- paste0(fileRoot, 
                      paste(month(date), day(date), year(date), sep = "_"), 
                      ".xlsx")
-  filePath <- file.path(paste0(getwd(),"/Raw_Data"), fileName)
+  filePath <- file.path(getwd(), "Raw_Data", fileName)
   
   if(!file.exists(filePath)) {
     #Try to move fileName from downloads
     moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
+    
+    if(!file.exists(filePath)) {
       stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
     }
   }
