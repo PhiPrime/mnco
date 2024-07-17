@@ -199,6 +199,10 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
   tdat <- tdat[order(tdat$LB, decreasing = TRUE),]
   tdat <- mutate(tdat, Rank = dim(tdat)[1] +1 - rank(LB, ties.method = "max"))
   
+  #merge qualifying students from tdat back into dat
+  ###
+  
+  
   if(get) {
     return(dat)
   } else {
