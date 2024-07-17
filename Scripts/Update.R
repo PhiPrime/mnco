@@ -257,12 +257,6 @@ Update.Attendance <- function(date = Sys.Date()) {
   
 }#eof
 
-### as.radiusDate
-as.radiusDate <- function(date = Sys.Date()) {
-  return(paste(month(date), day(date), year(date), sep = "_"))
-}#eof
-
-
 moveDataDownloads <- function(fileNames) {
   rmPath <- gsub("^.*[/].*[/].*[/].*?", "", getwd())
   downloadPath <- paste0(gsub(rmPath, "", getwd()), "Downloads/")
