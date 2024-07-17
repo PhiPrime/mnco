@@ -15,11 +15,17 @@ Update.All <- function(get = FALSE){
   #payments <- mutate(payments, Account = Account_Name)
   enrollments <- Update.Enrollments(TRUE)
   
-  # Add columns
-  students <- mutate(students, Student = paste0(First_Name, " ", Last_Name))
+  # Prepare students to merge
+  students <- mutate(students, Student = paste(First_Name, Last_Name), .before = Student_Id)
+  students$First_Name <- NULL
+  students$Last_Name <- NULL
+  
+  # Prepare accounts to merge
+  accounts$First_Name <- NULL
+  accounts$Last_Name <- NULL
   
   # Merge into one data frame
-  all <- merge(students, accounts, all.x = TRUE)
+  all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   #all <- merge(all, payments, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
@@ -40,6 +46,31 @@ Update.All <- function(get = FALSE){
            filter(all, Enrollment_Status != "Enrolled"),
            envir = .GlobalEnv)
   }
+}
+
+### mergeWithFill
+# Merge columns from 'df2' into 'df1', matching observations based on the specified columns.
+# Common columns not in '.by' are filled with values from 'df1'. If values are NA, they are filled from 'df2'.
+mergeWithFill <- function(df1, df2, .by) {
+  # Merge df1 and df2. Common columns are suffixed with .x and .y
+  df <- merge(df1, df2, all.x = T, by = .by)
+  
+  # Iterate through common columns
+  for (col in intersect(names(df1), names(df2))) {
+    # Skip iteration if column was used to match
+    if (col %in% .by) next
+    
+    # Suffixed column strings
+    col.x <- paste0(col, ".x")
+    col.y <- paste0(col, ".y")
+    
+    # Fill common column to col.x, delete col.y, and rename col.x to col
+    df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
+    df[[col.y]] <- NULL
+    names(df)[names(df) == col.x] <- col
+  }
+  
+  return(df)
 }
 
 ### Update.Init
