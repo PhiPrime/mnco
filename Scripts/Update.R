@@ -1,13 +1,14 @@
-#Libraries
+### Libraries
 library(lubridate)
+source("Scripts/Utility.R")
 
 #### Update functions:
 
 ### Update.All
 Update.All <- function(get = FALSE){
   # Read excel files
-  accounts <- Update.Accounts(TRUE)
   students <- Update.Students(TRUE)
+  accounts <- Update.Accounts(TRUE)
   progress <- Update.Progress(TRUE)
   #payments <- Update.Payments(TRUE)
   #payments <- mutate(payments, Account = Account_Name)
@@ -38,6 +39,38 @@ Update.All <- function(get = FALSE){
            filter(all, Enrollment_Status != "Enrolled"),
            envir = .GlobalEnv)
   }
+}
+
+### Update.Init
+Update.Init <- function(fileName, date = Sys.Date()) {
+  #set file name
+  fileName <- paste0(fileName, 
+                     paste(month(date), day(date), year(date), sep = "_"), 
+                     ".xlsx")
+  filePath <- file.path(paste0(getwd(),"/Raw_Data"), fileName)
+  
+  if(!file.exists(filePath)) {
+    #Try to move fileName from downloads
+    moveDataDownloads(fileName)
+    if(!file.exists(filePath)){
+      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
+    }
+  }
+  
+  #Implied else, file must exists
+  dat <- read_excel(filePath, .name_repair = "unique_quiet")
+  names(dat) <- gsub(" ", "_", names(dat))
+  
+  return(dat)
+}#eof
+
+as.dataFilePath <- function(fileName, date = Sys.Date()){
+  #I made one big line  
+  return(
+    file.path(paste0(getwd(),"/Raw_Data"), 
+              paste0(fileName, 
+                     paste(month(date), day(date), year(date), sep = "_"), 
+                     ".xlsx")))
 }
 
 ### Update.Accounts
@@ -224,39 +257,7 @@ Update.Attendance <- function(date = Sys.Date()) {
   
 }#eof
 
-### Update Initialize
-Update.Init <- function(fileName, date = Sys.Date()) {
-  #set file name
-  fileName <- paste0(fileName, 
-                     paste(month(date), day(date), year(date), sep = "_"), 
-                     ".xlsx")
-  filePath <- file.path(paste0(getwd(),"/Raw_Data"), fileName)
-    
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    if(!file.exists(filePath)){
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
-  }
-    
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
-  
-  return(dat)
-}#eof
-
-as.dataFilePath <- function(fileName, date = Sys.Date()){
-  #I made one big line  
-  return(
-    file.path(paste0(getwd(),"/Raw_Data"), 
-      paste0(fileName, 
-         paste(month(date), day(date), year(date), sep = "_"), 
-         ".xlsx")))
-}
-
-### radiusDate
+### as.radiusDate
 as.radiusDate <- function(date = Sys.Date()) {
   return(paste(month(date), day(date), year(date), sep = "_"))
 }#eof
