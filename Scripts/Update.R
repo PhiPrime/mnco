@@ -177,21 +177,24 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
       }
     }#filePath should exist
   
-  if(file.exists(filePath)){
+  if(file.exists(filePath)) {
     dat <- Update.Init(fileRoot)
-    }
+  }
+  
+  # Add column for session duration
+  differentDurationStudents <- read.csv("Cache/differentDurationStudents.csv")
+  dat <- merge(dat, differentDurationStudents, all.x = T)
+  dat$Duration <- coalesce(dat$Duration, 60)
   
   tdat <- dat[which(!dat$Attendances<5 & !dat$Skills_Mastered<2),]
   
-  #A specific student attends for 90 mins instead of 60
-
-  
-  tdat <- mutate(tdat, Pest = Skills_Mastered/Attendances)
+  tdat <- mutate(tdat, Scaled_Attendances = Attendances * Duration/60) # keep as column?
+  tdat <- mutate(tdat, Pest = Skills_Mastered/Scaled_Attendances)
   tdat <- mutate(tdat, 
                  UB = round(Pest-qnorm((1-95/100)/2)*
-                              sd(tdat$Pest)/sqrt(Attendances),5),
+                              sd(tdat$Pest)/sqrt(Scaled_Attendances),5),
                  LB = round(Pest+qnorm((1-95/100)/2)*
-                              sd(tdat$Pest)/sqrt(Attendances),5))
+                              sd(tdat$Pest)/sqrt(Scaled_Attendances),5))
   tdat <- mutate(tdat, fontsize = round(32*LB/max(tdat$LB), 1))
   tdat <- tdat[order(tdat$LB, decreasing = TRUE),]
   tdat <- mutate(tdat, Rank = dim(tdat)[1] +1 - rank(LB, ties.method = "max"))
@@ -206,7 +209,6 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
                                     Skills_Mastered, Attendances), envir = .GlobalEnv)
   }
 }#eof
-
 
 ### Update.Payments
 Update.Payments <- function(get = FALSE, date = Sys.Date()){
