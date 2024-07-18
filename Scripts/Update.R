@@ -88,13 +88,9 @@ Update.Init <- function(fileRoot, date = Sys.Date()) {
                      ".xlsx")
   filePath <- file.path(getwd(), "Raw_Data", fileName)
   
-  if(!file.exists(filePath)) {
-    #Try to move fileName from downloads
-    moveDataDownloads(fileName)
-    
-    if(!file.exists(filePath)) {
-      stop(paste0("Up to date \n\"", filePath, "\"\nnot found"))
-    }
+  fileMoved <- moveDataDownloads(fileName, ignoreMissing = T)
+  if (!fileMoved && !file.exists(filePath)) {
+    stop(paste0(fileName, " not found in Raw_Data/ or Downloads/"))
   }
   
   #Implied else, file must exists
@@ -269,13 +265,17 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
   dat <- Update.Init("Student Attendance Report Export  ")
   
-  logfile <- file.path(paste0(getwd(),"/Cache"), "studentAttendanceLog.csv")
+  logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
   
+<<<<<<< HEAD
   
   
   
   
   if(!file.exists(logfile)){
+=======
+  if(!file.exists(logfile)) {
+>>>>>>> 7a758f9 (Edit moveDataDownloads)
     stop(paste0("While running Update.Attendance ", logfile,
                 " was not found"))
   }else{
@@ -338,10 +338,12 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   
 }#eof
 
-moveDataDownloads <- function(fileNames) {
-  rmPath <- gsub("^.*[/].*[/].*[/].*?", "", getwd())
-  downloadPath <- paste0(gsub(rmPath, "", getwd()), "Downloads/")
+moveDataDownloads <- function(fileNames, ignoreMissing = F) {
+  userPath <- regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", getwd(), perl = T))
+  downloadPath <- file.path(userPath, "Downloads")
   filePaths <- paste0(downloadPath, fileNames)
+  
+  if (!file.exists(downloadPath)) stop("Downloads folder not found at: ", downloadPath)
   
   if(!grepl("Overview$", getwd())) {
     stop(paste0("while trying to moveDataDownloads,\n",
@@ -349,17 +351,21 @@ moveDataDownloads <- function(fileNames) {
          "end with \"Overview\""))
   }
   
-  fileDests <- paste0(getwd(), "/Raw_Data/", fileNames)
+  fileDests <- file.path(getwd(), "Raw_Data", fileNames)
+  fileMoved <- F
   
-  for(i in 1:length(filePaths)){
-    if(file.exists(filePaths[i])){
+  for(i in 1:length(filePaths)) {
+    if (file.exists(filePaths[i])) {
       file.rename(filePaths[i], fileDests[i])
-      print(paste0(filePaths[i], "-- moved to --> ", fileDests[i]))
-    } else {
+      print(paste0(filePaths[i], "\n-- moved to -->\n", fileDests[i]))
+      fileMoved <- T
+    } else if (!ignoreMissing) {
       print(paste0("Notice: the file ", filePaths[i],
                    " could not be found."))
     }
   }
+  
+  return(fileMoved)
   
 }#eof
 
