@@ -49,8 +49,10 @@ Update.All <- function(get = FALSE){
 }
 
 ### mergeWithFill
-# Merge columns from 'df2' into 'df1', matching observations based on the specified columns.
-# Common columns not in '.by' are filled with values from 'df1'. If values are NA, they are filled from 'df2'.
+# Merge columns from 'df2' into 'df1', matching observations based on 
+#   the specified columns.
+# Common columns not in '.by' are filled with values from 'df1'. 
+#   If values are NA, they are filled from 'df2'.
 mergeWithFill <- function(df1, df2, .by) {
   # Merge df1 and df2. Common columns are suffixed with .x and .y
   df <- merge(df1, df2, all.x = T, by = .by)
@@ -75,7 +77,7 @@ mergeWithFill <- function(df1, df2, .by) {
   return(df)
 }
 
-### Update.Init
+## Update.Init
 Update.Init <- function(fileRoot, date = Sys.Date()) {
   #set file name
   fileName <- paste0(fileRoot, 
@@ -252,40 +254,75 @@ Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
 }#eof
 
 ### Update.Attendance
-Update.Attendance <- function(date = Sys.Date()) {
+Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
   dat <- Update.Init("Student Attendance Report Export  ")
   
   logfile <- file.path(paste0(getwd(),"/Cache"), "studentAttendanceLog.csv")
   
+  
+  
+  
+  
   if(!file.exists(logfile)){
     stop(paste0("While running Update.Attendance ", logfile,
                 " was not found"))
-  }
-  #Create user friendly names
-  names(dat) <- gsub("Minutes", "min", #less to type
-                     gsub("Hours", "hr",   #Ditto
-                          gsub("[()]", "",     #Parentheses are weird sometimes
-                               gsub(" ","_",names(dat))))) #Spaces make $ difficult
-  if(!file.exists(fileLoc)) {
-    stop(paste0("While running Update.Attendance ", fileLoc, 
-                " was not found."))
-  } #else implied by stop()
-  
-  if(grepl("xlsx$", fileLoc)) {
-    newdat <- read_xlsx(fileLoc)
-  } else if (grepl("csv$", fileLoc)) {
-    newdat <- read.csv(fileLoc)
-  } else {
-    stop(paste0("While running Update.Attendance ", fileLoc, 
-                "was not able to be read."))
+  }else{
+    logdat <- read.csv(logfile)
   }
   
-  ###
-  ### NOT FINISHED
-  ### NOT FINISHED
-  ### NOT FINISHED
-  ###
+    #Mutate to tidy
+    dat <- mutate(dat,
+                  date = as.Date(Attendance_Date,
+                                 format = "%m/%d/%y"),
+                  accountID = Account_Id,
+                  name = paste(First_Name,Last_Name),
+                  startTime = strptime(Arrival_Time, "%I:%M %p"),
+                  endTime = strptime(Departure_Time, "%I:%M %p"),
+                  totalVisits = Total_Visits,
+                  membershipType = as.factor(Membership_Type),
+                  sessionsPerMonth = as.factor(Sessions_Per_Month),
+                  sessionsRemaining = Sessions_Remaining,
+                  delivery = as.factor(Delivery))
+    
+    dat <- mutate(dat,
+                  line = paste(accountID,date,name, 
+                               sep = ";"))
+    
+    dat <- select(dat, date:delivery, line)
+  
+  
+  newdat <- dat[!(dat$line %in% logdat$line),]
+  
+  #Check for and notify if no new data is found
+  if(dim(newdat)[1]==0){
+    print(paste0(
+      "Update.Attendance(get = ", get, ", date = ", date,
+      ") \nfound no new attendance when updating."))
+  } 
+  
+  else {
+    logdat <- rbind(logdat,newdat)
+  }
+  
+  
+  #Save to File
+  write.csv(logdat,logfile, row.names=FALSE)
+  
+  if(get){
+    return(read.csv(logfile))
+  }
+  
+  ### Old code to check for two types of files. Could be useful to 
+  ### convert stored data from xlsx to csv for better longterm storage.
+  # if(grepl("xlsx$", fileLoc)) {
+  #   newdat <- read_xlsx(fileLoc)
+  # } else if (grepl("csv$", fileLoc)) {
+  #   newdat <- read.csv(fileLoc)
+  # } else {
+  #   stop(paste0("While running Update.Attendance ", fileLoc, 
+  #               "was not able to be read."))
+  # }
   
   
 }#eof
@@ -296,9 +333,9 @@ moveDataDownloads <- function(fileNames) {
   filePaths <- paste0(downloadPath, fileNames)
   
   if(!grepl("Overview$", getwd())) {
-    stop("while trying to moveDataDownloads,\n",
+    stop(paste0("while trying to moveDataDownloads,\n",
          getwd(), "\nis the working directory but does not\n",
-         "end with \"Overview\"")
+         "end with \"Overview\""))
   }
   
   fileDests <- paste0(getwd(), "/Raw_Data/", fileNames)
