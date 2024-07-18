@@ -266,19 +266,11 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   dat <- Update.Init("Student Attendance Report Export  ")
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
-  
-<<<<<<< HEAD
-  
-  
-  
-  
-  if(!file.exists(logfile)){
-=======
+
   if(!file.exists(logfile)) {
->>>>>>> 7a758f9 (Edit moveDataDownloads)
     stop(paste0("While running Update.Attendance ", logfile,
                 " was not found"))
-  }else{
+  } else {
     logdat <- read.csv(logfile)
   }
   
