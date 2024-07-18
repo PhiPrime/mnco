@@ -253,6 +253,12 @@ Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
   
 }#eof
 
+getHistoricAttendance <- function(){
+  return(readRDS(file.path(paste0(getwd(),
+                                   "/Cache"), "prior2024.rds")))
+}
+
+
 ### Update.Attendance
 Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
@@ -302,7 +308,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   } 
   
   else {
-    logdat <- rbind(logdat,newdat)
+    # write.csv()
   }
   
   
