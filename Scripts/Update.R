@@ -117,7 +117,7 @@ Update.Students <- function(get = FALSE, date = Sys.Date()){
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
-                                               format = "%m/%d/%y"))
+                                               format = "%m/%d/%Y"))
   #"failed to parse" warning gets thrown
   
   students <- filter(dat, Enrollment_Status == "Enrolled")
