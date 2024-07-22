@@ -81,7 +81,10 @@ mergeWithFill <- function(df1, df2, .by) {
 Update.Init <- function(fileRoot, date = Sys.Date()) {
   #set file name
   fileName <- paste0(fileRoot, 
-                     paste(month(date), day(date), year(date), sep = "_"), 
+                     paste(lubridate::month(date), 
+                           lubridate::day(date), 
+                           lubridate::year(date), 
+                           sep = "_"), 
                      ".xlsx")
   filePath <- file.path(getwd(), "Raw_Data", fileName)
   
@@ -106,7 +109,9 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
   return(
     file.path(paste0(getwd(),"/Raw_Data"), 
               paste0(fileName, 
-                     paste(month(date), day(date), year(date), sep = "_"), 
+                     paste(lubridate::month(date), 
+                           lubridate::day(date), 
+                           lubridate::year(date), sep = "_"), 
                      ".xlsx")))
 }
 

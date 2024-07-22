@@ -34,7 +34,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
                          c("Student", "Skills_Currently_Assigned", "Pest", 
                            "Skills_Mastered", "Attendances")))),
   durationDays = 2){
-  # 
+  ### 
   # Add readline() commands and a while loop to make friendly UI to quickly
   # suppress students
   
@@ -42,7 +42,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
   maxTime <- 30
   
   if(durationDays > maxTime){ durationDays <- maxTime}
-  expDate <- Sys.Date()+days(durationDays)
+  expDate <- Sys.Date()+lubridate::days(durationDays)
   correctNames <- c("Student", "Skills_Currently_Assigned", "Pest", 
                     "Skills_Mastered", "Attendances")
   
@@ -55,7 +55,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
   
   
   #Add columns for both created & expiration date
-  studentRows <- mutate(studentRows, creation = today(),
+  studentRows <- mutate(studentRows, creation = Sys.Date(),
                         expDate = expDate)
   if(dim(getSuppressedStudents())[1]==0){
     dat <- studentRows
@@ -71,13 +71,13 @@ suppressDeckWarning <- function(studentRows = data.frame(
 
 ### getSuppressedStudents
 getSuppressedStudents <- function(){
-  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".csv")
+  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   if(!file.exists(fileLoc)){
     #Run null constructor
     setSuppressedStudents()
   }
   
-  ret <- read.csv(fileLoc)
+  ret <- readRDS(fileLoc)
   #Update before returning
   setSuppressedStudents(ret)
   return(ret)
@@ -92,7 +92,7 @@ setSuppressedStudents <- function(dat = data.frame(
   #Check for expired stints
   dat <- dat[which((today()<dat$expDate)),]
   
-  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".csv")
+  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   if(dim(dat)[1]==0){
     
     #Prompt file is about to be empty and check to continue
@@ -101,8 +101,7 @@ setSuppressedStudents <- function(dat = data.frame(
     if(grepl("[Nn]", ans)){ stop() }
   }
   
-  
-  write.csv(dat, fileLoc, row.names = FALSE)
+  saveRDS(dat, fileLoc)
 }
 
 ### removeDeckSuppression
@@ -116,7 +115,7 @@ removeDeckSuppression <- function(studentRows = data.frame(
   correctNames <- c("Student", "Skills_Currently_Assigned", "Pest", 
                     "Skills_Mastered", "Attendances", 
                     "creation", "expDate")
-  fileLoc <- paste0(getwd(), "suppressedStudents", ".csv")
+  fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   
   #Check for correct format
   if (any(names(studentRows) != correctNames)){
