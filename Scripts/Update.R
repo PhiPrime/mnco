@@ -184,23 +184,6 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
     dat <- Update.Init(fileRoot)
   }
   
-  # Add column for session duration
-  differentDurationStudents <- read.csv("Cache/differentDurationStudents.csv")
-  dat <- merge(dat, differentDurationStudents, all.x = T)
-  dat$Duration <- coalesce(dat$Duration, 60)
-  
-  tdat <- dat[which(!dat$Attendances<5 & !dat$Skills_Mastered<2),]
-  
-  tdat <- mutate(tdat, Scaled_Attendances = Attendances * Duration/60) # keep as column?
-  tdat <- mutate(tdat, Pest = Skills_Mastered/Scaled_Attendances)
-  tdat <- mutate(tdat, 
-                 UB = round(Pest-qnorm((1-95/100)/2)*
-                              sd(tdat$Pest)/sqrt(Scaled_Attendances),5),
-                 LB = round(Pest+qnorm((1-95/100)/2)*
-                              sd(tdat$Pest)/sqrt(Scaled_Attendances),5))
-  tdat <- mutate(tdat, fontsize = round(32*LB/max(tdat$LB), 1))
-  tdat <- tdat[order(tdat$LB, decreasing = TRUE),]
-  tdat <- mutate(tdat, Rank = dim(tdat)[1] +1 - rank(LB, ties.method = "max"))
   
   #merge qualifying students from tdat back into dat
   ###
@@ -209,12 +192,75 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
   if(get) {
     return(dat)
   } else {
+    tdat <- getStudentRanking()
     assign("studentProgress",dat,envir = .GlobalEnv)
     assign("selectStudentProgress", tdat, envir = .GlobalEnv)
     assign("studentRanking", select(tdat, 
                                     Rank, Student, fontsize, UB, Pest, LB, 
                                     Skills_Mastered, Attendances), envir = .GlobalEnv)
   }
+}#eof
+
+getStudentRanking <- function(){
+  dat <- Update.Progress(TRUE)
+  
+  #Merge in delivery record from Enrollments
+  deliveryKey <- mutate(Update.Enrollments(TRUE), 
+                        Student = paste(Student_First_Name, 
+                                        Student_Last_Name),
+                        Delivery = as.factor(Delivery),
+                        Monthly_Sessions = as.numeric(Total_Sessions)) %>%
+    select(Student, Delivery, Monthly_Sessions)
+  
+  dat <- merge(dat,deliveryKey)
+  
+  #Sort and select desired data
+  # Add column for session duration
+  differentDurationStudents <- read.csv("Cache/differentDurationStudents.csv")
+  dat <- merge(dat, differentDurationStudents, all.x = T)
+  dat$Duration <- coalesce(dat$Duration, 60)
+  dat <- mutate(dat, Attendances = Attendances * Duration/60)
+  
+  #Subset valid contestants
+  dat <- dat[which(dat$Attendances >= dat$Monthly_Sessions/2 & 
+                     dat$Skills_Mastered>2 & 
+                     dat$Delivery == "In-Center"),]
+  
+  #Create statistics for based on CI
+  CI <- 95
+  outlierThreshold <- 4
+  roundingDig <- 4
+  dat <- mutate(dat, Pest = Skills_Mastered/Attendances)
+  
+  #Outlier test
+  dat <- mutate(dat, 
+                zscore = (mean(dat$Pest)-Pest)/
+                  (sd(dat$Pest)/sqrt(Attendances)))
+  #Get sd without outliers
+  samdev <- sd(dat$Pest[dat$zscore<outlierThreshold])
+  dat <- mutate(dat, 
+                UB = round(Pest-qnorm((1-CI/100)/2)*
+                             samdev/sqrt(Attendances),roundingDig),
+                LB = round(Pest+qnorm((1-CI/100)/2)*
+                             samdev/sqrt(Attendances),roundingDig))
+  dat <- mutate(dat, fontsize = round(32*LB/max(dat$LB), 1))
+  dat <- dat[order(dat$LB, decreasing = TRUE),]
+  dat <- mutate(dat, Rank = dim(dat)[1] +1 - rank(LB, ties.method = "max"))
+  
+  
+  dat <- mutate(dat, rankSuffix = ifelse(grepl("[2-9]?1$", 
+                                               as.character(Rank)), "st",
+                                         ifelse(grepl("[2-9]?2$",
+                                                      as.character(Rank)), "nd",
+                                                ifelse(grepl("[2-9]?3$",
+                                                             as.character(Rank)),
+                                                       "rd","th")))) %>%
+    mutate(rankDisplay = paste0(Rank, rankSuffix))
+  
+  #Select reasonable data
+  # dat <- select(dat, )
+  
+  return(dat)
 }#eof
 
 ### Update.Payments
