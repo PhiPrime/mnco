@@ -331,9 +331,10 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
 }#eof
 
 moveDataDownloads <- function(fileNames, ignoreMissing = F) {
-  userPath <- regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", getwd(), perl = T))
+  userPath <- regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
+                                          getwd(), perl = T))
   downloadPath <- file.path(userPath, "Downloads")
-  filePaths <- paste0(downloadPath, fileNames)
+  filePaths <- file.path(downloadPath, fileNames)
   
   if (!file.exists(downloadPath)) stop("Downloads folder not found at: ", downloadPath)
   
