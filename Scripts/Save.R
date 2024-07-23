@@ -5,15 +5,15 @@ Save.All <- function(silent = FALSE) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
   
-  progress <- mutate(Update.All(get=TRUE), Date = Sys.Date())
+  history <- mutate(Update.All(get=TRUE), Date = Sys.Date())
   #Need some gsubs to change [ or ] to .
-  names(progress) <- gsub("[][ ]", ".", names(progress))
+  names(history) <- gsub("[][ ]", ".", names(history))
   
   if(file.exists(filePath)) {
     dat <- readRDS(filePath)
-    dat <- rbind(dat[dat$Date != Sys.Date(),], progress)
+    dat <- rbind(dat[dat$Date != Sys.Date(),], history)
   } else {
-    dat <- progress
+    dat <- history
   }
   
   saveRDS(dat, filePath)
