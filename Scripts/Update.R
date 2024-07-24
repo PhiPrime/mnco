@@ -6,14 +6,14 @@ library(readxl)
 #### Update functions:
 
 ### Update.All
-Update.All <- function(get = FALSE){
+Update.All <- function(get = FALSE, date = Sys.Date()) {
   # Read excel files
-  students <- Update.Students(TRUE)
-  accounts <- Update.Accounts(TRUE)
-  progress <- Update.Progress(TRUE)
+  students <- Update.Students(TRUE, date)
+  accounts <- Update.Accounts(TRUE, date)
+  progress <- Update.Progress(TRUE, date)
+  enrollments <- Update.Enrollments(TRUE, date)
   #payments <- Update.Payments(TRUE)
   #payments <- mutate(payments, Account = Account_Name)
-  enrollments <- Update.Enrollments(TRUE)
   
   # Prepare students to merge
   students <- mutate(students, Student = paste(First_Name, Last_Name), .before = Student_Id)
@@ -27,8 +27,8 @@ Update.All <- function(get = FALSE){
   # Merge into one data frame
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
-  #all <- merge(all, payments, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
+  #all <- merge(all, payments, all.x = TRUE)
   
   if(get) {
     # Return data frame as getter
@@ -77,8 +77,8 @@ mergeWithFill <- function(df1, df2, .by) {
   return(df)
 }
 
-## Update.Init
-Update.Init <- function(fileRoot, date = Sys.Date()) {
+### Update.Init
+Update.Init <- function(fileRoot, date) {
   #set file name
   fileName <- paste0(fileRoot, 
                      paste(lubridate::month(date), 
@@ -114,7 +114,7 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 ### Update.Students
 Update.Students <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
-  dat <- Update.Init("Students Export  ")
+  dat <- Update.Init("Students Export  ", date)
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
@@ -135,7 +135,7 @@ Update.Students <- function(get = FALSE, date = Sys.Date()){
 ### Update.Accounts
 Update.Accounts <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
-  dat <- Update.Init("Account Export  ")
+  dat <- Update.Init("Account Export  ", date)
   
   accounts <- filter(dat, Enrollment_Status == "Active")
   inactive <- filter(dat, Enrollment_Status == "Inactive")
@@ -160,7 +160,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
     if(!file.exists(filePath)){
       #Check for "bootstrap" files
       fileRoot2 <- "Student Report  "
-      dat <- Update.Init(fileRoot2)
+      dat <- Update.Init(fileRoot2, date)
         
       cat("Notice: ", as.dataFilePath(fileRoot2), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
@@ -181,7 +181,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
     }#filePath should exist
   
   if(file.exists(filePath)) {
-    dat <- Update.Init(fileRoot)
+    dat <- Update.Init(fileRoot, date)
   }
   
   
@@ -192,7 +192,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
   if(get) {
     return(dat)
   } else {
-    tdat <- getStudentRanking()
+    tdat <- getStudentRanking(date)
     assign("studentProgress",dat,envir = .GlobalEnv)
     assign("selectStudentProgress", tdat, envir = .GlobalEnv)
     assign("studentRanking", select(tdat, 
@@ -201,11 +201,11 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
   }
 }#eof
 
-getStudentRanking <- function(){
-  dat <- Update.Progress(TRUE)
+getStudentRanking <- function(date = Sys.Date()){
+  dat <- Update.Progress(TRUE, date)
   
   #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(Update.Enrollments(TRUE), 
+  deliveryKey <- mutate(Update.Enrollments(TRUE, date), 
                         Student = paste(Student_First_Name, 
                                         Student_Last_Name),
                         Delivery = as.factor(Delivery),
@@ -263,22 +263,10 @@ getStudentRanking <- function(){
   return(dat)
 }#eof
 
-### Update.Payments
-Update.Payments <- function(get = FALSE, date = Sys.Date()){
-  #Update Initialize
-  dat <- Update.Init("Payments.xlsx  ")
-  
-  if(get) {
-    return(dat)
-  } else {
-    assign("payments", dat,envir = .GlobalEnv)
-  }
-}
-
 ### Update.Enrollments
 Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
-  dat <- Update.Init("Enrolled Report  ")
+  dat <- Update.Init("Enrolled Report  ", date)
   
   if (get) {
     return(dat)
@@ -287,10 +275,22 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
   }
 }#eof
 
+### Update.Payments
+Update.Payments <- function(get = FALSE, date = Sys.Date()){
+  #Update Initialize
+  dat <- Update.Init("Payments.xlsx  ", date)
+  
+  if(get) {
+    return(dat)
+  } else {
+    assign("payments", dat,envir = .GlobalEnv)
+  }
+}
+
 ### Update.Curriculum
 Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
-  dat <- Update.Init("Curriculum Library Export  ")
+  dat <- Update.Init("Curriculum Library Export  ", date)
   
   if(get) {
     return(dat)
@@ -305,11 +305,10 @@ getHistoricAttendance <- function(){
                                    "/Cache"), "prior2024.rds")))
 }
 
-
 ### Update.Attendance
 Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
-  dat <- Update.Init("Student Attendance Report Export  ")
+  dat <- Update.Init("Student Attendance Report Export  ", date)
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
