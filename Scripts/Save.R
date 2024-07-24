@@ -1,13 +1,15 @@
 #### Save functions:
 
 ### Save.All
-# NEED TO PASS IGNORE MISSING ARGUMENT INTO UPDATE FUNCTIONS
+# NEED TO PASS ignoreMissing ARGUMENT INTO UPDATE FUNCTIONS
 Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
   date <- startDate
   
+  # 
+  
   while (date <= endDate) {
     # TEST THIS SAVE
-    Save.History(date, ignoreMissing = date != Sys.Date(), 
+    Save.History(date, ignoreMissing = (date != Sys.Date()), 
                  silent = T)
     date <- date + days(1)
   }
@@ -32,6 +34,7 @@ Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
     dat <- readRDS(filePath)
     dat <- rbind(dat[dat$Date != Sys.Date(),], history)
   } else {
+    # ADD SILENT CHECK HERE?
     cat("Notice: ", filePath, " does not exist.", 
         "\n\tCreating ", fileName, "...", sep="")
     dat <- history
