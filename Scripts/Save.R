@@ -1,8 +1,16 @@
 #### Save functions:
 
 ### Save.All
-Save.All <- function(silent = FALSE) {
-
+# NEED TO PASS IGNORE MISSING ARGUMENT INTO UPDATE FUNCTIONS
+Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
+  date <- startDate
+  
+  while (date <= endDate) {
+    Save.History(date, date != Sys.Date(), TRUE)
+    date <- date + days(1)
+  }
+  
+  # PRINT SUCCESS MESSAGE
 }
 
 ### Save.History
