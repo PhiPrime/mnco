@@ -2,12 +2,19 @@
 
 ### Save.All
 Save.All <- function(silent = FALSE) {
+
+}
+
+### Save.History
+# Appends the output of Update.All() to centerHistory.rds
+Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
   
-  history <- mutate(Update.All(get=TRUE), Date = Sys.Date())
-  #Need some gsubs to change [ or ] to .
-  names(history) <- gsub("[][ ]", ".", names(history))
+  history <- mutate(Update.All(get=TRUE), Date_Saved = Sys.Date(), .before = "Account_Id")
+  
+  # Remove [ and ] from column names
+  names(history) <- gsub("[][]", "", names(history))
   
   if(file.exists(filePath)) {
     dat <- readRDS(filePath)
@@ -19,9 +26,4 @@ Save.All <- function(silent = FALSE) {
   saveRDS(dat, filePath)
   
   if(!silent) print("Student data saved!")
-}
-
-### Save.Backlog
-Save.Backlog <- function(silent = FALSE) {
-  
 }
