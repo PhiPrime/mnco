@@ -90,7 +90,7 @@ Update.Init <- function(fileRoot, date = Sys.Date()) {
   
   fileMoved <- moveDataDownloads(fileName, ignoreMissing = T)
   if (!fileMoved && !file.exists(filePath)) {
-    stop(fileName, " not found in Raw_Data/ or Downloads/")
+    stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
   }
   
   #Implied else, file must exists
@@ -162,8 +162,8 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
       fileRoot2 <- "Student Report  "
       dat <- Update.Init(fileRoot2)
         
-      print(paste0("Notice: ", as.dataFilePath(fileRoot2), 
-                   " is being used instead of ", filePath))
+      cat("Notice: ", as.dataFilePath(fileRoot2), 
+                   "\n\t\tis being used instead of\n\t", filePath, sep="")
       dat <- mutate(dat,
              Student = dat$Student_Name,
              Guardian = dat$Guardians,
@@ -314,8 +314,8 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
   if(!file.exists(logfile)) {
-    stop("While running Update.Attendance ", logfile,
-                " was not found")
+    stop("While running Update.Attendance(), \"", logfile,
+                "\" was not found.")
   } else {
     logdat <- read.csv(logfile)
   }
@@ -345,9 +345,8 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   
   #Check for and notify if no new data is found
   if(dim(newdat)[1]==0){
-    print(paste0(
-      "Update.Attendance(get = ", get, ", date = ", date,
-      ") \nfound no new attendance when updating."))
+    cat("Notice: Update.Attendance(get = ", get, ", date = ", as.character(date),
+      ") found no new attendance when updating.", sep = "")
   } 
   
   else {
@@ -382,10 +381,10 @@ moveDataDownloads <- function(fileNames, ignoreMissing = F) {
   downloadPath <- file.path(userPath, "Downloads")
   filePaths <- file.path(downloadPath, fileNames)
   
-  if (!file.exists(downloadPath)) stop("Downloads folder not found at: ", downloadPath)
+  if (!file.exists(downloadPath)) stop("Downloads folder not found at \"", downloadPath, "\"")
   
   if(!grepl("Overview$", getwd())) {
-    stop("While trying to moveDataDownloads,\n\t\"",
+    stop("While trying to moveDataDownloads, \"",
          getwd(),
          "\"\n\tis the working directory but does not end with \"Overview\"")
   }
@@ -396,11 +395,11 @@ moveDataDownloads <- function(fileNames, ignoreMissing = F) {
   for(i in 1:length(filePaths)) {
     if (file.exists(filePaths[i])) {
       file.rename(filePaths[i], fileDests[i])
-      print(paste0(filePaths[i], "\n-- moved to -->\n", fileDests[i]))
+      cat("Notice: ", filePaths[i], "\n\t\t-- moved to -->\n\t", fileDests[i], sep="")
       fileMoved <- T
     } else if (!ignoreMissing) {
-      print(paste0("Notice: the file ", filePaths[i],
-                   " could not be found."))
+      cat("Notice: The file \"", filePaths[i],
+                   "\" could not be found.", sep="")
     }
   }
   
