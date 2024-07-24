@@ -90,7 +90,7 @@ Update.Init <- function(fileRoot, date = Sys.Date()) {
   
   fileMoved <- moveDataDownloads(fileName, ignoreMissing = T)
   if (!fileMoved && !file.exists(filePath)) {
-    stop(paste0(fileName, " not found in Raw_Data/ or Downloads/"))
+    stop(fileName, " not found in Raw_Data/ or Downloads/")
   }
   
   #Implied else, file must exists
@@ -314,8 +314,8 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
   if(!file.exists(logfile)) {
-    stop(paste0("While running Update.Attendance ", logfile,
-                " was not found"))
+    stop("While running Update.Attendance ", logfile,
+                " was not found")
   } else {
     logdat <- read.csv(logfile)
   }
@@ -385,9 +385,9 @@ moveDataDownloads <- function(fileNames, ignoreMissing = F) {
   if (!file.exists(downloadPath)) stop("Downloads folder not found at: ", downloadPath)
   
   if(!grepl("Overview$", getwd())) {
-    stop(paste0("while trying to moveDataDownloads,\n",
-         getwd(), "\nis the working directory but does not\n",
-         "end with \"Overview\""))
+    stop("While trying to moveDataDownloads,\n\t\"",
+         getwd(),
+         "\"\n\tis the working directory but does not end with \"Overview\"")
   }
   
   fileDests <- file.path(getwd(), "Raw_Data", fileNames)
