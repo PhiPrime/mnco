@@ -6,7 +6,9 @@ Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
   date <- startDate
   
   while (date <= endDate) {
-    Save.History(date, date != Sys.Date(), TRUE)
+    # TEST THIS SAVE
+    Save.History(date, ignoreMissing = date != Sys.Date(), 
+                 silent = T)
     date <- date + days(1)
   }
   
@@ -15,7 +17,6 @@ Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
 
 ### Save.History
 # Appends the output of Update.All() to centerHistory.rds
-# ADD MESSAGE FOR APPEND VS CREATE FILE
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL SAVE.ALL() - USE ALL.EQUAL?
 Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   fileName <- "Cache/centerHistory.rds"
@@ -31,10 +32,12 @@ Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
     dat <- readRDS(filePath)
     dat <- rbind(dat[dat$Date != Sys.Date(),], history)
   } else {
+    cat("Notice: ", filePath, " does not exist.", 
+        "\n\tCreating ", fileName, "...", sep="")
     dat <- history
   }
   
   saveRDS(dat, filePath)
   
-  if(!silent) cat("Notice: Center history saved for ", as.character(date), "!", sep="")
+  if(!silent) cat("Success: Center history saved for ", as.character(date), "!", sep="")
 }
