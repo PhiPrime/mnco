@@ -396,9 +396,6 @@ moveDataDownloads <- function(fileNames) {
       file.rename(filePaths[i], fileDests[i])
       cat("Notice: ", filePaths[i], "\n\t\t-- moved to -->\n\t", fileDests[i], sep="")
       fileMoved <- T
-    } else if (!ignoreMissing) {
-      cat("Notice: The file \"", filePaths[i],
-                   "\" could not be found.", sep="")
     }
   }
   
