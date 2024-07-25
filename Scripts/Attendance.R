@@ -61,25 +61,36 @@ sendOnVacation <- function(who,
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
     #Then try some formats
-    returnDate <- mdy(returnDate)
-    
-    ## I am not familiar with R's tryCatch function. It seemed to be throwing
-    ## errors from addThisYear(returnDate) even when mdy(returnDate) 
-    ## successfully executed.
-    
-    #addThisYear <- function(old) {mdy(paste(old, lubridate::year(Sys.Date())))}
-    # returnDate <- tryCatch(
-    #   expr = mdy(returnDate), 
-    #   error = addThisYear(returnDate),
-    #   warning = addThisYear(returnDate))
+    addThisYear <- function(old) {mdy(paste(old, lubridate::year(Sys.Date())))}
+    returnDate <- tryCatch(
+      expr = mdy(returnDate),
+      error = function(e) {
+        addThisYear(returnDate)
+      },
+      warning = function(w) {
+        addThisYear(returnDate)
+      }
+    )
   }
   
-  #Make function user friendly by regexing for name
-  names <- with(Update.Students(TRUE), paste(First_Name, Last_Name))
-  who <-  names[grepl(who, names, ignore.case = TRUE)]
+  #Store current Student file for efficiency 
+  stus <- mutate(Update.Students(TRUE), 
+                 Student = paste(First_Name, Last_Name))
   
+  #Make function user friendly by regexing for name
+  names <- stus$Student
+  
+  #Create data.frame to allow for sending multiple `who`s at the same time
+  tmp <- data.frame(matrix(ncol = 1, nrow = 0, dimnames = list(NULL, "name")))
+  for(i in who){
+    tmp <- rbind(tmp,names[grepl(i, names, ignore.case = TRUE)])
+  }
+  
+  who <- tmp[,1]
+  stus <- filter(stus, Student%in%who)
   #Create data frame to store
   toStore <- data.frame(Student = who,
+                        Last_Attendance = stus$Last_Attendance_Date,
                         returnDate = returnDate)
   
   if(dim(getStudentsOnVacation())[1]==0){

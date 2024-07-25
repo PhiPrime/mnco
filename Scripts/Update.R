@@ -88,14 +88,57 @@ mergeWithFill <- function(df1, df2, .by) {
 }
 
 ### Update.Init
-Update.Init <- function(fileRoot, date, ignoreMissing = F) {
-  #set file name
+Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
   fileName <- paste0(fileRoot, 
                      paste(month(date), day(date), year(date), sep = "_"), 
                      ".xlsx")
-  filePath <- file.path(getwd(), "Raw_Data", fileName)
+  #If regex find a match with fileRoot in either folder
+  if(regExFile) {
+    #Compare first to rawFiles,
+    rawFiles <- list.files(file.path(getwd(), "Raw_Data"))
+    fileOptions <- rawFiles[grepl(fileRoot, rawFiles)]
+    
+    if(length(fileOptions)==1){
+      #If only one is found assign it
+      filePath <- fileOptions
+    }else if(length(fileOptions)>1){ 
+      #If more than 1, error
+      stop(paste0("\"",fileRoot, "\" matched with the following files...", 
+                  paste("",fileOptions, sep = "\"\n\"", collapse = ""),
+                  "\"\n...and does not know how to proceed, ",
+                  "be more specific and try again."))
+    } else if (length(fileOptions)==0){
+      #If not found compare to downloads folder
+      downloadPath <- file.path(regmatches(getwd(), 
+                                           regexpr("^.*?[/].*?[/].*?(?=/)",
+                                                   getwd(), perl = T)), 
+                                "Downloads")
+      downloadFiles <- list.files(downloadPath)
+      fileOptions <- downloadFiles[grepl(fileRoot, downloadFiles)]
+      
+      
+      if(length(fileOptions)==1){
+        #If only one is found assign it
+        filePath <- fileOptions
+      }else if(length(fileOptions)>1){
+        #If more than 1 match, error
+        stop(paste0("\"",fileRoot, "\" matched with the following files...", 
+                    paste("",fileOptions, sep = "\"\n\"", collapse = ""),
+                    "\"\n...and does not know how to proceed, ",
+                    "be more specific and try again."))
+      } else if (length(fileOptions)==0){
+        #If no matches stop and error
+        stop(paste0("After searching both \"./Raw_Data\",",
+        "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
+        " Please try again."))
+    }
+  }
+    dat <- read_excel(filePath, .name_repair = "unique_quiet")
+    }else{ #It is not regex and filePath should be set or moved 
+    filePath <- file.path(getwd(), "Raw_Data", fileName)
   
   fileMoved <- moveDataDownloads(fileName)
+  
   if (!fileMoved && !file.exists(filePath)) {
     if (!ignoreMissing) {
       stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
@@ -107,6 +150,7 @@ Update.Init <- function(fileRoot, date, ignoreMissing = F) {
     }
   } else {
     dat <- read_excel(filePath, .name_repair = "unique_quiet")
+  }
   }
   
   names(dat) <- gsub(" ", "_", names(dat))
@@ -388,10 +432,33 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   
 }#eof
 
+getAssessments <- function(updateGlobal = FALSE, 
+                           date = Sys.Date(), ignoreMissing = F){
+  #Update Initialize
+  dat <- Update.Init("Students Export  ", date, ignoreMissing, regExFile = TRUE)
+  
+  dat <- mutate(dat, 
+                Last_Attendance_Date = as.Date(Last_Attendance_Date, 
+                                               format = "%m/%d/%Y"))
+  #"failed to parse" warning gets thrown
+  
+  students <- filter(dat, Enrollment_Status == "Enrolled")
+  inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
+  
+  if(get){
+    return(dat)
+  } else {
+    assign("students",students,envir = .GlobalEnv)
+    assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
+  }
+}#eof
+
+
+
+
 moveDataDownloads <- function(fileNames) {
-  userPath <- regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
-                                          getwd(), perl = T))
-  downloadPath <- file.path(userPath, "Downloads")
+  downloadPath <- file.path(regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
+                                          getwd(), perl = T)), "Downloads")
   filePaths <- file.path(downloadPath, fileNames)
   
   if (!file.exists(downloadPath)) stop("Downloads folder not found at \"", downloadPath, "\"")
