@@ -81,22 +81,25 @@ mergeWithFill <- function(df1, df2, .by) {
 Update.Init <- function(fileRoot, date, ignoreMissing = F) {
   #set file name
   fileName <- paste0(fileRoot, 
-                     paste(lubridate::month(date), 
-                           lubridate::day(date), 
-                           lubridate::year(date), 
-                           sep = "_"), 
+                     paste(month(date), day(date), year(date), sep = "_"), 
                      ".xlsx")
   filePath <- file.path(getwd(), "Raw_Data", fileName)
   
   fileMoved <- moveDataDownloads(fileName)
   if (!fileMoved && !file.exists(filePath)) {
-    stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+    if (!ignoreMissing) {
+      stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+    } else {
+      emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
+      emptyFilePath <- file.path(getwd(), "Raw_Empty", emptyFileName)
+      
+      dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
+    }
+  } else {
+    dat <- read_excel(filePath, .name_repair = "unique_quiet")
   }
   
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
   names(dat) <- gsub(" ", "_", names(dat))
-  
   return(dat)
 }#eof
 
@@ -114,7 +117,7 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 ### Update.Students
 Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
-  dat <- Update.Init("Students Export  ", date)
+  dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
@@ -135,7 +138,7 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
 ### Update.Accounts
 Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
-  dat <- Update.Init("Account Export  ", date)
+  dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
   accounts <- filter(dat, Enrollment_Status == "Active")
   inactive <- filter(dat, Enrollment_Status == "Inactive")
@@ -154,13 +157,14 @@ Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   fileRoot <- "Current Batch Detail Export  "
   filePath <- as.dataFilePath(fileRoot)
   
+  # NEED TO REORGANIZE THIS SOMEHOW
   if(!file.exists(filePath)){
     #Try to move from downloads
     moveDataDownloads(gsub(".*/", "", filePath))
     if(!file.exists(filePath)){
       #Check for "bootstrap" files
       fileRoot2 <- "Student Report  "
-      dat <- Update.Init(fileRoot2, date)
+      dat <- Update.Init(fileRoot2, date, ignoreMissing)
         
       cat("Notice: ", as.dataFilePath(fileRoot2), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
@@ -181,7 +185,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
     }#filePath should exist
   
   if(file.exists(filePath)) {
-    dat <- Update.Init(fileRoot, date)
+    dat <- Update.Init(fileRoot, date, ignoreMissing)
   }
   
   
@@ -266,7 +270,7 @@ getStudentRanking <- function(date = Sys.Date()){
 ### Update.Enrollments
 Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
-  dat <- Update.Init("Enrolled Report  ", date)
+  dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
   
   if (get) {
     return(dat)
