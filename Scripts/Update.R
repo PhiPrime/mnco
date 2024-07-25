@@ -288,7 +288,7 @@ Update.Payments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
 }
 
 ### Update.Curriculum
-Update.Curriculum <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
+Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
   dat <- Update.Init("Curriculum Library Export  ", date)
   
@@ -306,7 +306,7 @@ getHistoricAttendance <- function(){
 }
 
 ### Update.Attendance
-Update.Attendance <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
+Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
   dat <- Update.Init("Student Attendance Report Export  ", date)
   
@@ -374,7 +374,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F)
   
 }#eof
 
-moveDataDownloads <- function(fileNames, ignoreMissing = F) {
+moveDataDownloads <- function(fileNames) {
   userPath <- regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
                                           getwd(), perl = T))
   downloadPath <- file.path(userPath, "Downloads")
