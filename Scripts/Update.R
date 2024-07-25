@@ -6,13 +6,13 @@ library(readxl)
 #### Update functions:
 
 ### Update.All
-Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
+Update.All <- function(get = FALSE, date = Sys.Date()) {
   # Read excel files
-  students <- Update.Students(TRUE, date, ignoreMissing)
-  accounts <- Update.Accounts(TRUE, date, ignoreMissing)
-  progress <- Update.Progress(TRUE, date, ignoreMissing)
-  enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
-  #payments <- Update.Payments(TRUE, date, ignoreMissing)
+  students <- Update.Students(TRUE, date)
+  accounts <- Update.Accounts(TRUE, date)
+  progress <- Update.Progress(TRUE, date)
+  enrollments <- Update.Enrollments(TRUE, date)
+  #payments <- Update.Payments(TRUE)
   #payments <- mutate(payments, Account = Account_Name)
   
   # Prepare students to merge
@@ -78,7 +78,7 @@ mergeWithFill <- function(df1, df2, .by) {
 }
 
 ### Update.Init
-Update.Init <- function(fileRoot, date, ignoreMissing = F) {
+Update.Init <- function(fileRoot, date) {
   #set file name
   fileName <- paste0(fileRoot, 
                      paste(lubridate::month(date), 
@@ -88,7 +88,7 @@ Update.Init <- function(fileRoot, date, ignoreMissing = F) {
                      ".xlsx")
   filePath <- file.path(getwd(), "Raw_Data", fileName)
   
-  fileMoved <- moveDataDownloads(fileName, ignoreMissing = T)
+  fileMoved <- moveDataDownloads(fileName)
   if (!fileMoved && !file.exists(filePath)) {
     stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
   }
@@ -112,7 +112,7 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 }
 
 ### Update.Students
-Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
+Update.Students <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
   dat <- Update.Init("Students Export  ", date)
   
@@ -133,7 +133,7 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
 }#eof
 
 ### Update.Accounts
-Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
+Update.Accounts <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
   dat <- Update.Init("Account Export  ", date)
   
@@ -149,7 +149,7 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
 }#eof
 
 ### Update.Progress
-Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
+Update.Progress <- function(get = FALSE, date = Sys.Date()) {
   # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
   filePath <- as.dataFilePath(fileRoot)
@@ -264,7 +264,7 @@ getStudentRanking <- function(date = Sys.Date()){
 }#eof
 
 ### Update.Enrollments
-Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
+Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
   #Update Initialize
   dat <- Update.Init("Enrolled Report  ", date)
   
@@ -276,7 +276,7 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
 }#eof
 
 ### Update.Payments
-Update.Payments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
+Update.Payments <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
   dat <- Update.Init("Payments.xlsx  ", date)
   
@@ -396,9 +396,6 @@ moveDataDownloads <- function(fileNames) {
       file.rename(filePaths[i], fileDests[i])
       cat("Notice: ", filePaths[i], "\n\t\t-- moved to -->\n\t", fileDests[i], sep="")
       fileMoved <- T
-    } else if (!ignoreMissing) {
-      cat("Notice: The file \"", filePaths[i],
-                   "\" could not be found.", sep="")
     }
   }
   
