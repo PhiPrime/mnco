@@ -1,20 +1,40 @@
 #### Save functions:
 
 ### Save.All
-# NEED TO PASS ignoreMissing ARGUMENT INTO UPDATE FUNCTIONS
+# FIGURE OUT IF SHOULD SAVE DATES WITH MISSING FILES
 Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
+  fileName <- "Cache/centerHistory.rds"
+  filePath <- file.path(getwd(), fileName)
   date <- startDate
   
-  # 
+  # Delete centerHistory.rds
+  # ADD PROMPT?
+  cat("CAUTION: \"", filePath, "\" will now be deleted!\n", sep = "")
+  if (file.exists(filePath)) file.remove(filePath)
   
+  saveCount <- 0
+  failCount <- 0
+  
+  # VERY HACKY, PLEASE HANDLE PROPERLY LATER
   while (date <= endDate) {
-    # TEST THIS SAVE
-    Save.History(date, ignoreMissing = (date != Sys.Date()), 
-                 silent = T)
+    # TEST ignoreMissing = (date != Sys.Date())
+    
+    failed <- tryCatch(
+      Save.History(date, silent = T),
+      error = function(e) {
+        return(TRUE)
+      }
+    )
+    failed <- ifelse(is.null(failed), FALSE, failed)
+    
+    if (failed) failCount <- failCount + 1
+    if (!failed) saveCount <- saveCount + 1
     date <- date + days(1)
   }
   
   # PRINT SUCCESS MESSAGE
+  cat("SUCCESS: Center history saved for ", saveCount, " dates", sep="")
+  cat(", failed", failCount, "times\n")
 }
 
 ### Save.History
@@ -35,12 +55,12 @@ Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
     dat <- rbind(dat[dat$Date != Sys.Date(),], history)
   } else {
     # ADD SILENT CHECK HERE?
-    cat("Notice: ", filePath, " does not exist.", 
-        "\n\tCreating ", fileName, "...", sep="")
+    cat("NOTICE: ", filePath, " does not exist.", 
+        "\n\tCreating ", fileName, "...\n", sep="")
     dat <- history
   }
   
   saveRDS(dat, filePath)
   
-  if(!silent) cat("Success: Center history saved for ", as.character(date), "!", sep="")
+  if(!silent) cat("SUCCESS: Center history saved for ", as.character(date), "!\n", sep="")
 }
