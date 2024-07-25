@@ -58,17 +58,25 @@ mergeWithFill <- function(df1, df2, .by) {
   df <- merge(df1, df2, all.x = T, by = .by)
   
   # Iterate through common columns
-  for (col in intersect(names(df1), names(df2))) {
+  for (colName in intersect(names(df1), names(df2))) {
     # Skip iteration if column was used to match
-    if (col %in% .by) next
+    if (colName %in% .by) next
     
     # Suffixed column strings
-    col.x <- paste0(col, ".x")
-    col.y <- paste0(col, ".y")
+    colName.x <- paste0(colName, ".x")
+    colName.y <- paste0(colName, ".y")
+    
+    # Use NA if column is empty
+    # DOES NOT WORK ON EMPTY DATA FRAMES YET
+    # NEED TO PROPERLY MERGE DATA IN UPDATE.ALL() THEN FIND SOLUTION
+    #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
+    #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
+    col.x <- df[[colName.x]]
+    col.y <- df[[colName.y]]
     
     # Fill value for common column to col.x and rename to col
-    df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
-    names(df)[names(df) == col.x] <- col
+    df[[colName.x]] <- coalesce(col.x, col.y)
+    names(df)[names(df) == colName.x] <- colName
     # CHANGE TO THIS? MAYBE DOESN'T WORK
     #df <- rename(df, col = col.x)
     
