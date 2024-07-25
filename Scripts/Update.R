@@ -6,13 +6,13 @@ library(readxl)
 #### Update functions:
 
 ### Update.All
-Update.All <- function(get = FALSE, date = Sys.Date()) {
+Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
   # Read excel files
-  students <- Update.Students(TRUE, date)
-  accounts <- Update.Accounts(TRUE, date)
-  progress <- Update.Progress(TRUE, date)
-  enrollments <- Update.Enrollments(TRUE, date)
-  #payments <- Update.Payments(TRUE)
+  students <- Update.Students(TRUE, date, ignoreMissing)
+  accounts <- Update.Accounts(TRUE, date, ignoreMissing)
+  progress <- Update.Progress(TRUE, date, ignoreMissing)
+  enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
+  #payments <- Update.Payments(TRUE, date, ignoreMissing)
   #payments <- mutate(payments, Account = Account_Name)
   
   # Prepare students to merge
@@ -69,6 +69,8 @@ mergeWithFill <- function(df1, df2, .by) {
     # Fill value for common column to col.x and rename to col
     df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
     names(df)[names(df) == col.x] <- col
+    # CHANGE TO THIS? MAYBE DOESN'T WORK
+    #df <- rename(df, col = col.x)
     
     # Delete col.y
     df[[col.y]] <- NULL
@@ -78,25 +80,28 @@ mergeWithFill <- function(df1, df2, .by) {
 }
 
 ### Update.Init
-Update.Init <- function(fileRoot, date) {
+Update.Init <- function(fileRoot, date, ignoreMissing = F) {
   #set file name
   fileName <- paste0(fileRoot, 
-                     paste(lubridate::month(date), 
-                           lubridate::day(date), 
-                           lubridate::year(date), 
-                           sep = "_"), 
+                     paste(month(date), day(date), year(date), sep = "_"), 
                      ".xlsx")
   filePath <- file.path(getwd(), "Raw_Data", fileName)
   
-  fileMoved <- moveDataDownloads(fileName, ignoreMissing = T)
+  fileMoved <- moveDataDownloads(fileName)
   if (!fileMoved && !file.exists(filePath)) {
-    stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+    if (!ignoreMissing) {
+      stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+    } else {
+      emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
+      emptyFilePath <- file.path(getwd(), "Raw_Empty", emptyFileName)
+      
+      dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
+    }
+  } else {
+    dat <- read_excel(filePath, .name_repair = "unique_quiet")
   }
   
-  #Implied else, file must exists
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
   names(dat) <- gsub(" ", "_", names(dat))
-  
   return(dat)
 }#eof
 
@@ -112,9 +117,9 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 }
 
 ### Update.Students
-Update.Students <- function(get = FALSE, date = Sys.Date()){
+Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
-  dat <- Update.Init("Students Export  ", date)
+  dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
@@ -133,9 +138,9 @@ Update.Students <- function(get = FALSE, date = Sys.Date()){
 }#eof
 
 ### Update.Accounts
-Update.Accounts <- function(get = FALSE, date = Sys.Date()){
+Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
-  dat <- Update.Init("Account Export  ", date)
+  dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
   accounts <- filter(dat, Enrollment_Status == "Active")
   inactive <- filter(dat, Enrollment_Status == "Inactive")
@@ -149,18 +154,19 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date()){
 }#eof
 
 ### Update.Progress
-Update.Progress <- function(get = FALSE, date = Sys.Date()) {
+Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
   filePath <- as.dataFilePath(fileRoot)
   
+  # NEED TO REORGANIZE THIS SOMEHOW
   if(!file.exists(filePath)){
     #Try to move from downloads
     moveDataDownloads(gsub(".*/", "", filePath))
     if(!file.exists(filePath)){
       #Check for "bootstrap" files
       fileRoot2 <- "Student Report  "
-      dat <- Update.Init(fileRoot2, date)
+      dat <- Update.Init(fileRoot2, date, ignoreMissing)
         
       cat("Notice: ", as.dataFilePath(fileRoot2), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
@@ -181,7 +187,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date()) {
     }#filePath should exist
   
   if(file.exists(filePath)) {
-    dat <- Update.Init(fileRoot, date)
+    dat <- Update.Init(fileRoot, date, ignoreMissing)
   }
   
   
@@ -264,9 +270,9 @@ getStudentRanking <- function(date = Sys.Date()){
 }#eof
 
 ### Update.Enrollments
-Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
+Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
-  dat <- Update.Init("Enrolled Report  ", date)
+  dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
   
   if (get) {
     return(dat)
@@ -276,7 +282,7 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
 }#eof
 
 ### Update.Payments
-Update.Payments <- function(get = FALSE, date = Sys.Date()){
+Update.Payments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Payments.xlsx  ", date)
   
@@ -374,7 +380,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   
 }#eof
 
-moveDataDownloads <- function(fileNames, ignoreMissing = F) {
+moveDataDownloads <- function(fileNames) {
   userPath <- regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
                                           getwd(), perl = T))
   downloadPath <- file.path(userPath, "Downloads")
@@ -396,9 +402,6 @@ moveDataDownloads <- function(fileNames, ignoreMissing = F) {
       file.rename(filePaths[i], fileDests[i])
       cat("Notice: ", filePaths[i], "\n\t\t-- moved to -->\n\t", fileDests[i], sep="")
       fileMoved <- T
-    } else if (!ignoreMissing) {
-      cat("Notice: The file \"", filePaths[i],
-                   "\" could not be found.", sep="")
     }
   }
   
