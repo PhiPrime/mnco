@@ -6,13 +6,13 @@ library(readxl)
 #### Update functions:
 
 ### Update.All
-Update.All <- function(get = FALSE, date = Sys.Date()) {
+Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
   # Read excel files
-  students <- Update.Students(TRUE, date)
-  accounts <- Update.Accounts(TRUE, date)
-  progress <- Update.Progress(TRUE, date)
-  enrollments <- Update.Enrollments(TRUE, date)
-  #payments <- Update.Payments(TRUE)
+  students <- Update.Students(TRUE, date, ignoreMissing)
+  accounts <- Update.Accounts(TRUE, date, ignoreMissing)
+  progress <- Update.Progress(TRUE, date, ignoreMissing)
+  enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
+  #payments <- Update.Payments(TRUE, date, ignoreMissing)
   #payments <- mutate(payments, Account = Account_Name)
   
   # Prepare students to merge
@@ -78,7 +78,7 @@ mergeWithFill <- function(df1, df2, .by) {
 }
 
 ### Update.Init
-Update.Init <- function(fileRoot, date) {
+Update.Init <- function(fileRoot, date, ignoreMissing = F) {
   #set file name
   fileName <- paste0(fileRoot, 
                      paste(lubridate::month(date), 
@@ -112,7 +112,7 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 }
 
 ### Update.Students
-Update.Students <- function(get = FALSE, date = Sys.Date()){
+Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Students Export  ", date)
   
@@ -133,7 +133,7 @@ Update.Students <- function(get = FALSE, date = Sys.Date()){
 }#eof
 
 ### Update.Accounts
-Update.Accounts <- function(get = FALSE, date = Sys.Date()){
+Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Account Export  ", date)
   
@@ -149,7 +149,7 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date()){
 }#eof
 
 ### Update.Progress
-Update.Progress <- function(get = FALSE, date = Sys.Date()) {
+Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
   filePath <- as.dataFilePath(fileRoot)
@@ -264,7 +264,7 @@ getStudentRanking <- function(date = Sys.Date()){
 }#eof
 
 ### Update.Enrollments
-Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
+Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
   dat <- Update.Init("Enrolled Report  ", date)
   
@@ -276,7 +276,7 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date()) {
 }#eof
 
 ### Update.Payments
-Update.Payments <- function(get = FALSE, date = Sys.Date()){
+Update.Payments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Payments.xlsx  ", date)
   
@@ -288,7 +288,7 @@ Update.Payments <- function(get = FALSE, date = Sys.Date()){
 }
 
 ### Update.Curriculum
-Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
+Update.Curriculum <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Curriculum Library Export  ", date)
   
@@ -306,7 +306,7 @@ getHistoricAttendance <- function(){
 }
 
 ### Update.Attendance
-Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
+Update.Attendance <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
   dat <- Update.Init("Student Attendance Report Export  ", date)
   
