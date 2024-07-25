@@ -24,7 +24,7 @@ Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
   
-  history <- mutate(Update.All(TRUE, date), Date = date, .before = "Account_Id")
+  history <- mutate(Update.All(TRUE, date, ignoreMissing), Date = date, .before = "Account_Id")
   
   # Remove [ and ] from column names
   # PUT THIS IN AN UPDATE FUNCTION
