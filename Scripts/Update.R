@@ -88,7 +88,7 @@ Update.Init <- function(fileRoot, date, ignoreMissing = F) {
                      ".xlsx")
   filePath <- file.path(getwd(), "Raw_Data", fileName)
   
-  fileMoved <- moveDataDownloads(fileName, ignoreMissing = T)
+  fileMoved <- moveDataDownloads(fileName)
   if (!fileMoved && !file.exists(filePath)) {
     stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
   }
