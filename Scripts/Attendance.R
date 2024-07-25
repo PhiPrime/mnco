@@ -61,18 +61,18 @@ sendOnVacation <- function(who,
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
     #Then try some formats
-    returnDate <- mdy(returnDate)
-    
-    ## I am not familiar with R's tryCatch function. It seemed to be throwing
-    ## errors from addThisYear(returnDate) even when mdy(returnDate) 
-    ## successfully executed.
-    
-    #addThisYear <- function(old) {mdy(paste(old, lubridate::year(Sys.Date())))}
-    # returnDate <- tryCatch(
-    #   expr = mdy(returnDate), 
-    #   error = addThisYear(returnDate),
-    #   warning = addThisYear(returnDate))
+    addThisYear <- function(old) {mdy(paste(old, lubridate::year(Sys.Date())))}
+    returnDate <- tryCatch(
+      expr = mdy(returnDate),
+      error = function(e) {
+        addThisYear(returnDate)
+      },
+      warning = function(w) {
+        addThisYear(returnDate)
+      }
+    )
   }
+  
   #Store current Student file for efficiency 
   stus <- mutate(Update.Students(TRUE), 
                  Student = paste(First_Name, Last_Name))
