@@ -73,13 +73,24 @@ sendOnVacation <- function(who,
     #   error = addThisYear(returnDate),
     #   warning = addThisYear(returnDate))
   }
+  #Store current Student file for efficiency 
+  stus <- mutate(Update.Students(TRUE), 
+                 Student = paste(First_Name, Last_Name))
   
   #Make function user friendly by regexing for name
-  names <- with(Update.Students(TRUE), paste(First_Name, Last_Name))
-  who <-  names[grepl(who, names, ignore.case = TRUE)]
+  names <- stus$Student
   
+  #Create data.frame to allow for sending multiple `who`s at the same time
+  tmp <- data.frame(matrix(ncol = 1, nrow = 0, dimnames = list(NULL, "name")))
+  for(i in who){
+    tmp <- rbind(tmp,names[grepl(i, names, ignore.case = TRUE)])
+  }
+  
+  who <- tmp[,1]
+  stus <- filter(stus, Student%in%who)
   #Create data frame to store
   toStore <- data.frame(Student = who,
+                        Last_Attendance = stus$Last_Attendance_Date,
                         returnDate = returnDate)
   
   if(dim(getStudentsOnVacation())[1]==0){
