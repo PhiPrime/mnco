@@ -69,6 +69,8 @@ mergeWithFill <- function(df1, df2, .by) {
     # Fill value for common column to col.x and rename to col
     df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
     names(df)[names(df) == col.x] <- col
+    # CHANGE TO THIS? MAYBE DOESN'T WORK
+    #df <- rename(df, col = col.x)
     
     # Delete col.y
     df[[col.y]] <- NULL
