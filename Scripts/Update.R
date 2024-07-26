@@ -15,10 +15,7 @@ Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
   #payments <- Update.Payments(TRUE, date, ignoreMissing)
   #payments <- mutate(payments, Account = Account_Name)
   
-  # Prepare students to merge
-  students <- mutate(students, Student = paste(First_Name, Last_Name), .before = Student_Id)
-  students$First_Name <- NULL
-  students$Last_Name <- NULL
+
   
   # Prepare accounts to merge
   accounts$First_Name <- NULL
@@ -170,16 +167,17 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 
 ### Update.Students
 Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
+  # Read data from excel file
   dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
-  dat <- mutate(dat, 
-                Last_Attendance_Date = as.Date(Last_Attendance_Date, 
-                                               format = "%m/%d/%Y"))
-  #"failed to parse" warning gets thrown
+  # 
+  dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
+  dat$First_Name <- NULL
+  dat$Last_Name <- NULL
   
   students <- filter(dat, Enrollment_Status == "Enrolled")
   inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
+  dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
   if(get){
     return(dat)
