@@ -188,14 +188,13 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   # Reformat columns
   dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
-  # Create columns
+  # Create columns from other columns
   dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
   
   # Columns to be removed
   rm_cols <- c("First_Name", "Last_Name", "School_Year", "Lead_Id...24", 
                "Created_By", "Card_Level", "Stars_on_Current_Card",
                "Cards_Available")
-  
   na_cols <- c("Billing_Street_1", "Billing_Street_2", "Billing_City",
                "Billing_State", "Billing_Country", "Billing_Zip_Code",
                "Scholarship", "School_[WebLead]", "Teacher_[WebLead]")
@@ -233,8 +232,23 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
-  dat$First_Name <- NULL
-  dat$Last_Name <- NULL
+  # Create columns from other columns
+  dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
+  
+  # Columns to be removed
+  rm_cols <- c("First_Name", "Last_Name", "Created_By", "Last_Modified_By...20",
+               "Last_Modified_By...33")
+  na_cols <- c("Date_of_Birth", "Last_TriMathlon_Reg._Date")
+  
+  # not needed?
+  maybe_cols = c("Center", "Description", "Customer_Comments",
+                 "Referral_Accounts", "Account_Relation",
+                 "Last_Modified_Date", "Created_Date")
+  # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # Remove columns
+  dat <- remove_raw_cols(dat, rm_cols)
+  dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
   if(get) {
     return(dat)
