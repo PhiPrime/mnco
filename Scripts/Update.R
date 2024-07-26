@@ -146,7 +146,7 @@ Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
       stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
     } else {
       emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
-      emptyFilePath <- file.path(getwd(), "Raw_Empty", emptyFileName)
+      emptyFilePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
       
       dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
     }
