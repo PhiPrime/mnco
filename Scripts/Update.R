@@ -512,12 +512,14 @@ getAssessments <- function(updateGlobal = FALSE,
 
 
 
-moveDataDownloads <- function(fileNames) {
-  downloadPath <- file.path(regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
+moveDataDownloads <- function(file_name) {
+  download_path <- file.path(regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
                                           getwd(), perl = T)), "Downloads")
-  filePaths <- file.path(downloadPath, fileNames)
+  file_path <- file.path(download_path, file_name)
   
-  if (!file.exists(downloadPath)) stop("Downloads folder not found at \"", downloadPath, "\"")
+  if (!file.exists(download_path)) {
+    stop("Downloads folder not found at \"", download_path, "\"")
+  }
   
   if(!grepl("Overview$", getwd())) {
     stop("While trying to moveDataDownloads, \"",
@@ -525,18 +527,16 @@ moveDataDownloads <- function(fileNames) {
          "\"\n\tis the working directory but does not end with \"Overview\"")
   }
   
-  fileDests <- file.path(getwd(), "Raw_Data", fileNames)
-  fileMoved <- F
+  file_dest <- file.path(getwd(), "Raw_Data", file_name)
+  file_moved <- F
   
-  for(i in 1:length(filePaths)) {
-    if (file.exists(filePaths[i])) {
-      file.rename(filePaths[i], fileDests[i])
-      cat("Notice: ", filePaths[i], "\n\t\t-- moved to -->\n\t", fileDests[i], sep="")
-      fileMoved <- T
-    }
+  if (file.exists(file_path)) {
+    file.rename(file_path, file_dest)
+    cat("Notice: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, sep="")
+    file_moved <- T
   }
   
-  return(fileMoved)
+  return(file_moved)
   
 }#eof
 
