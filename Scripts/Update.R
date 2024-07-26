@@ -188,22 +188,40 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   # Read data from excel file
   dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
-  # 
-  dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
-  dat$First_Name <- NULL
-  dat$Last_Name <- NULL
+  # Rename columns
+  names(dat)[names(dat) == "Lead_Id...2"] <- "Lead_Id"
   
+  # Reformat columns
   dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
-  # these cols are expected to be na
+  # Create columns
+  dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
+  
+  # Columns to be removed
+  rm_cols <- c("First_Name", "Last_Name", "School_Year", "Lead_Id...24", 
+               "Created_By", "Card_Level", "Stars_on_Current_Card",
+               "Cards_Available")
+  
   na_cols <- c("Billing_Street_1", "Billing_Street_2", "Billing_City",
                "Billing_State", "Billing_Country", "Billing_Zip_Code",
                "Scholarship", "School_[WebLead]", "Teacher_[WebLead]")
-
-  for (na_col in na_cols) {
-    if (!all(is.na(dat[[na_col]]))) stop("Column \'", na_col, "\' is expected to be NA but isn't.")
-    dat[[na_col]] <- NULL
-  }
+  
+  # maybe needed?
+  maybe_cols <- c("Enrollment_Start_Date", "Enrollment_End_Date", "Last_PR_Sent",
+                  "Description", "Student_Notes")
+  maybe_cols2 <- c("Last_Attendance_Date", "Last_PR_Date")
+  # not needed?
+  maybe_cols3 <- c("Consent_to_Media_Release",
+                   "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted")
+  maybe_cols4 <- c("Emergency_Contact", "Emergency_Phone", "Medical_Information")
+  maybe_cols5 <- c("Created_Date", "Last_Modified_On")
+  # all the same
+  maybe_cols6 <- c("Center_Id", "Center", "Virtual_Center")
+  # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # Remove columns
+  dat <- remove_raw_cols(dat, rm_cols)
+  dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
   if(get){
     return(dat)
