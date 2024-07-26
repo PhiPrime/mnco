@@ -175,13 +175,14 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   dat$First_Name <- NULL
   dat$Last_Name <- NULL
   
-  students <- filter(dat, Enrollment_Status == "Enrolled")
-  inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
   dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
   if(get){
     return(dat)
   } else {
+    students <- filter(dat, Enrollment_Status == "Enrolled")
+    inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
+    
     assign("students",students,envir = .GlobalEnv)
     assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
   }
