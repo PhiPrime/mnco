@@ -84,9 +84,22 @@ mergeWithFill <- function(df1, df2, .by) {
   return(df)
 }
 
-### removeNACols
-remove_na_cols <- function() {
-  
+### remove_raw_cols
+# Deletes columns from output of Update.Init()
+# test parameter determines ???
+remove_raw_cols <- function(df, ..., test_na = F) {
+  for (col_name in unlist(list(...))) {
+    # Test columns for conditions based on test argument
+    if (!(col_name %in% names(df))) {
+      stop("Column \'", col_name, "\' does not exist in data frame.")
+    } else if ( test_na && !all(is.na(df[[col_name]])) ) {
+      stop("Column \'", col_name, "\' is expected to be NA but isn't.",
+           "\n  Run print_raw_na_cols() to get today's list of NA columns.")
+    }
+    
+    df[[col_name]] <- NULL
+  }
+  return(df)
 }
 
 ### Update.Init
