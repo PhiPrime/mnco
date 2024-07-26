@@ -138,28 +138,29 @@ Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
       } else if (length(fileOptions)==0){
         #If no matches stop and error
         stop(paste0("After searching both \"./Raw_Data\",",
-        "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
-        " Please try again."))
+                    "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
+                    " Please try again."))
+      }
     }
-  }
     dat <- read_excel(filePath, .name_repair = "unique_quiet")
-    }else{ #It is not regex and filePath should be set or moved 
-    filePath <- file.path(getwd(), "Raw_Data", fileName)
-  
-  fileMoved <- moveDataDownloads(fileName)
-  
-  if (!fileMoved && !file.exists(filePath)) {
-    if (!ignoreMissing) {
-      stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
-    } else {
-      emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
-      emptyFilePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
-      
-      dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
-    }
   } else {
-    dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  }
+    # Default behavior: not regex and filePath should be set or moved 
+    filePath <- file.path(getwd(), "Raw_Data", fileName)
+    
+    fileMoved <- moveDataDownloads(fileName)
+    
+    if (!fileMoved && !file.exists(filePath)) {
+      if (!ignoreMissing) {
+        stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+      } else {
+        emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
+        emptyFilePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
+        
+        dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
+      }
+    } else {
+      dat <- read_excel(filePath, .name_repair = "unique_quiet")
+    }
   }
   
   names(dat) <- gsub(" ", "_", names(dat))
