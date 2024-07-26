@@ -15,12 +15,6 @@ Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
   #payments <- Update.Payments(TRUE, date, ignoreMissing)
   #payments <- mutate(payments, Account = Account_Name)
   
-
-  
-  # Prepare accounts to merge
-  accounts$First_Name <- NULL
-  accounts$Last_Name <- NULL
-  
   # Merge into one data frame
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
@@ -239,12 +233,15 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
-  accounts <- filter(dat, Enrollment_Status == "Active")
-  inactive <- filter(dat, Enrollment_Status == "Inactive")
+  dat$First_Name <- NULL
+  dat$Last_Name <- NULL
   
   if(get) {
     return(dat)
   } else {
+    accounts <- filter(dat, Enrollment_Status == "Active")
+    inactive <- filter(dat, Enrollment_Status == "Inactive")
+    
     assign("accounts",accounts,envir = .GlobalEnv)
     assign("inactiveAccounts",inactive,envir = .GlobalEnv)
   }
