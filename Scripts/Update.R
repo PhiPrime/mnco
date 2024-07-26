@@ -84,6 +84,11 @@ mergeWithFill <- function(df1, df2, .by) {
   return(df)
 }
 
+### removeNACols
+remove_na_cols <- function() {
+  
+}
+
 ### Update.Init
 Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
   fileName <- paste0(fileRoot, 
@@ -176,6 +181,16 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   dat$Last_Name <- NULL
   
   dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
+  
+  # these cols are expected to be na
+  na_cols <- c("Billing_Street_1", "Billing_Street_2", "Billing_City",
+               "Billing_State", "Billing_Country", "Billing_Zip_Code",
+               "Scholarship", "School_[WebLead]", "Teacher_[WebLead]")
+
+  for (na_col in na_cols) {
+    if (!all(is.na(dat[[na_col]]))) stop("Column \'", na_col, "\' is expected to be NA but isn't.")
+    dat[[na_col]] <- NULL
+  }
   
   if(get){
     return(dat)
