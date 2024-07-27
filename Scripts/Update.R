@@ -166,7 +166,6 @@ as.rawFileName <- function(file_root, date = Sys.Date()){
 
 ### getStudentData
 getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
-  # Read data from excel file
   dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
   # Rename columns
@@ -208,7 +207,6 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
 
 ### getAccountData
 getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
   dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
   # Create columns from other columns
@@ -234,7 +232,6 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 
 ### getProgressData
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
-  # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
   filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
   
@@ -335,7 +332,6 @@ getStudentRanking <- function(date = Sys.Date()){
 
 ### getEnrollmentData
 getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  #Update Initialize
   dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
   
   # Rename columns
@@ -367,9 +363,8 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   return(dat)
 }#eof
 
-### Update.Payments
+### getPaymentData
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  #Update Initialize
   dat <- Update.Init("Payments.xlsx  ", date)
   
   return(dat)
@@ -377,7 +372,6 @@ getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
 
 ### getCurriculumData
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
-  #Update Initialize
   dat <- Update.Init("Curriculum Library Export  ", date)
   
   return(dat)
@@ -390,7 +384,6 @@ getAttendanceHistory <- function() {
 
 ### Update.Attendance
 Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
-  #Update Initialize
   dat <- Update.Init("Student Attendance Report Export  ", date)
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
@@ -458,8 +451,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
 }#eof
 
 getAssessments <- function(updateGlobal = FALSE, 
-                           date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
+                           date = Sys.Date(), ignoreMissing = F) {
   dat <- Update.Init("Students Export  ", date, ignoreMissing, regExFile = TRUE)
   
   dat <- mutate(dat, 
