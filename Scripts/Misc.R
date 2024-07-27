@@ -10,7 +10,7 @@ get_raw_na_cols <- function(date = today()) {
   # Iterate through each raw data file for given date
   na_col_list <- list()
   for (i in 1:4) {
-    dat <- Update.Init(fileRoots[i], date = date)
+    dat <- readRawData(fileRoots[i], date = date)
     
     # Get and append names of NA columns to list
     na_col <- sapply(dat, function(x) all(is.na(x)))
@@ -34,3 +34,4 @@ print_raw_na_cols <- function(date = today()) {
     cat("\"\n")
   }
 }
+

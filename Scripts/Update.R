@@ -61,7 +61,7 @@ mergeWithFill <- function(df1, df2, .by) {
 }
 
 ### remove_raw_cols
-# Deletes columns from output of Update.Init()
+# Deletes columns from output of readRawData()
 # test parameter determines ???
 remove_raw_cols <- function(df, ..., test_na = F) {
   for (col_name in unlist(list(...))) {
@@ -78,8 +78,8 @@ remove_raw_cols <- function(df, ..., test_na = F) {
   return(df)
 }
 
-### Update.Init
-Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
+### readRawData
+readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
   fileName <- as.rawFileName(fileRoot, date)
   
   #If regex find a match with fileRoot in either folder
@@ -166,7 +166,7 @@ as.rawFileName <- function(file_root, date = Sys.Date()){
 
 ### getStudentData
 getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
-  dat <- Update.Init("Students Export  ", date, ignoreMissing)
+  dat <- readRawData("Students Export  ", date, ignoreMissing)
   
   # Rename columns
   names(dat)[names(dat) == "Lead_Id...2"] <- "Lead_Id"
@@ -207,7 +207,7 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
 
 ### getAccountData
 getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
-  dat <- Update.Init("Account Export  ", date, ignoreMissing)
+  dat <- readRawData("Account Export  ", date, ignoreMissing)
   
   # Create columns from other columns
   dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
@@ -242,7 +242,7 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
     if(!file.exists(filePath)){
       #Check for "bootstrap" files
       fileRoot2 <- "Student Report  "
-      dat <- Update.Init(fileRoot2, date, ignoreMissing)
+      dat <- readRawData(fileRoot2, date, ignoreMissing)
         
       cat("Notice: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
@@ -263,7 +263,7 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
     }#filePath should exist
   
   if(file.exists(filePath)) {
-    dat <- Update.Init(fileRoot, date, ignoreMissing)
+    dat <- readRawData(fileRoot, date, ignoreMissing)
   }
 
   # MERGE getStudentRanking() INTO dat
@@ -332,7 +332,7 @@ getStudentRanking <- function(date = Sys.Date()){
 
 ### getEnrollmentData
 getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
+  dat <- readRawData("Enrolled Report  ", date, ignoreMissing)
   
   # Rename columns
   names(dat)[names(dat) == "Account_Name"] <- "Account"
@@ -365,14 +365,14 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
 
 ### getPaymentData
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- Update.Init("Payments.xlsx  ", date)
+  dat <- readRawData("Payments.xlsx  ", date)
   
   return(dat)
 }
 
 ### getCurriculumData
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- Update.Init("Curriculum Library Export  ", date)
+  dat <- readRawData("Curriculum Library Export  ", date)
   
   return(dat)
 }#eof
@@ -384,7 +384,7 @@ getAttendanceHistory <- function() {
 
 ### Update.Attendance
 Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
-  dat <- Update.Init("Student Attendance Report Export  ", date)
+  dat <- readRawData("Student Attendance Report Export  ", date)
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
@@ -452,7 +452,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
 
 getAssessments <- function(updateGlobal = FALSE, 
                            date = Sys.Date(), ignoreMissing = F) {
-  dat <- Update.Init("Students Export  ", date, ignoreMissing, regExFile = TRUE)
+  dat <- readRawData("Students Export  ", date, ignoreMissing, regExFile = TRUE)
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
