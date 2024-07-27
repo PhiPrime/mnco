@@ -20,7 +20,7 @@ Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
     # TEST ignoreMissing = (date != Sys.Date())
     
     failed <- tryCatch(
-      Save.History(date, silent = T),
+      saveCenterData(date, silent = T),
       error = function(e) {
         return(TRUE)
       }
@@ -37,10 +37,10 @@ Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
   cat(", failed", failCount, "times\n")
 }
 
-### Save.History
+### saveCenterData
 # Appends the output of getCenterData() to centerHistory.rds
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL SAVE.ALL() - USE ALL.EQUAL?
-Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
+saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
   
