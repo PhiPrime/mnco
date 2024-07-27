@@ -4,14 +4,14 @@
 attendanceCheck <- function(allowedBdays = 5)
 {
   #Get list of dates any student attended
-  uniDates <- unique(Update.Students(TRUE)$Last_Attendance_Date)
+  uniDates <- unique(getStudentData()$Last_Attendance_Date)
   
   #Create a lists of acceptable dates, which is based on parameter
   acceptableDates <- uniDates[order(uniDates, decreasing = TRUE)][c(
     1,allowedBdays)]
   
   
-  flaggedStudents <- filter(mergeWithFill(Update.Students(TRUE), 
+  flaggedStudents <- filter(mergeWithFill(getStudentData(), 
                                           Update.Accounts(TRUE), 
                                           .by = "Account_Id"), 
                             !between(Last_Attendance_Date, 
@@ -74,7 +74,7 @@ sendOnVacation <- function(who,
   }
   
   #Store current Student file for efficiency 
-  stus <- mutate(Update.Students(TRUE), 
+  stus <- mutate(getStudentData(), 
                  Student = paste(First_Name, Last_Name))
   
   #Make function user friendly by regexing for name
@@ -127,7 +127,7 @@ setStudentsOnVacation <- function(dat = data.frame(
                          c("Student", "returnDate"))))){
   #Query last attendance date
   dat <- merge(dat,
-        mutate(Update.Students(TRUE),
+        mutate(getStudentData(),
          Student = paste(First_Name, Last_Name),
          Last_Attendance = Last_Attendance_Date) %>%
     select(Student, Last_Attendance))

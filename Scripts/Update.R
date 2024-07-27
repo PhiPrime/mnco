@@ -5,10 +5,10 @@ library(readxl)
 
 #### Update functions:
 
-  students <- Update.Students(TRUE, date, ignoreMissing)
 ### getCenterData
 getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   # Read and process excel files
+  students <- getStudentData(date, ignoreMissing)
   accounts <- Update.Accounts(TRUE, date, ignoreMissing)
   progress <- Update.Progress(TRUE, date, ignoreMissing)
   enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
@@ -164,8 +164,8 @@ as.rawFileName <- function(file_root, date = Sys.Date()){
          ".xlsx")
 }
 
-### Update.Students
-Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
+### getStudentData
+getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   # Read data from excel file
   dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
@@ -203,15 +203,7 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   dat <- remove_raw_cols(dat, rm_cols)
   dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
-  if(get){
-    return(dat)
-  } else {
-    students <- filter(dat, Enrollment_Status == "Enrolled")
-    inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
-    
-    assign("students",students,envir = .GlobalEnv)
-    assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
-  }
+  return (dat)
 }#eof
 
 ### Update.Accounts
