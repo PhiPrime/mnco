@@ -5,38 +5,20 @@ library(readxl)
 
 #### Update functions:
 
-### Update.All
-Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
-  # Read excel files
   students <- Update.Students(TRUE, date, ignoreMissing)
+### getCenterData
+getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
+  # Read and process excel files
   accounts <- Update.Accounts(TRUE, date, ignoreMissing)
   progress <- Update.Progress(TRUE, date, ignoreMissing)
   enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
-  #payments <- Update.Payments(TRUE, date, ignoreMissing)
-  #payments <- mutate(payments, Account = Account_Name)
   
   # Merge into one data frame
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
-  #all <- merge(all, payments, all.x = TRUE)
   
-  if(get) {
-    # Return data frame as getter
-    return(all)
-  } else {
-    # Split by enrollment status
-    active <- filter(all, Enrollment_Status == "Enrolled")
-    inactive <- filter(all, Enrollment_Status != "Enrolled")
-    
-    # Assign to global environment
-    assign("active",
-           filter(all, Enrollment_Status == "Enrolled"),
-           envir = .GlobalEnv)
-    assign("inactive",
-           filter(all, Enrollment_Status != "Enrolled"),
-           envir = .GlobalEnv)
-  }
+  return(all)
 }
 
 ### mergeWithFill
@@ -59,7 +41,7 @@ mergeWithFill <- function(df1, df2, .by) {
     
     # Use NA if column is empty
     # DOES NOT WORK ON EMPTY DATA FRAMES YET
-    # NEED TO PROPERLY MERGE DATA IN UPDATE.ALL() THEN FIND SOLUTION
+    # NEED TO PROPERLY MERGE DATA IN getCenterData() THEN FIND SOLUTION
     #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
     #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
     #col.x <- df[[colName.x]]

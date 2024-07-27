@@ -38,13 +38,13 @@ Save.All <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
 }
 
 ### Save.History
-# Appends the output of Update.All() to centerHistory.rds
+# Appends the output of getCenterData() to centerHistory.rds
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL SAVE.ALL() - USE ALL.EQUAL?
 Save.History <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
   
-  history <- mutate(Update.All(TRUE, date, ignoreMissing), Date = date, 
+  history <- mutate(getCenterData(date, ignoreMissing), Date = date, 
                     .before = "Account_Id")
   
   # Remove [ and ] from column names

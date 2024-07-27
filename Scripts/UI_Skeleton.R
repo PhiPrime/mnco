@@ -71,9 +71,9 @@ CO_UI <- function() {
       stopApp()
     })
     
-    # Runs Update.All()
+    # Runs getCenterData()
     observeEvent(input$update_button, {
-      Update.All()
+      getCenterData()
       
       #For debug use
       print("Update pressed")
