@@ -10,7 +10,7 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   # Read and process excel files
   students <- getStudentData(date, ignoreMissing)
   accounts <- getAccountData(date, ignoreMissing)
-  progress <- Update.Progress(TRUE, date, ignoreMissing)
+  progress <- getProgressData(date, ignoreMissing)
   enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
   
   # Merge into one data frame
@@ -232,8 +232,8 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   return(dat)
 }#eof
 
-### Update.Progress
-Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
+### getProgressData
+getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
   filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
@@ -268,31 +268,16 @@ Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   if(file.exists(filePath)) {
     dat <- Update.Init(fileRoot, date, ignoreMissing)
   }
-  
-  
-  #merge qualifying students from tdat back into dat
-  ###
-  
-  
-  if(get) {
-    return(dat)
-  } else {
-    tdat <- getStudentRanking(date)
-    assign("studentProgress",dat,envir = .GlobalEnv)
-    assign("selectStudentProgress", tdat, envir = .GlobalEnv)
-    assign("studentRanking", select(tdat, 
-                                    Rank, Student, fontsize, UB, Pest, LB, 
-                                    Skills_Mastered, Attendances), envir = .GlobalEnv)
-  }
+
+  # MERGE getStudentRanking() INTO dat
+  return(dat)
 }#eof
 
 getStudentRanking <- function(date = Sys.Date()){
-  dat <- Update.Progress(TRUE, date)
+  dat <- getProgressData(date)
   
   #Merge in delivery record from Enrollments
   deliveryKey <- mutate(Update.Enrollments(TRUE, date), 
-                        Student = paste(Student_First_Name, 
-                                        Student_Last_Name),
                         Delivery = as.factor(Delivery),
                         Monthly_Sessions = as.numeric(Total_Sessions)) %>%
     select(Student, Delivery, Monthly_Sessions)
@@ -364,7 +349,7 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
                 .before = Student_First_Name)
   
   # Columns to be removed
-  # Session_Length is handled as Duration in Update.Progress()
+  # Session_Length is handled as Duration in getProgressData()
   rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length")
   na_cols <- c()
   

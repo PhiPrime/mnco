@@ -2,7 +2,7 @@
 
 ### needsNewDeck
 needsNewDeck <- function(minAllowed = 5){
-  Update.Progress()
+  getProgressData()
   #Set any NAs to 0
   studentProgress[
     is.na(studentProgress$Skills_Currently_Assigned),]$
