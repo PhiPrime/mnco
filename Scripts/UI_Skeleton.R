@@ -85,9 +85,9 @@ CO_UI <- function() {
     observeEvent(input$update_enrollments_button, { getEnrollmentData() })
     
     
-    # Runs Save.All()
+    # Runs saveAllCenterData()
     observeEvent(input$save_button, {
-      Save.All()
+      saveAllCenterData()
       
       #For debug use
       print("Save pressed")
