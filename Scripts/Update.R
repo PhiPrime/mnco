@@ -24,10 +24,10 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
 }
 
 ### mergeWithFill
-# Merge columns from 'df2' into 'df1', matching observations based on 
-#   the specified columns.
-# Common columns not in '.by' are filled with values from 'df1'. 
-#   If values are NA, they are filled from 'df2'.
+# Merge columns from 'df2' into 'df1', matching rows based on common columns
+#   in '.by'.
+# Common columns not in '.by' are filled with values from 'df1'. If values 
+#   are NA, they are filled from 'df2'.
 mergeWithFill <- function(df1, df2, .by) {
   # Merge df1 and df2. Common columns are suffixed with .x and .y
   df <- merge(df1, df2, all.x = T, by = .by)
