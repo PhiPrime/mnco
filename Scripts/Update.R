@@ -559,7 +559,7 @@ moveDataDownloads <- function(file_name) {
   
   if (file.exists(file_path)) {
     file.rename(file_path, file_dest)
-    cat("Notice: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, sep="")
+    cat("Notice: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, "\n", sep="")
     file_moved <- T
   }
   
