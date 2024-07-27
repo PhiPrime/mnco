@@ -4,8 +4,8 @@
 generateMap <- function(useCache = TRUE){
   # Data Retrieval
   
-  Update.Accounts()
-  Update.Enrollments()
+  getAccountData()
+  getEnrollmentData()
   
   dat <- merge(accounts, enrollments, by = "Account_Id", all.x = TRUE)
   

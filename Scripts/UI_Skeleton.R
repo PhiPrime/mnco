@@ -48,7 +48,6 @@ CO_UI <- function() {
                     actionButton("update_accounts_button", "Update Accounts"),
                     actionButton("update_progress_button", "Update Progress"),
                     actionButton("update_enrollments_button", "Update Enrollments")
-                    #,actionButton("update_payments_button", "Update Payments")
                  )
             )
         
@@ -71,25 +70,24 @@ CO_UI <- function() {
       stopApp()
     })
     
-    # Runs Update.All()
+    # Runs getCenterData()
     observeEvent(input$update_button, {
-      Update.All()
+      getCenterData()
       
       #For debug use
       print("Update pressed")
     })
     
     # Handlers for update functions
-    observeEvent(input$update_students_button, { Update.Students() })
-    observeEvent(input$update_accounts_button, { Update.Accounts() })
-    observeEvent(input$update_progress_button, { Update.Progress() })
-    observeEvent(input$update_enrollments_button, { Update.Enrollments() })
-    #observeEvent(input$update_payments_button, { Update.Payments() })
+    observeEvent(input$update_students_button, { getStudentData() })
+    observeEvent(input$update_accounts_button, { getAccountData() })
+    observeEvent(input$update_progress_button, { getProgressData() })
+    observeEvent(input$update_enrollments_button, { getEnrollmentData() })
     
     
-    # Runs Save.All()
+    # Runs saveAllCenterData()
     observeEvent(input$save_button, {
-      Save.All()
+      saveAllCenterData()
       
       #For debug use
       print("Save pressed")

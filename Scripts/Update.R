@@ -5,38 +5,20 @@ library(readxl)
 
 #### Update functions:
 
-### Update.All
-Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
-  # Read excel files
-  students <- Update.Students(TRUE, date, ignoreMissing)
-  accounts <- Update.Accounts(TRUE, date, ignoreMissing)
-  progress <- Update.Progress(TRUE, date, ignoreMissing)
-  enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
-  #payments <- Update.Payments(TRUE, date, ignoreMissing)
-  #payments <- mutate(payments, Account = Account_Name)
+### getCenterData
+getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
+  # Read and process excel files
+  students <- getStudentData(date, ignoreMissing)
+  accounts <- getAccountData(date, ignoreMissing)
+  progress <- getProgressData(date, ignoreMissing)
+  enrollments <- getEnrollmentData(date, ignoreMissing)
   
   # Merge into one data frame
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
-  #all <- merge(all, payments, all.x = TRUE)
   
-  if(get) {
-    # Return data frame as getter
-    return(all)
-  } else {
-    # Split by enrollment status
-    active <- filter(all, Enrollment_Status == "Enrolled")
-    inactive <- filter(all, Enrollment_Status != "Enrolled")
-    
-    # Assign to global environment
-    assign("active",
-           filter(all, Enrollment_Status == "Enrolled"),
-           envir = .GlobalEnv)
-    assign("inactive",
-           filter(all, Enrollment_Status != "Enrolled"),
-           envir = .GlobalEnv)
-  }
+  return(all)
 }
 
 ### mergeWithFill
@@ -59,7 +41,7 @@ mergeWithFill <- function(df1, df2, .by) {
     
     # Use NA if column is empty
     # DOES NOT WORK ON EMPTY DATA FRAMES YET
-    # NEED TO PROPERLY MERGE DATA IN UPDATE.ALL() THEN FIND SOLUTION
+    # NEED TO PROPERLY MERGE DATA IN getCenterData() THEN FIND SOLUTION
     #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
     #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
     #col.x <- df[[colName.x]]
@@ -79,7 +61,7 @@ mergeWithFill <- function(df1, df2, .by) {
 }
 
 ### remove_raw_cols
-# Deletes columns from output of Update.Init()
+# Deletes columns from output of readRawData()
 # test parameter determines ???
 remove_raw_cols <- function(df, ..., test_na = F) {
   for (col_name in unlist(list(...))) {
@@ -96,8 +78,8 @@ remove_raw_cols <- function(df, ..., test_na = F) {
   return(df)
 }
 
-### Update.Init
-Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
+### readRawData
+readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
   fileName <- as.rawFileName(fileRoot, date)
   
   #If regex find a match with fileRoot in either folder
@@ -182,10 +164,9 @@ as.rawFileName <- function(file_root, date = Sys.Date()){
          ".xlsx")
 }
 
-### Update.Students
-Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
-  # Read data from excel file
-  dat <- Update.Init("Students Export  ", date, ignoreMissing)
+### getStudentData
+getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
+  dat <- readRawData("Students Export  ", date, ignoreMissing)
   
   # Rename columns
   names(dat)[names(dat) == "Lead_Id...2"] <- "Lead_Id"
@@ -221,21 +202,12 @@ Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   dat <- remove_raw_cols(dat, rm_cols)
   dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
-  if(get){
-    return(dat)
-  } else {
-    students <- filter(dat, Enrollment_Status == "Enrolled")
-    inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
-    
-    assign("students",students,envir = .GlobalEnv)
-    assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
-  }
+  return (dat)
 }#eof
 
-### Update.Accounts
-Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
-  dat <- Update.Init("Account Export  ", date, ignoreMissing)
+### getAccountData
+getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
+  dat <- readRawData("Account Export  ", date, ignoreMissing)
   
   # Create columns from other columns
   dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
@@ -255,20 +227,11 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   dat <- remove_raw_cols(dat, rm_cols)
   dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
-  if(get) {
-    return(dat)
-  } else {
-    accounts <- filter(dat, Enrollment_Status == "Active")
-    inactive <- filter(dat, Enrollment_Status == "Inactive")
-    
-    assign("accounts",accounts,envir = .GlobalEnv)
-    assign("inactiveAccounts",inactive,envir = .GlobalEnv)
-  }
+  return(dat)
 }#eof
 
-### Update.Progress
-Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
-  # Update Initialize
+### getProgressData
+getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   fileRoot <- "Current Batch Detail Export  "
   filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
   
@@ -279,7 +242,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
     if(!file.exists(filePath)){
       #Check for "bootstrap" files
       fileRoot2 <- "Student Report  "
-      dat <- Update.Init(fileRoot2, date, ignoreMissing)
+      dat <- readRawData(fileRoot2, date, ignoreMissing)
         
       cat("Notice: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
@@ -300,33 +263,18 @@ Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
     }#filePath should exist
   
   if(file.exists(filePath)) {
-    dat <- Update.Init(fileRoot, date, ignoreMissing)
+    dat <- readRawData(fileRoot, date, ignoreMissing)
   }
-  
-  
-  #merge qualifying students from tdat back into dat
-  ###
-  
-  
-  if(get) {
-    return(dat)
-  } else {
-    tdat <- getStudentRanking(date)
-    assign("studentProgress",dat,envir = .GlobalEnv)
-    assign("selectStudentProgress", tdat, envir = .GlobalEnv)
-    assign("studentRanking", select(tdat, 
-                                    Rank, Student, fontsize, UB, Pest, LB, 
-                                    Skills_Mastered, Attendances), envir = .GlobalEnv)
-  }
+
+  # MERGE getStudentRanking() INTO dat
+  return(dat)
 }#eof
 
 getStudentRanking <- function(date = Sys.Date()){
-  dat <- Update.Progress(TRUE, date)
+  dat <- getProgressData(date)
   
   #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(Update.Enrollments(TRUE, date), 
-                        Student = paste(Student_First_Name, 
-                                        Student_Last_Name),
+  deliveryKey <- mutate(getEnrollmentData(date), 
                         Delivery = as.factor(Delivery),
                         Monthly_Sessions = as.numeric(Total_Sessions)) %>%
     select(Student, Delivery, Monthly_Sessions)
@@ -382,10 +330,9 @@ getStudentRanking <- function(date = Sys.Date()){
   return(dat)
 }#eof
 
-### Update.Enrollments
-Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
-  #Update Initialize
-  dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
+### getEnrollmentData
+getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
+  dat <- readRawData("Enrolled Report  ", date, ignoreMissing)
   
   # Rename columns
   names(dat)[names(dat) == "Account_Name"] <- "Account"
@@ -398,7 +345,7 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
                 .before = Student_First_Name)
   
   # Columns to be removed
-  # Session_Length is handled as Duration in Update.Progress()
+  # Session_Length is handled as Duration in getProgressData()
   rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length")
   na_cols <- c()
   
@@ -413,52 +360,36 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
   dat <- remove_raw_cols(dat, rm_cols)
   dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
-  if (get) {
-    return(dat)
-  } else {
-    assign("enrollments",dat,envir = .GlobalEnv)
-  }
+  return(dat)
 }#eof
 
-### Update.Payments
-Update.Payments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
-  dat <- Update.Init("Payments.xlsx  ", date)
+### getPaymentData
+getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
+  dat <- readRawData("Payments.xlsx  ", date)
   
-  if(get) {
-    return(dat)
-  } else {
-    assign("payments", dat,envir = .GlobalEnv)
-  }
+  return(dat)
 }
 
-### Update.Curriculum
-Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
-  #Update Initialize
-  dat <- Update.Init("Curriculum Library Export  ", date)
+### getCurriculumData
+getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
+  dat <- readRawData("Curriculum Library Export  ", date)
   
-  if(get) {
-    return(dat)
-  } else {
-    assign("curriculumDatabase",dat,envir = .GlobalEnv)
-  }
-  
+  return(dat)
 }#eof
 
-getHistoricAttendance <- function(){
-  return(readRDS(file.path(paste0(getwd(),
-                                   "/Cache"), "prior2024.rds")))
+### getAttendanceHistory
+getAttendanceHistory <- function() {
+  readRDS(file.path(getwd(), "Cache", "prior2024.rds"))
 }
 
-### Update.Attendance
-Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
-  #Update Initialize
-  dat <- Update.Init("Student Attendance Report Export  ", date)
+### getAttendanceData
+getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
+  dat <- readRawData("Student Attendance Report Export  ", date)
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
   if(!file.exists(logfile)) {
-    stop("While running Update.Attendance(), \"", logfile,
+    stop("While running getAttendanceData(), \"", logfile,
                 "\" was not found.")
   } else {
     logdat <- read.csv(logfile)
@@ -489,7 +420,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   
   #Check for and notify if no new data is found
   if(dim(newdat)[1]==0){
-    cat("Notice: Update.Attendance(get = ", get, ", date = ", as.character(date),
+    cat("Notice: getAttendanceData(get = ", get, ", date = ", as.character(date),
       ") found no new attendance when updating.", sep = "")
   } 
   
@@ -512,7 +443,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   # } else if (grepl("csv$", fileLoc)) {
   #   newdat <- read.csv(fileLoc)
   # } else {
-  #   stop(paste0("While running Update.Attendance ", fileLoc, 
+  #   stop(paste0("While running getAttendanceData ", fileLoc, 
   #               "was not able to be read."))
   # }
   
@@ -520,9 +451,8 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
 }#eof
 
 getAssessments <- function(updateGlobal = FALSE, 
-                           date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
-  dat <- Update.Init("Students Export  ", date, ignoreMissing, regExFile = TRUE)
+                           date = Sys.Date(), ignoreMissing = F) {
+  dat <- readRawData("Students Export  ", date, ignoreMissing, regExFile = TRUE)
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
