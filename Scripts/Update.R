@@ -62,19 +62,22 @@ mergeWithFill <- function(df1, df2, .by) {
   return(df)
 }
 
-### remove_raw_cols
+### removeRawCols
 # Deletes columns from output of readRawData()
-# test parameter determines ???
-remove_raw_cols <- function(df, ..., test_na = F) {
+removeRawCols <- function(df, ..., test_na = F) {
+  # Iterate through column names
   for (col_name in unlist(list(...))) {
-    # Test columns for conditions based on test argument
+    # Test columns
     if (!(col_name %in% names(df))) {
+      # Column doesn't exist
       stop("Column \'", col_name, "\' does not exist in data frame.")
     } else if ( test_na && !all(is.na(df[[col_name]])) ) {
+      # Column not NA but should be
       stop("Column \'", col_name, "\' is expected to be NA but isn't.",
            "\n  Run print_raw_na_cols() to get today's list of NA columns.")
     }
     
+    # Delete column
     df[[col_name]] <- NULL
   }
   return(df)
@@ -201,8 +204,8 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- remove_raw_cols(dat, rm_cols)
-  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
   
   return (dat)
 }#eof
@@ -226,8 +229,8 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- remove_raw_cols(dat, rm_cols)
-  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
   
   return(dat)
 }#eof
@@ -359,8 +362,8 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- remove_raw_cols(dat, rm_cols)
-  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
   
   return(dat)
 }#eof
