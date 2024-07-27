@@ -84,7 +84,7 @@ removeRawCols <- function(df, ..., test_na = F) {
 }
 
 ### readRawData
-readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
+readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
   fileName <- as.rawFileName(fileRoot, date)
   
   #If regex find a match with fileRoot in either folder
@@ -152,17 +152,6 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
   names(dat) <- gsub(" ", "_", names(dat))
   return(dat)
 }#eof
-
-as.dataFilePath <- function(fileName, date = Sys.Date()){
-  #I made one big line  
-  return(
-    file.path(paste0(getwd(),"/Raw_Data"), 
-              paste0(fileName, 
-                     paste(lubridate::month(date), 
-                           lubridate::day(date), 
-                           lubridate::year(date), sep = "_"), 
-                     ".xlsx")))
-}
 
 as.rawFileName <- function(file_root, date = Sys.Date()){
   paste0(file_root, paste(month(date), day(date), year(date), sep = "_"), 
