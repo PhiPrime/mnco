@@ -6,14 +6,16 @@ library(readxl)
 #### Update functions:
 
 ### getCenterData
+# Returns data frame containing center data for a given date
 getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
-  # Read and process excel files
+  # Read and process raw data
   students <- getStudentData(date, ignoreMissing)
   accounts <- getAccountData(date, ignoreMissing)
   progress <- getProgressData(date, ignoreMissing)
   enrollments <- getEnrollmentData(date, ignoreMissing)
   
   # Merge into one data frame
+  # NEED TO EXAMINE MERGING
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
