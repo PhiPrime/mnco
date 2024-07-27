@@ -62,17 +62,17 @@ mergeWithFill <- function(df1, df2, .by) {
     # NEED TO PROPERLY MERGE DATA IN UPDATE.ALL() THEN FIND SOLUTION
     #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
     #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
-    col.x <- df[[colName.x]]
-    col.y <- df[[colName.y]]
+    #col.x <- df[[colName.x]]
+    #col.y <- df[[colName.y]]
     
     # Fill value for common column to col.x and rename to col
-    df[[colName.x]] <- coalesce(col.x, col.y)
+    df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
     names(df)[names(df) == colName.x] <- colName
     # CHANGE TO THIS? MAYBE DOESN'T WORK
     #df <- rename(df, col = col.x)
     
     # Delete col.y
-    df[[col.y]] <- NULL
+    df[[colName.y]] <- NULL
   }
   
   return(df)
