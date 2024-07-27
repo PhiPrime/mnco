@@ -9,7 +9,7 @@ library(readxl)
 getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   # Read and process excel files
   students <- getStudentData(date, ignoreMissing)
-  accounts <- Update.Accounts(TRUE, date, ignoreMissing)
+  accounts <- getAccountData(date, ignoreMissing)
   progress <- Update.Progress(TRUE, date, ignoreMissing)
   enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
   
@@ -206,8 +206,8 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   return (dat)
 }#eof
 
-### Update.Accounts
-Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
+### getAccountData
+getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
@@ -229,15 +229,7 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   dat <- remove_raw_cols(dat, rm_cols)
   dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
-  if(get) {
-    return(dat)
-  } else {
-    accounts <- filter(dat, Enrollment_Status == "Active")
-    inactive <- filter(dat, Enrollment_Status == "Inactive")
-    
-    assign("accounts",accounts,envir = .GlobalEnv)
-    assign("inactiveAccounts",inactive,envir = .GlobalEnv)
-  }
+  return(dat)
 }#eof
 
 ### Update.Progress

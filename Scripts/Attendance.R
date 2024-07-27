@@ -12,7 +12,7 @@ attendanceCheck <- function(allowedBdays = 5)
   
   
   flaggedStudents <- filter(mergeWithFill(getStudentData(), 
-                                          Update.Accounts(TRUE), 
+                                          getAccountData(), 
                                           .by = "Account_Id"), 
                             !between(Last_Attendance_Date, 
                                      acceptableDates[2],
