@@ -15,15 +15,6 @@ Update.All <- function(get = FALSE, date = Sys.Date(), ignoreMissing) {
   #payments <- Update.Payments(TRUE, date, ignoreMissing)
   #payments <- mutate(payments, Account = Account_Name)
   
-  # Prepare students to merge
-  students <- mutate(students, Student = paste(First_Name, Last_Name), .before = Student_Id)
-  students$First_Name <- NULL
-  students$Last_Name <- NULL
-  
-  # Prepare accounts to merge
-  accounts$First_Name <- NULL
-  accounts$Last_Name <- NULL
-  
   # Merge into one data frame
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
@@ -58,24 +49,50 @@ mergeWithFill <- function(df1, df2, .by) {
   df <- merge(df1, df2, all.x = T, by = .by)
   
   # Iterate through common columns
-  for (col in intersect(names(df1), names(df2))) {
+  for (colName in intersect(names(df1), names(df2))) {
     # Skip iteration if column was used to match
-    if (col %in% .by) next
+    if (colName %in% .by) next
     
     # Suffixed column strings
-    col.x <- paste0(col, ".x")
-    col.y <- paste0(col, ".y")
+    colName.x <- paste0(colName, ".x")
+    colName.y <- paste0(colName, ".y")
+    
+    # Use NA if column is empty
+    # DOES NOT WORK ON EMPTY DATA FRAMES YET
+    # NEED TO PROPERLY MERGE DATA IN UPDATE.ALL() THEN FIND SOLUTION
+    #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
+    #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
+    #col.x <- df[[colName.x]]
+    #col.y <- df[[colName.y]]
     
     # Fill value for common column to col.x and rename to col
-    df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
-    names(df)[names(df) == col.x] <- col
+    df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
+    names(df)[names(df) == colName.x] <- colName
     # CHANGE TO THIS? MAYBE DOESN'T WORK
     #df <- rename(df, col = col.x)
     
     # Delete col.y
-    df[[col.y]] <- NULL
+    df[[colName.y]] <- NULL
   }
   
+  return(df)
+}
+
+### remove_raw_cols
+# Deletes columns from output of Update.Init()
+# test parameter determines ???
+remove_raw_cols <- function(df, ..., test_na = F) {
+  for (col_name in unlist(list(...))) {
+    # Test columns for conditions based on test argument
+    if (!(col_name %in% names(df))) {
+      stop("Column \'", col_name, "\' does not exist in data frame.")
+    } else if ( test_na && !all(is.na(df[[col_name]])) ) {
+      stop("Column \'", col_name, "\' is expected to be NA but isn't.",
+           "\n  Run print_raw_na_cols() to get today's list of NA columns.")
+    }
+    
+    df[[col_name]] <- NULL
+  }
   return(df)
 }
 
@@ -163,20 +180,49 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
 
 ### Update.Students
 Update.Students <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
+  # Read data from excel file
   dat <- Update.Init("Students Export  ", date, ignoreMissing)
   
-  dat <- mutate(dat, 
-                Last_Attendance_Date = as.Date(Last_Attendance_Date, 
-                                               format = "%m/%d/%Y"))
-  #"failed to parse" warning gets thrown
+  # Rename columns
+  names(dat)[names(dat) == "Lead_Id...2"] <- "Lead_Id"
   
-  students <- filter(dat, Enrollment_Status == "Enrolled")
-  inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
+  # Reformat columns
+  dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
+  
+  # Create columns from other columns
+  dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
+  
+  # Columns to be removed
+  rm_cols <- c("First_Name", "Last_Name", "School_Year", "Lead_Id...24", 
+               "Created_By", "Card_Level", "Stars_on_Current_Card",
+               "Cards_Available")
+  na_cols <- c("Billing_Street_1", "Billing_Street_2", "Billing_City",
+               "Billing_State", "Billing_Country", "Billing_Zip_Code",
+               "Scholarship", "School_[WebLead]", "Teacher_[WebLead]")
+  
+  # maybe needed?
+  maybe_cols <- c("Enrollment_Start_Date", "Enrollment_End_Date", "Last_PR_Sent",
+                  "Description", "Student_Notes")
+  maybe_cols2 <- c("Last_Attendance_Date", "Last_PR_Date")
+  # not needed?
+  maybe_cols3 <- c("Consent_to_Media_Release",
+                   "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted")
+  maybe_cols4 <- c("Emergency_Contact", "Emergency_Phone", "Medical_Information")
+  maybe_cols5 <- c("Created_Date", "Last_Modified_On")
+  # all the same
+  maybe_cols6 <- c("Center_Id", "Center", "Virtual_Center")
+  # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # Remove columns
+  dat <- remove_raw_cols(dat, rm_cols)
+  dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
   if(get){
     return(dat)
   } else {
+    students <- filter(dat, Enrollment_Status == "Enrolled")
+    inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
+    
     assign("students",students,envir = .GlobalEnv)
     assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
   }
@@ -187,12 +233,30 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
   #Update Initialize
   dat <- Update.Init("Account Export  ", date, ignoreMissing)
   
-  accounts <- filter(dat, Enrollment_Status == "Active")
-  inactive <- filter(dat, Enrollment_Status == "Inactive")
+  # Create columns from other columns
+  dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
+  
+  # Columns to be removed
+  rm_cols <- c("First_Name", "Last_Name", "Created_By", "Last_Modified_By...20",
+               "Last_Modified_By...33")
+  na_cols <- c("Date_of_Birth", "Last_TriMathlon_Reg._Date")
+  
+  # not needed?
+  maybe_cols = c("Center", "Description", "Customer_Comments",
+                 "Referral_Accounts", "Account_Relation",
+                 "Last_Modified_Date", "Created_Date")
+  # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # Remove columns
+  dat <- remove_raw_cols(dat, rm_cols)
+  dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
   if(get) {
     return(dat)
   } else {
+    accounts <- filter(dat, Enrollment_Status == "Active")
+    inactive <- filter(dat, Enrollment_Status == "Inactive")
+    
     assign("accounts",accounts,envir = .GlobalEnv)
     assign("inactiveAccounts",inactive,envir = .GlobalEnv)
   }
@@ -318,6 +382,32 @@ getStudentRanking <- function(date = Sys.Date()){
 Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
   dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
+  
+  # Rename columns
+  names(dat)[names(dat) == "Account_Name"] <- "Account"
+  
+  # Reformat columns
+  # NEED TO REFORMAT Membership_Type
+  
+  # Create columns from other columns
+  dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
+                .before = Student_First_Name)
+  
+  # Columns to be removed
+  # Session_Length is handled as Duration in Update.Progress()
+  rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length")
+  na_cols <- c()
+  
+  # all the same
+  maybe_cols <- c("Center", "Virtual_Center", "Status")
+  # maybe needed?
+  maybe_cols2 <- c("Primary_Enrollment_Start", "Primary_Enrollment_End", 
+                   "Expected_Monthly_Amount")
+  # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # Remove columns
+  dat <- remove_raw_cols(dat, rm_cols)
+  dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
   if (get) {
     return(dat)
@@ -449,12 +539,14 @@ getAssessments <- function(updateGlobal = FALSE,
 
 
 
-moveDataDownloads <- function(fileNames) {
-  downloadPath <- file.path(regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
+moveDataDownloads <- function(file_name) {
+  download_path <- file.path(regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
                                           getwd(), perl = T)), "Downloads")
-  filePaths <- file.path(downloadPath, fileNames)
+  file_path <- file.path(download_path, file_name)
   
-  if (!file.exists(downloadPath)) stop("Downloads folder not found at \"", downloadPath, "\"")
+  if (!file.exists(download_path)) {
+    stop("Downloads folder not found at \"", download_path, "\"")
+  }
   
   if(!grepl("Overview$", getwd())) {
     stop("While trying to moveDataDownloads, \"",
@@ -462,18 +554,16 @@ moveDataDownloads <- function(fileNames) {
          "\"\n\tis the working directory but does not end with \"Overview\"")
   }
   
-  fileDests <- file.path(getwd(), "Raw_Data", fileNames)
-  fileMoved <- F
+  file_dest <- file.path(getwd(), "Raw_Data", file_name)
+  file_moved <- F
   
-  for(i in 1:length(filePaths)) {
-    if (file.exists(filePaths[i])) {
-      file.rename(filePaths[i], fileDests[i])
-      cat("Notice: ", filePaths[i], "\n\t\t-- moved to -->\n\t", fileDests[i], sep="")
-      fileMoved <- T
-    }
+  if (file.exists(file_path)) {
+    file.rename(file_path, file_dest)
+    cat("Notice: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, sep="")
+    file_moved <- T
   }
   
-  return(fileMoved)
+  return(file_moved)
   
 }#eof
 
