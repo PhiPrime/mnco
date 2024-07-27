@@ -367,17 +367,12 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   return(dat)
 }#eof
 
-### Update.Curriculum
-Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
+### getCurriculumData
+getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
   dat <- Update.Init("Curriculum Library Export  ", date)
   
-  if(get) {
-    return(dat)
-  } else {
-    assign("curriculumDatabase",dat,envir = .GlobalEnv)
-  }
-  
+  return(dat)
 }#eof
 
 getHistoricAttendance <- function(){
