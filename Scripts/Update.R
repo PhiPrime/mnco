@@ -11,7 +11,7 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   students <- getStudentData(date, ignoreMissing)
   accounts <- getAccountData(date, ignoreMissing)
   progress <- getProgressData(date, ignoreMissing)
-  enrollments <- Update.Enrollments(TRUE, date, ignoreMissing)
+  enrollments <- getEnrollmentData(date, ignoreMissing)
   
   # Merge into one data frame
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
@@ -277,7 +277,7 @@ getStudentRanking <- function(date = Sys.Date()){
   dat <- getProgressData(date)
   
   #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(Update.Enrollments(TRUE, date), 
+  deliveryKey <- mutate(getEnrollmentData(date), 
                         Delivery = as.factor(Delivery),
                         Monthly_Sessions = as.numeric(Total_Sessions)) %>%
     select(Student, Delivery, Monthly_Sessions)
@@ -333,8 +333,8 @@ getStudentRanking <- function(date = Sys.Date()){
   return(dat)
 }#eof
 
-### Update.Enrollments
-Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
+### getEnrollmentData
+getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
   dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
   
@@ -364,11 +364,7 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
   dat <- remove_raw_cols(dat, rm_cols)
   dat <- remove_raw_cols(dat, na_cols, test_na = T)
   
-  if (get) {
-    return(dat)
-  } else {
-    assign("enrollments",dat,envir = .GlobalEnv)
-  }
+  return(dat)
 }#eof
 
 ### Update.Curriculum

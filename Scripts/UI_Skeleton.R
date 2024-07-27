@@ -82,7 +82,7 @@ CO_UI <- function() {
     observeEvent(input$update_students_button, { getStudentData() })
     observeEvent(input$update_accounts_button, { getAccountData() })
     observeEvent(input$update_progress_button, { getProgressData() })
-    observeEvent(input$update_enrollments_button, { Update.Enrollments() })
+    observeEvent(input$update_enrollments_button, { getEnrollmentData() })
     
     
     # Runs Save.All()
