@@ -383,9 +383,9 @@ getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   return(dat)
 }#eof
 
-getHistoricAttendance <- function(){
-  return(readRDS(file.path(paste0(getwd(),
-                                   "/Cache"), "prior2024.rds")))
+### getAttendanceHistory
+getAttendanceHistory <- function() {
+  readRDS(file.path(getwd(), "Cache", "prior2024.rds"))
 }
 
 ### Update.Attendance
