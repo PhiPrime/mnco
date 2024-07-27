@@ -382,14 +382,14 @@ getAttendanceHistory <- function() {
   readRDS(file.path(getwd(), "Cache", "prior2024.rds"))
 }
 
-### Update.Attendance
-Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
+### getAttendanceData
+getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   dat <- readRawData("Student Attendance Report Export  ", date)
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
   if(!file.exists(logfile)) {
-    stop("While running Update.Attendance(), \"", logfile,
+    stop("While running getAttendanceData(), \"", logfile,
                 "\" was not found.")
   } else {
     logdat <- read.csv(logfile)
@@ -420,7 +420,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   
   #Check for and notify if no new data is found
   if(dim(newdat)[1]==0){
-    cat("Notice: Update.Attendance(get = ", get, ", date = ", as.character(date),
+    cat("Notice: getAttendanceData(get = ", get, ", date = ", as.character(date),
       ") found no new attendance when updating.", sep = "")
   } 
   
@@ -443,7 +443,7 @@ Update.Attendance <- function(get = FALSE, date = Sys.Date()) {
   # } else if (grepl("csv$", fileLoc)) {
   #   newdat <- read.csv(fileLoc)
   # } else {
-  #   stop(paste0("While running Update.Attendance ", fileLoc, 
+  #   stop(paste0("While running getAttendanceData ", fileLoc, 
   #               "was not able to be read."))
   # }
   
