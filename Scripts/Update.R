@@ -383,6 +383,32 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
   #Update Initialize
   dat <- Update.Init("Enrolled Report  ", date, ignoreMissing)
   
+  # Rename columns
+  names(dat)[names(dat) == "Account_Name"] <- "Account"
+  
+  # Reformat columns
+  # NEED TO REFORMAT Membership_Type
+  
+  # Create columns from other columns
+  dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
+                .before = Student_First_Name)
+  
+  # Columns to be removed
+  # Session_Length is handled as Duration in Update.Progress()
+  rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length")
+  na_cols <- c()
+  
+  # all the same
+  maybe_cols <- c("Center", "Virtual_Center", "Status")
+  # maybe needed?
+  maybe_cols2 <- c("Primary_Enrollment_Start", "Primary_Enrollment_End", 
+                   "Expected_Monthly_Amount")
+  # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # Remove columns
+  dat <- remove_raw_cols(dat, rm_cols)
+  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  
   if (get) {
     return(dat)
   } else {
