@@ -394,18 +394,6 @@ Update.Enrollments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F
   }
 }#eof
 
-### Update.Payments
-Update.Payments <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
-  #Update Initialize
-  dat <- Update.Init("Payments.xlsx  ", date)
-  
-  if(get) {
-    return(dat)
-  } else {
-    assign("payments", dat,envir = .GlobalEnv)
-  }
-}
-
 ### Update.Curriculum
 Update.Curriculum <- function(get = FALSE, date = Sys.Date()){
   #Update Initialize
