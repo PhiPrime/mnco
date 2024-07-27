@@ -367,6 +367,14 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   return(dat)
 }#eof
 
+### Update.Payments
+getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
+  #Update Initialize
+  dat <- Update.Init("Payments.xlsx  ", date)
+  
+  return(dat)
+}
+
 ### getCurriculumData
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   #Update Initialize
