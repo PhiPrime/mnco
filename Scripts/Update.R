@@ -98,9 +98,8 @@ remove_raw_cols <- function(df, ..., test_na = F) {
 
 ### Update.Init
 Update.Init <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
-  fileName <- paste0(fileRoot, 
-                     paste(month(date), day(date), year(date), sep = "_"), 
-                     ".xlsx")
+  fileName <- as.rawFileName(fileRoot, date)
+  
   #If regex find a match with fileRoot in either folder
   if(regExFile) {
     #Compare first to rawFiles,
@@ -176,6 +175,11 @@ as.dataFilePath <- function(fileName, date = Sys.Date()){
                            lubridate::day(date), 
                            lubridate::year(date), sep = "_"), 
                      ".xlsx")))
+}
+
+as.rawFileName <- function(file_root, date = Sys.Date()){
+  paste0(file_root, paste(month(date), day(date), year(date), sep = "_"), 
+         ".xlsx")
 }
 
 ### Update.Students
@@ -266,7 +270,7 @@ Update.Accounts <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F){
 Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
   # Update Initialize
   fileRoot <- "Current Batch Detail Export  "
-  filePath <- as.dataFilePath(fileRoot)
+  filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
   
   # NEED TO REORGANIZE THIS SOMEHOW
   if(!file.exists(filePath)){
@@ -277,7 +281,7 @@ Update.Progress <- function(get = FALSE, date = Sys.Date(), ignoreMissing = F) {
       fileRoot2 <- "Student Report  "
       dat <- Update.Init(fileRoot2, date, ignoreMissing)
         
-      cat("Notice: ", as.dataFilePath(fileRoot2), 
+      cat("Notice: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
       dat <- mutate(dat,
              Student = dat$Student_Name,
