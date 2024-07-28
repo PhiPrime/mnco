@@ -20,7 +20,7 @@ attendanceCheck <- function(allowedBdays = 5)
                               Delivery=="In-Center" &
                               Enrollment_Status == "Enrolled") %>%
     #Select phone in this order: Mobile, Home, Other
-    mutate(Name = paste(First_Name, Last_Name),
+    mutate(Name = Student,
            Phone = ifelse(is.na(Mobile_Phone), 
                           ifelse(is.na(Home_Phone), 
                                  Other_Phone, Home_Phone), Mobile_Phone)) %>%
@@ -75,7 +75,7 @@ sendOnVacation <- function(who,
   
   #Store current Student file for efficiency 
   stus <- mutate(getStudentData(), 
-                 Student = paste(First_Name, Last_Name))
+                 Student = Student)
   
   #Make function user friendly by regexing for name
   names <- stus$Student
@@ -128,7 +128,7 @@ setStudentsOnVacation <- function(dat = data.frame(
   #Query last attendance date
   dat <- merge(dat,
         mutate(getStudentData(),
-         Student = paste(First_Name, Last_Name),
+         Student = Student,
          Last_Attendance = Last_Attendance_Date) %>%
     select(Student, Last_Attendance))
   
