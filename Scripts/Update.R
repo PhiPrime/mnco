@@ -165,6 +165,7 @@ as.rawFileName <- function(file_root, date = Sys.Date()){
 }
 
 ### getStudentData
+# Returns data processed from Radius's "Students Export" file
 getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- readRawData("Students Export", date, ignoreMissing)
   
@@ -174,7 +175,7 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   # Reformat columns
   dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
-  # Create columns from other columns
+  # Create new columns
   dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
   
   # Columns to be removed
