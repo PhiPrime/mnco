@@ -295,22 +295,24 @@ getStudentRanking <- function(date = Sys.Date()){
   CI <- 95
   outlierThreshold <- 4
   roundingDig <- 4
-  dat <- mutate(dat, Pest = Skills_Mastered/Attendances)
+  dat <- mutate(dat, Pest = Skills_Mastered/Attendances, .after = Student)
   
   #Outlier test
   dat <- mutate(dat, 
                 zscore = (mean(dat$Pest)-Pest)/
-                  (sd(dat$Pest)/sqrt(Attendances)))
+                  (sd(dat$Pest)/sqrt(Attendances)), .after = Pest)
   #Get sd without outliers
   samdev <- sd(dat$Pest[dat$zscore<outlierThreshold])
   dat <- mutate(dat, 
                 UB = round(Pest-qnorm((1-CI/100)/2)*
                              samdev/sqrt(Attendances),roundingDig),
                 LB = round(Pest+qnorm((1-CI/100)/2)*
-                             samdev/sqrt(Attendances),roundingDig))
+                             samdev/sqrt(Attendances),roundingDig),
+                .after = zscore)
   dat <- mutate(dat, fontsize = round(32*LB/max(dat$LB), 1))
   dat <- dat[order(dat$LB, decreasing = TRUE),]
-  dat <- mutate(dat, Rank = dim(dat)[1] +1 - rank(LB, ties.method = "max"))
+  dat <- mutate(dat, Rank = dim(dat)[1] +1 - rank(LB, ties.method = "max"),
+                .before = Student)
   
   
   dat <- mutate(dat, rankSuffix = ifelse(grepl("[2-9]?1$", 
