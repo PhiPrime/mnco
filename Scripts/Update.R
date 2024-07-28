@@ -6,14 +6,16 @@ library(readxl)
 #### Update functions:
 
 ### getCenterData
+# Returns data frame containing center data for a given date
 getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
-  # Read and process excel files
+  # Read and process raw data
   students <- getStudentData(date, ignoreMissing)
   accounts <- getAccountData(date, ignoreMissing)
   progress <- getProgressData(date, ignoreMissing)
   enrollments <- getEnrollmentData(date, ignoreMissing)
   
   # Merge into one data frame
+  # NEED TO EXAMINE MERGING
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
@@ -22,10 +24,10 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
 }
 
 ### mergeWithFill
-# Merge columns from 'df2' into 'df1', matching observations based on 
-#   the specified columns.
-# Common columns not in '.by' are filled with values from 'df1'. 
-#   If values are NA, they are filled from 'df2'.
+# Merge columns from 'df2' into 'df1', matching rows based on common columns
+#   in '.by'.
+# Common columns not in '.by' are filled with values from 'df1'. If values 
+#   are NA, they are filled from 'df2'.
 mergeWithFill <- function(df1, df2, .by) {
   # Merge df1 and df2. Common columns are suffixed with .x and .y
   df <- merge(df1, df2, all.x = T, by = .by)
@@ -60,27 +62,34 @@ mergeWithFill <- function(df1, df2, .by) {
   return(df)
 }
 
-### remove_raw_cols
+### removeRawCols
 # Deletes columns from output of readRawData()
-# test parameter determines ???
-remove_raw_cols <- function(df, ..., test_na = F) {
+removeRawCols <- function(df, ..., test_na = F) {
+  # Iterate through column names
   for (col_name in unlist(list(...))) {
-    # Test columns for conditions based on test argument
+    # Test columns
     if (!(col_name %in% names(df))) {
+      # Column doesn't exist
       stop("Column \'", col_name, "\' does not exist in data frame.")
     } else if ( test_na && !all(is.na(df[[col_name]])) ) {
+      # Column not NA but should be
       stop("Column \'", col_name, "\' is expected to be NA but isn't.",
            "\n  Run print_raw_na_cols() to get today's list of NA columns.")
     }
     
+    # Delete column
     df[[col_name]] <- NULL
   }
   return(df)
 }
 
 ### readRawData
-readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
+# Reads raw data excel file from Radius. If the file is in Downloads, it is
+#   moved to Raw_Data directory.
+readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
+  # Format file root into Radius style file name
   fileName <- as.rawFileName(fileRoot, date)
+  filePath <- NULL
   
   #If regex find a match with fileRoot in either folder
   if(regExFile) {
@@ -93,10 +102,10 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
       filePath <- fileOptions
     }else if(length(fileOptions)>1){ 
       #If more than 1, error
-      stop(paste0("\"",fileRoot, "\" matched with the following files...", 
-                  paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                  "\"\n...and does not know how to proceed, ",
-                  "be more specific and try again."))
+      stop("\"", fileRoot, "\" matched with the following files...\n\t\"", 
+                  paste(fileOptions, sep = "", collapse = "\"\n\t\""),
+                  "\"\n...and does not know how to proceed. ",
+                  "Be more specific and try again.")
     } else if (length(fileOptions)==0){
       #If not found compare to downloads folder
       downloadPath <- file.path(regmatches(getwd(), 
@@ -112,53 +121,42 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = FALSE) {
         filePath <- fileOptions
       }else if(length(fileOptions)>1){
         #If more than 1 match, error
-        stop(paste0("\"",fileRoot, "\" matched with the following files...", 
-                    paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                    "\"\n...and does not know how to proceed, ",
-                    "be more specific and try again."))
+        stop("\"", fileRoot, "\" matched with the following files...\n\t\"", 
+             paste(fileOptions, sep = "", collapse = "\"\n\t\""),
+             "\"\n...and does not know how to proceed. ",
+             "Be more specific and try again.")
       } else if (length(fileOptions)==0){
         #If no matches stop and error
-        stop(paste0("After searching both \"./Raw_Data\",",
-                    "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
-                    " Please try again."))
+        stop("After searching both Raw_Data and Downloads directories, \"",
+             fileRoot, "\" yielded no matches.", " Please try again.")
       }
     }
-    dat <- read_excel(filePath, .name_repair = "unique_quiet")
   } else {
-    # Default behavior: not regex and filePath should be set or moved 
+    # Default behavior: attempt to move file from Downloads, then look
+    #   in Raw_Data
     filePath <- file.path(getwd(), "Raw_Data", fileName)
-    
     fileMoved <- moveDataDownloads(fileName)
     
     if (!fileMoved && !file.exists(filePath)) {
+      # File not found in Downloads or Raw_Data
       if (!ignoreMissing) {
-        stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+        stop("\"", fileName, "\" not found in Raw_Data or Downloads directories")
       } else {
+        # Set filePath to read empty version of the raw data file
         emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
-        emptyFilePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
-        
-        dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
+        filePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
       }
-    } else {
-      dat <- read_excel(filePath, .name_repair = "unique_quiet")
     }
   }
   
+  # Read file and reformat column names to prevent bad behaviors
+  dat <- read_excel(filePath, .name_repair = "unique_quiet")
   names(dat) <- gsub(" ", "_", names(dat))
+  
   return(dat)
 }#eof
 
-as.dataFilePath <- function(fileName, date = Sys.Date()){
-  #I made one big line  
-  return(
-    file.path(paste0(getwd(),"/Raw_Data"), 
-              paste0(fileName, 
-                     paste(lubridate::month(date), 
-                           lubridate::day(date), 
-                           lubridate::year(date), sep = "_"), 
-                     ".xlsx")))
-}
-
+### as.rawFileName
 as.rawFileName <- function(file_root, date = Sys.Date()){
   paste0(file_root, paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")
@@ -199,8 +197,8 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- remove_raw_cols(dat, rm_cols)
-  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
   
   return (dat)
 }#eof
@@ -224,8 +222,8 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- remove_raw_cols(dat, rm_cols)
-  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
   
   return(dat)
 }#eof
@@ -357,8 +355,8 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- remove_raw_cols(dat, rm_cols)
-  dat <- remove_raw_cols(dat, na_cols, test_na = T)
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
   
   return(dat)
 }#eof
