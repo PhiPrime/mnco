@@ -84,8 +84,12 @@ removeRawCols <- function(df, ..., test_na = F) {
 }
 
 ### readRawData
+# Reads raw data excel file from Radius. If the file is in Downloads, it is
+#   moved to Raw_Data directory.
 readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
+  # Format file root into Radius style file name
   fileName <- as.rawFileName(fileRoot, date)
+  filePath <- NULL
   
   #If regex find a match with fileRoot in either folder
   if(regExFile) {
@@ -98,10 +102,10 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
       filePath <- fileOptions
     }else if(length(fileOptions)>1){ 
       #If more than 1, error
-      stop(paste0("\"",fileRoot, "\" matched with the following files...", 
-                  paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                  "\"\n...and does not know how to proceed, ",
-                  "be more specific and try again."))
+      stop("\"", fileRoot, "\" matched with the following files...\n\t\"", 
+                  paste(fileOptions, sep = "", collapse = "\"\n\t\""),
+                  "\"\n...and does not know how to proceed. ",
+                  "Be more specific and try again.")
     } else if (length(fileOptions)==0){
       #If not found compare to downloads folder
       downloadPath <- file.path(regmatches(getwd(), 
@@ -117,42 +121,42 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
         filePath <- fileOptions
       }else if(length(fileOptions)>1){
         #If more than 1 match, error
-        stop(paste0("\"",fileRoot, "\" matched with the following files...", 
-                    paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                    "\"\n...and does not know how to proceed, ",
-                    "be more specific and try again."))
+        stop("\"", fileRoot, "\" matched with the following files...\n\t\"", 
+             paste(fileOptions, sep = "", collapse = "\"\n\t\""),
+             "\"\n...and does not know how to proceed. ",
+             "Be more specific and try again.")
       } else if (length(fileOptions)==0){
         #If no matches stop and error
-        stop(paste0("After searching both \"./Raw_Data\",",
-                    "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
-                    " Please try again."))
+        stop("After searching both Raw_Data and Downloads directories, \"",
+             fileRoot, "\" yielded no matches.", " Please try again.")
       }
     }
-    dat <- read_excel(filePath, .name_repair = "unique_quiet")
   } else {
-    # Default behavior: not regex and filePath should be set or moved 
+    # Default behavior: attempt to move file from Downloads, then look
+    #   in Raw_Data
     filePath <- file.path(getwd(), "Raw_Data", fileName)
-    
     fileMoved <- moveDataDownloads(fileName)
     
     if (!fileMoved && !file.exists(filePath)) {
+      # File not found in Downloads or Raw_Data
       if (!ignoreMissing) {
-        stop("\"", fileName, "\" not found in Raw_Data/ or Downloads/")
+        stop("\"", fileName, "\" not found in Raw_Data or Downloads directories")
       } else {
+        # Set filePath to read empty version of the raw data file
         emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
-        emptyFilePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
-        
-        dat <- read_excel(emptyFilePath, .name_repair = "unique_quiet")
+        filePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
       }
-    } else {
-      dat <- read_excel(filePath, .name_repair = "unique_quiet")
     }
   }
   
+  # Read file and reformat column names to prevent bad behaviors
+  dat <- read_excel(filePath, .name_repair = "unique_quiet")
   names(dat) <- gsub(" ", "_", names(dat))
+  
   return(dat)
 }#eof
 
+### as.rawFileName
 as.rawFileName <- function(file_root, date = Sys.Date()){
   paste0(file_root, paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")
