@@ -207,10 +207,11 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
 }#eof
 
 ### getAccountData
+# Returns data processed from Radius's "Account Export" file
 getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- readRawData("Account Export", date, ignoreMissing)
   
-  # Create columns from other columns
+  # Create new columns
   dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
   
   # Columns to be removed
