@@ -2,10 +2,10 @@
 # Returns a named list of vectors for names of columns containing only NAs in raw data files
 # MODIFY TO ALLOW ITERATION THROUGH MULTIPLE DATES?
 get_raw_na_cols <- function(date = today()) {
-  fileRoots <- c("Students Export  ", 
-                 "Account Export  ", 
-                 "Current Batch Detail Export  ", 
-                 "Enrolled Report  ")
+  fileRoots <- c("Students Export", 
+                 "Account Export", 
+                 "Current Batch Detail Export", 
+                 "Enrolled Report")
   
   # Iterate through each raw data file for given date
   na_col_list <- list()

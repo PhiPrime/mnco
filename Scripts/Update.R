@@ -158,13 +158,13 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
 
 ### as.rawFileName
 as.rawFileName <- function(file_root, date = Sys.Date()){
-  paste0(file_root, paste(month(date), day(date), year(date), sep = "_"), 
+  paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")
 }
 
 ### getStudentData
 getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
-  dat <- readRawData("Students Export  ", date, ignoreMissing)
+  dat <- readRawData("Students Export", date, ignoreMissing)
   
   # Rename columns
   names(dat)[names(dat) == "Lead_Id...2"] <- "Lead_Id"
@@ -205,7 +205,7 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
 
 ### getAccountData
 getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
-  dat <- readRawData("Account Export  ", date, ignoreMissing)
+  dat <- readRawData("Account Export", date, ignoreMissing)
   
   # Create columns from other columns
   dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
@@ -230,7 +230,7 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 
 ### getProgressData
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
-  fileRoot <- "Current Batch Detail Export  "
+  fileRoot <- "Current Batch Detail Export"
   filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
   
   # NEED TO REORGANIZE THIS SOMEHOW
@@ -239,7 +239,7 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
     moveDataDownloads(gsub(".*/", "", filePath))
     if(!file.exists(filePath)){
       #Check for "bootstrap" files
-      fileRoot2 <- "Student Report  "
+      fileRoot2 <- "Student Report"
       dat <- readRawData(fileRoot2, date, ignoreMissing)
         
       cat("Notice: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
@@ -330,7 +330,7 @@ getStudentRanking <- function(date = Sys.Date()){
 
 ### getEnrollmentData
 getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Enrolled Report  ", date, ignoreMissing)
+  dat <- readRawData("Enrolled Report", date, ignoreMissing)
   
   # Rename columns
   names(dat)[names(dat) == "Account_Name"] <- "Account"
@@ -363,14 +363,14 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
 
 ### getPaymentData
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Payments.xlsx  ", date)
+  dat <- readRawData("Payments.xlsx", date)
   
   return(dat)
 }
 
 ### getCurriculumData
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Curriculum Library Export  ", date)
+  dat <- readRawData("Curriculum Library Export", date)
   
   return(dat)
 }#eof
@@ -382,7 +382,7 @@ getAttendanceHistory <- function() {
 
 ### getAttendanceData
 getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
-  dat <- readRawData("Student Attendance Report Export  ", date)
+  dat <- readRawData("Student Attendance Report Export", date)
   
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
 
@@ -450,7 +450,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
 
 getAssessments <- function(updateGlobal = FALSE, 
                            date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Students Export  ", date, ignoreMissing, regExFile = TRUE)
+  dat <- readRawData("Students Export", date, ignoreMissing, regExFile = TRUE)
   
   dat <- mutate(dat, 
                 Last_Attendance_Date = as.Date(Last_Attendance_Date, 
