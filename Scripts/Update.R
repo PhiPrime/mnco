@@ -233,6 +233,8 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 }#eof
 
 ### getProgressData
+# Returns data processed from Radius's "Current Batch Detail Export" file
+# Contains rolling 30 days info on attendances and skills
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   fileRoot <- "Current Batch Detail Export"
   filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
@@ -264,9 +266,12 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
       }
     }#filePath should exist
   
-  if(file.exists(filePath)) {
-    dat <- readRawData(fileRoot, date, ignoreMissing)
+  if(!file.exists(filePath)) {
+    stop(filePath, " does not exist :(")
   }
+  dat <- readRawData(fileRoot, date, ignoreMissing)
+  
+  # PROCESS COLUMNS HERE
 
   # MERGE getStudentRanking() INTO dat
   return(dat)
