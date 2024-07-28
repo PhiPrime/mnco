@@ -242,7 +242,7 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
       fileRoot2 <- "Student Report"
       dat <- readRawData(fileRoot2, date, ignoreMissing)
         
-      cat("Notice: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
+      cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
                    "\n\t\tis being used instead of\n\t", filePath, sep="")
       dat <- mutate(dat,
              Student = dat$Student_Name,
@@ -418,7 +418,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   
   #Check for and notify if no new data is found
   if(dim(newdat)[1]==0){
-    cat("Notice: getAttendanceData(get = ", get, ", date = ", as.character(date),
+    cat("NOTICE: getAttendanceData(get = ", get, ", date = ", as.character(date),
       ") found no new attendance when updating.", sep = "")
   } 
   
@@ -491,7 +491,7 @@ moveDataDownloads <- function(file_name) {
   
   if (file.exists(file_path)) {
     file.rename(file_path, file_dest)
-    cat("Notice: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, "\n", sep="")
+    cat("NOTICE: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, "\n", sep="")
     file_moved <- T
   }
   

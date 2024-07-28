@@ -96,7 +96,7 @@ setSuppressedStudents <- function(dat = data.frame(
   if(dim(dat)[1]==0){
     
     #Prompt file is about to be empty and check to continue
-    ans <- readline(prompt = paste0("Notice: \n", fileLoc,
+    ans <- readline(prompt = paste0("NOTICE: \n", fileLoc,
                                     " \nis about to be empty, continue? (Y/N):"))
     if(grepl("[Nn]", ans)){ stop() }
   }
