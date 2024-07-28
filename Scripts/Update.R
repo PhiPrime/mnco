@@ -158,6 +158,7 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
 }#eof
 
 ### as.rawFileName
+# Formats raw data file root as Radius style file name
 as.rawFileName <- function(file_root, date = Sys.Date()){
   paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")
