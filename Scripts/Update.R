@@ -187,16 +187,14 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
                "Scholarship", "School_[WebLead]", "Teacher_[WebLead]")
   
   # maybe needed?
-  maybe_cols <- c("Enrollment_Start_Date", "Enrollment_End_Date", "Last_PR_Sent",
-                  "Description", "Student_Notes")
-  maybe_cols2 <- c("Last_Attendance_Date", "Last_PR_Date")
+  maybe_cols <- c( "Student_Notes")
   # not needed?
   maybe_cols3 <- c("Consent_to_Media_Release",
                    "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted")
-  maybe_cols4 <- c("Emergency_Contact", "Emergency_Phone", "Medical_Information")
-  maybe_cols5 <- c("Created_Date", "Last_Modified_On")
+  # maybe_cols4 <- c("Emergency_Contact", "Emergency_Phone", "Medical_Information")
+  maybe_cols5 <- c("Last_Modified_On")
   # all the same
-  maybe_cols6 <- c("Center_Id", "Center", "Virtual_Center")
+  maybe_cols6 <- c("Center_Id", "Virtual_Center")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
@@ -220,9 +218,9 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   na_cols <- c("Date_of_Birth", "Last_TriMathlon_Reg._Date")
   
   # not needed?
-  maybe_cols = c("Center", "Description", "Customer_Comments",
+  maybe_cols = c("Description", "Customer_Comments",
                  "Referral_Accounts", "Account_Relation",
-                 "Last_Modified_Date", "Created_Date")
+                 "Last_Modified_Date", "emer phon num", "emer_cont")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
@@ -348,6 +346,7 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   
   # Reformat columns
   # NEED TO REFORMAT Membership_Type
+  # remove asterisk
   
   # Create columns from other columns
   dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
@@ -359,11 +358,15 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   na_cols <- c()
   
   # all the same
-  maybe_cols <- c("Center", "Virtual_Center", "Status")
+  maybe_cols <- c("Virtual_Center", "Status")
   # maybe needed?
-  maybe_cols2 <- c("Primary_Enrollment_Start", "Primary_Enrollment_End", 
+  # prim enr end -> end of contract date
+  maybe_cols2 <- c("Primary_Enrollment_Start",
                    "Expected_Monthly_Amount")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
+  
+  # remove "months" from 3 columns
+  # rename total sessions to monthly sessions
   
   # Remove columns
   dat <- removeRawCols(dat, rm_cols)
