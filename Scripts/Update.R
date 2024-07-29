@@ -158,12 +158,14 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
 }#eof
 
 ### as.rawFileName
+# Formats raw data file root as Radius style file name
 as.rawFileName <- function(file_root, date = Sys.Date()){
   paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")
 }
 
 ### getStudentData
+# Returns data processed from Radius's "Students Export" file
 getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- readRawData("Students Export", date, ignoreMissing)
   
@@ -173,7 +175,7 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   # Reformat columns
   dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
-  # Create columns from other columns
+  # Create new columns
   dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
   
   # Columns to be removed
@@ -205,10 +207,11 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
 }#eof
 
 ### getAccountData
+# Returns data processed from Radius's "Account Export" file
 getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- readRawData("Account Export", date, ignoreMissing)
   
-  # Create columns from other columns
+  # Create new columns
   dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
   
   # Columns to be removed
@@ -230,6 +233,8 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 }#eof
 
 ### getProgressData
+# Returns data processed from Radius's "Current Batch Detail Export" file
+# Contains rolling 30 days info on attendances and skills
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   fileRoot <- "Current Batch Detail Export"
   filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
@@ -261,9 +266,12 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
       }
     }#filePath should exist
   
-  if(file.exists(filePath)) {
-    dat <- readRawData(fileRoot, date, ignoreMissing)
+  if(!file.exists(filePath)) {
+    stop(filePath, " does not exist :(")
   }
+  dat <- readRawData(fileRoot, date, ignoreMissing)
+  
+  # PROCESS COLUMNS HERE
 
   # MERGE getStudentRanking() INTO dat
   return(dat)
