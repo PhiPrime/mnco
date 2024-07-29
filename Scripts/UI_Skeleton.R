@@ -3,8 +3,10 @@
 # Currently just functions as a proof of concept
 #####################################
 #             TO DO:                #
-##Incorporate attendence functions  #
-##Incorporate deck functions        #
+##Incorporate vacation functions    #
+###"send" and "return"              #
+###Create input to accept multiple  #
+###-"who" args and a date           #
 ##Incorporate pricing functions     #
 ##Incorporate all save functions    #
 ##Add output / export               #
@@ -52,9 +54,21 @@ CO_UI <- function() {
             )
         
           ),
-        
-          #Save Button
-          actionButton("save_button", "Save"),
+          #Save Section
+          verticalLayout(
+            #Save Button
+            actionButton("save_button", "Save")
+          ),
+          
+          #Attendance Section
+          verticalLayout(
+            actionButton("a_check_button", "Attendance Check"),
+            actionButton("v_check_button", "Vacation Check")
+          ),
+          
+          verticalLayout(
+            actionButton("kablize_button", "Funny Kablize Button")
+          )
         ),
       
         #Close the program
@@ -92,6 +106,53 @@ CO_UI <- function() {
       #For debug use
       print("Save pressed")
     })
+    
+    #Run attendanceCheck
+    observeEvent(input$a_check_button, {
+      attendanceCheck()
+      
+      #For debug use
+      print("Attendance check pressed")
+    })
+    
+    #Run getStudentsOnVacation
+    observeEvent(input$v_check_button, {
+      getStudentsOnVacation()
+      
+      #For debug use
+      print("Attendance check pressed")
+    })
+    
+    #Main display button
+    #Essentially just runs the markdown file
+    #Does not display the text, only the data
+    observeEvent(input$kablize_button, {
+      #sink output into a file
+      sink("button_test.pdf")
+      
+      #update and save section
+      getCenterData()
+      saveCenterData(silent = T)
+      
+      #new deck section
+      print("The following students likely need a new deck made\n")
+      needsNewDeck()
+      kablize(needsNewDeck())
+      
+      #attendance check: allowable days set to 5
+      stus <- attendanceCheck(5)
+      
+      #display data
+      print("The following students have not been here in the past\n")
+      stus
+      kablize(stus)
+
+      #End output sink
+      sink()
+      
+      #If not prematurely done, send success to console
+      print("Successfully made pdf")
+      })
     
     #BROKEN: Shows hidden update functions
     #observe({
