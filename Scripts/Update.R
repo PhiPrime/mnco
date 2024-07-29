@@ -494,6 +494,7 @@ moveDataDownloads <- function(file_name) {
   
   if (file.exists(file_path)) {
     file.rename(file_path, file_dest)
+    # CHANGE TO NOT PRINT FULL PATH
     cat("NOTICE: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, "\n", sep="")
     file_moved <- T
   }
