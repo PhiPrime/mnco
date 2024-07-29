@@ -212,11 +212,8 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   rm_cols <- c("First_Name", "Last_Name", "Last_Modified_By...20",
                "Last_Modified_By...33", "Description", "Customer_Comments",
                "Last_Modified_Date", "Emergency_Phone_Number", 
-               "Emergency_Contact")
+               "Emergency_Contact", "Account_Relation")
   na_cols <- c("Date_of_Birth", "Last_TriMathlon_Reg._Date")
-  
-  # not needed?
-  maybe_cols = c("Referral_Accounts", "Account_Relation")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
@@ -356,10 +353,6 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length",
                "Virtual_Center", "Status")
   na_cols <- c()
-  
-  # forgot  what to do w/ these
-  maybe_cols2 <- c("Primary_Enrollment_Start",
-                   "Expected_Monthly_Amount")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
