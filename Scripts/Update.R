@@ -20,7 +20,7 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
   
-  return(all)
+  return(invisible(all))
 }
 
 ### mergeWithFill
