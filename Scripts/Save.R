@@ -2,15 +2,27 @@
 
 ### saveAllCenterData
 # FIGURE OUT IF SHOULD SAVE DATES WITH MISSING FILES
-saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date()) {
+saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
+                              promptDelete = T) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
   date <- startDate
   
   # Delete centerHistory.rds
-  # ADD PROMPT?
-  cat("CAUTION: \"", filePath, "\" will now be deleted!\n", sep = "")
-  if (file.exists(filePath)) file.remove(filePath)
+  if (file.exists(filePath)) {
+    cat("CAUTION: \"", fileName, "\" will now be deleted and recreated!\n", 
+        sep = "")
+  }
+  
+  if (promptDelete) {
+    input <- readline(prompt = "\tAre you sure you want to proceed? (y/n): ")
+    
+    if (tolower(input) != "y") {
+      cat("NOTICE: Save aborted!")
+      return(invisible())
+    }
+  }
+  file.remove(filePath)
   
   saveCount <- 0
   failCount <- 0
@@ -33,8 +45,8 @@ saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date())
   }
   
   # PRINT SUCCESS MESSAGE
-  cat("SUCCESS: Center history saved for ", saveCount, " dates", sep="")
-  cat(", failed", failCount, "times\n")
+  cat("SUCCESS: Center data saved for ", saveCount, " dates, ", sep="")
+  cat(failCount, " dates skipped (incomplete set)\n", sep="")
 }
 
 ### saveCenterData
@@ -56,7 +68,7 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
     dat <- rbind(dat[dat$Date != Sys.Date(),], history)
   } else {
     # ADD SILENT CHECK HERE?
-    cat("NOTICE: ", filePath, " does not exist.", 
+    cat("NOTICE: ", fileName, " does not exist.", 
         "\n\tCreating ", fileName, "...\n", sep="")
     dat <- history
   }
