@@ -180,24 +180,18 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
   
   # Columns to be removed
+  # ORGANIZE rm_cols
+  # COULD MAKE FLAG FOR CARD LEVEL UPGRADE
   rm_cols <- c("First_Name", "Last_Name", "School_Year", "Lead_Id...24", 
-               "Created_By", "Card_Level", "Stars_on_Current_Card",
-               "Cards_Available")
+               "Created_By", "Stars_on_Current_Card", "Last_Modified_By",
+               "Cards_Available", "Student_Notes", "Consent_to_Media_Release",
+               "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted",
+               "Last_Modified_On", "Center_Id", "Virtual_Center",
+               "Emergency_Contact", "Emergency_Phone")
+  
   na_cols <- c("Billing_Street_1", "Billing_Street_2", "Billing_City",
                "Billing_State", "Billing_Country", "Billing_Zip_Code",
                "Scholarship", "School_[WebLead]", "Teacher_[WebLead]")
-  
-  # maybe needed?
-  maybe_cols <- c("Enrollment_Start_Date", "Enrollment_End_Date", "Last_PR_Sent",
-                  "Description", "Student_Notes")
-  maybe_cols2 <- c("Last_Attendance_Date", "Last_PR_Date")
-  # not needed?
-  maybe_cols3 <- c("Consent_to_Media_Release",
-                   "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted")
-  maybe_cols4 <- c("Emergency_Contact", "Emergency_Phone", "Medical_Information")
-  maybe_cols5 <- c("Created_Date", "Last_Modified_On")
-  # all the same
-  maybe_cols6 <- c("Center_Id", "Center", "Virtual_Center")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
@@ -216,14 +210,11 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
   
   # Columns to be removed
-  rm_cols <- c("First_Name", "Last_Name", "Created_By", "Last_Modified_By...20",
-               "Last_Modified_By...33")
+  rm_cols <- c("First_Name", "Last_Name", "Last_Modified_By...20",
+               "Last_Modified_By...33", "Description", "Customer_Comments",
+               "Last_Modified_Date", "Emergency_Phone_Number", 
+               "Emergency_Contact", "Account_Relation")
   na_cols <- c("Date_of_Birth", "Last_TriMathlon_Reg._Date")
-  
-  # not needed?
-  maybe_cols = c("Center", "Description", "Customer_Comments",
-                 "Referral_Accounts", "Account_Relation",
-                 "Last_Modified_Date", "Created_Date")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
@@ -283,9 +274,7 @@ getStudentRanking <- function(date = Sys.Date()){
   dat <- getProgressData(date)
   
   #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(getEnrollmentData(date), 
-                        Delivery = as.factor(Delivery),
-                        Monthly_Sessions = as.numeric(Total_Sessions)) %>%
+  deliveryKey <- mutate(getEnrollmentData(date)) %>%
     select(Student, Delivery, Monthly_Sessions)
   
   dat <- merge(dat,deliveryKey)
@@ -347,29 +336,38 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   
   # Rename columns
   names(dat)[names(dat) == "Account_Name"] <- "Account"
+  names(dat)[names(dat) == "Total_Sessions"] <- "Monthly_Sessions"
+  names(dat)[names(dat) == "Primary_Enrollment_End"] <- "Contract_End_Date"
   
   # Reformat columns
-  # NEED TO REFORMAT Membership_Type
+  dat <- dat %>%
+    mutate(Membership_Type = 
+             gsub("^\\* ", "", Membership_Type)) %>%
+    mutate(Enrollment_Contract_Length = 
+             gsub(" months?", "", Enrollment_Contract_Length)) %>%
+    mutate(Enrollment_Length_of_Stay = 
+             gsub(" months?", "", Enrollment_Length_of_Stay)) %>%
+    mutate(Student_Length_of_Stay = 
+             gsub(" months?", "", Student_Length_of_Stay)) %>%
   
-  # Create columns from other columns
+    mutate(Monthly_Sessions = as.numeric(Monthly_Sessions)) %>%
+    mutate(Delivery = as.factor(Delivery))
+  
+  # Create new columns
   dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
                 .before = Student_First_Name)
   
   # Columns to be removed
   # Session_Length is handled as Duration in getProgressData()
-  rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length")
+  rm_cols <- c("Student_First_Name", "Student_Last_Name", "Session_Length",
+               "Virtual_Center", "Status")
   na_cols <- c()
-  
-  # all the same
-  maybe_cols <- c("Center", "Virtual_Center", "Status")
-  # maybe needed?
-  maybe_cols2 <- c("Primary_Enrollment_Start", "Primary_Enrollment_End", 
-                   "Expected_Monthly_Amount")
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- removeRawCols(dat, rm_cols)
-  dat <- removeRawCols(dat, na_cols, test_na = T)
+  dat <- dat %>%
+    removeRawCols(rm_cols)
+    removeRawCols(na_cols, test_na = T)
   
   return(dat)
 }#eof
