@@ -340,11 +340,17 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   names(dat)[names(dat) == "Primary_Enrollment_End"] <- "Contract_End_Date"
   
   # Reformat columns
-  # NEED TO REFORMAT Membership_Type
-  # remove asterisk
-  # remove "months" from 3 columns
+  dat <- mutate(dat, Membership_Type =
+                  gsub("^\\* ", "", Membership_Type))
   
-  # Create columns from other columns
+  dat <- mutate(dat, Enrollment_Contract_Length = 
+                  gsub(" months?", "", Enrollment_Contract_Length))
+  dat <- mutate(dat, Enrollment_Length_of_Stay = 
+                  gsub(" months?", "", Enrollment_Length_of_Stay))
+  dat <- mutate(dat,Student_Length_of_Stay = 
+                  gsub(" months?", "", Student_Length_of_Stay))
+  
+  # Create new columns
   dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
                 .before = Student_First_Name)
   
