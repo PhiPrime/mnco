@@ -145,7 +145,7 @@ readRawData <- function(fileRoot, date,
         stop("\"", fileName, "\" not found in Raw_Data or Downloads directories")
       } else {
         # Set filePath to read empty version of the raw data file
-        emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
+        emptyFileName <- paste0(fileRoot, "  EMPTY", ".xlsx")
         filePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
       }
     }
