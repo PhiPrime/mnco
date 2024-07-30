@@ -319,21 +319,33 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
 
 getAssessments <- function(updateGlobal = FALSE, 
                            date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Students Export", date, ignoreMissing, regExFile = TRUE)
+  dat <- readRawData(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
+                            "to [0-9]+_[0-9]+_[0-9]+"), 
+                     date, ignoreMissing, regExFile = TRUE)
   
-  dat <- mutate(dat, 
-                Last_Attendance_Date = as.Date(Last_Attendance_Date, 
-                                               format = "%m/%d/%Y"))
-  #"failed to parse" warning gets thrown
+  #Tidy up
+  tdat <- transmute(dat,
+                   Lead_Id = as.character(Lead_Id),
+                   Account_Id = Account_Id,
+                   Student= paste(Student_First_Name, Student_Last_Name),
+                   Enrollment_Status = as.factor(Enrollment_Status),
+                   Grade = as.factor(Grade),
+                   Assessment = Assessment_Title,
+                   Level = as.factor(Assessment_Level),
+                   Percent = Score*100,
+                   Pre = `Pre/Post`=="Pre",
+                   Group = Group=="Yes",
+                   Center = as.factor(Center))
   
-  students <- filter(dat, Enrollment_Status == "Enrolled")
-  inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
   
-  if(get){
-    return(dat)
+  
+  if(updateGlobal){
+    students <- filter(dat, Enrollment_Status == "Enrolled")
+    inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
+    assign("activeAssessment",students,envir = .GlobalEnv)
+    assign("inactiveAssessments",inactiveStudents,envir = .GlobalEnv)
   } else {
-    assign("students",students,envir = .GlobalEnv)
-    assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
+    return(tdat)
   }
 }#eof
 
@@ -479,14 +491,14 @@ readRawData <- function(fileRoot, date,
   if(regExFile) {
     #Compare first to rawFiles,
     rawFiles <- list.files(file.path(getwd(), "Raw_Data"))
-    fileOptions <- rawFiles[grepl(fileRoot, rawFiles)]
+    fileOptions <- rawFiles[grepl(fileName, rawFiles)]
     
     if(length(fileOptions)==1){
       #If only one is found assign it
-      fileRoot <- fileOptions
+      fileName <- fileOptions[1]
     }else if(length(fileOptions)>1){ 
       #If more than 1, error
-      stop(paste0("\"",fileRoot, "\" matched with the following files...", 
+      stop(paste0("\"",fileName, "\" matched with the following files...", 
                   paste("",fileOptions, sep = "\"\n\"", collapse = ""),
                   "\"\n...and does not know how to proceed, ",
                   "be more specific and try again."))
@@ -497,22 +509,22 @@ readRawData <- function(fileRoot, date,
                                                    getwd(), perl = T)), 
                                 "Downloads")
       downloadFiles <- list.files(downloadPath)
-      fileOptions <- downloadFiles[grepl(fileRoot, downloadFiles)]
+      fileOptions <- downloadFiles[grepl(fileName, downloadFiles)]
       
       
       if(length(fileOptions)==1){
         #If only one is found assign it
-        fileRoot <- fileOptions
+        fileName <- fileOptions
       }else if(length(fileOptions)>1){
         #If more than 1 match, error
-        stop(paste0("\"",fileRoot, "\" matched with the following files...", 
+        stop(paste0("\"",fileName, "\" matched with the following files...", 
                     paste("",fileOptions, sep = "\"\n\"", collapse = ""),
                     "\"\n...and does not know how to proceed, ",
                     "be more specific and try again."))
       } else if (length(fileOptions)==0){
         #If no matches stop and error
         stop(paste0("After searching both \"./Raw_Data\",",
-                    "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
+                    "and \"./Downloads\" \"", fileName, "\" yielded no matches.",
                     " Please try again."))
       }}
   }
