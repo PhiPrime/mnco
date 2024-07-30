@@ -93,14 +93,6 @@ setSuppressedStudents <- function(dat = data.frame(
   dat <- dat[which((today()<dat$expDate)),]
   
   fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
-  if(dim(dat)[1]==0){
-    
-    #Prompt file is about to be empty and check to continue
-    ans <- readline(prompt = paste0("NOTICE: \n", fileLoc,
-                                    " \nis about to be empty, continue? (Y/N):"))
-    if(grepl("[Nn]", ans)){ stop() }
-  }
-  
   saveRDS(dat, fileLoc)
 }
 
