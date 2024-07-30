@@ -592,11 +592,12 @@ saveTemplates <- function(date = Sys.Date()) {
   # template body for each one
   for(i in as.numeric(rownames(newLines))) {
     #Each new one needs filled by user input
-    ##NOTE: This does not accept the newlines from the email body,
-    ##      something needs to be done so this will actually work.
-    newFile[i,]$template <- readline(prompt = paste0(
+    ### NOTE: This does not record line breaks in email body
+    print(paste0(
       "Enter the Body for the template named ",
-      newFile[i,]$Template_Name, ":\n"))
+      newFile[i,]$Template_Name, ":"))
+    
+    newFile[i,]$template <- paste0(scan(what = ""), sep = " ", collapse =)
   }
   
   saveRDS(newFile, cacheFile)
