@@ -35,3 +35,52 @@ print_raw_na_cols <- function(date = today()) {
   }
 }
 
+
+###############     THE FUNCTION THAT MAKES THESE HEADERS     ###############
+
+asCommentHeader <- function(title = "", commentChar = "#") {
+  #Unify formatting
+  title <- toupper(title)
+  
+  width <- nchar(#As wide as sample text
+"MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
+  tn <- nchar(title)
+  
+  #Assign number of whitespace around title
+  if(title==""){
+    #Null constructor settings
+    wsn <- 0
+  } else {
+    wsn <- 5 #This const can be changed
+  }
+  
+  #Create prefix
+  prefix <- ""
+  suffix <- ""
+  comLen <- nchar(commentChar)
+  comChar <- substr(commentChar, comLen, comLen)
+  
+  if(commentChar == "<!--"){
+    prefix <- commentChar
+    suffix <- "-->"
+  }
+    
+  #Create begining
+  intro <- paste0(prefix,
+                 paste0(rep(comChar, 
+                       (floor((width-tn-2*wsn-nchar(prefix)-nchar(suffix))/2))), 
+                       collapse = ""))
+  
+  #Create ending
+  outro <- paste0(paste0(rep(comChar,
+                        (ceiling((width-tn-2*wsn-nchar(prefix)-nchar(suffix))/2))),
+                         collapse = ""),
+                  suffix)
+                  
+  
+  ws <- paste0(rep(" ", wsn), collapse = "")
+  
+  ret <- paste0(intro, ws, title, ws, outro)
+  
+  message(ret)
+  }#eof
