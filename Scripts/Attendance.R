@@ -1,6 +1,5 @@
-#### Attendance functions:
+#######################     ATTENDANCE FUNCTIONS     ########################
 
-### attendanceCheck
 attendanceCheck <- function(allowedBdays = 5)
 {
   #Get list of dates any student attended
@@ -39,7 +38,9 @@ attendanceCheck <- function(allowedBdays = 5)
   return(flaggedStudents)
 }#eof
 
-### sendOnVacation
+########################     VACATION FUNCTIONS     #########################
+
+## sendOnVacation
 # Sets a student to not appear in attendanceCheck(),
 # should reappear if returnDate is reached or a new attendance occurs
 
@@ -169,3 +170,4 @@ returnStudentFromVacation <- function(who){
   dat <- dat[!grepl(who, dat$Student),]
   setStudentsOnVacation(dat)
 }#eof
+

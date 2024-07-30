@@ -1,4 +1,4 @@
-#### Pricing functions:
+#########################     PRICING FUNCTIONS     #########################
 
 ### getPricing
 getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",

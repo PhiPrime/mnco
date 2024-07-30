@@ -1,5 +1,4 @@
-#### Deck functions:
-
+##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
 needsNewDeck <- function(minAllowed = 5){
   studentProgress <- getProgressData()
@@ -27,6 +26,7 @@ needsNewDeck <- function(minAllowed = 5){
   return(ret)
 }#eof
 
+#######################     SUPPRESSION FUNCTIONS     #######################
 ### suppressDeckWarning
 suppressDeckWarning <- function(studentRows = data.frame(
   matrix(ncol=5, nrow = 0, 

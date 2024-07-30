@@ -1,3 +1,4 @@
+#################     MAKE INTO UNIFIED KABLE FUNCTION     ##################
 kablize <- function(todisplay){
     
   rm <- gsub("(^.{1,8})", "", names(todisplay))
@@ -13,6 +14,7 @@ kablize <- function(todisplay){
   return(todisplay)
 }
 
+#######     FUNCTION TO GENERATE "MOST PRODUCTIVE STUDENT" KABLE     ########
 displayMostProductiveStudents <- function(){
   
 }

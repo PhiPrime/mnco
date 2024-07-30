@@ -1,3 +1,4 @@
+########################     NA COLUMN FUNCTIONS     ########################
 ### get_raw_na_cols
 # Returns a named list of vectors for names of columns containing only NAs in raw data files
 # MODIFY TO ALLOW ITERATION THROUGH MULTIPLE DATES?
@@ -34,6 +35,8 @@ print_raw_na_cols <- function(date = today()) {
     cat("\"\n")
   }
 }
+
+#####################     COMMENT HEADER FUNCTIONS     ######################
 
 
 ###############     THE FUNCTION THAT MAKES THESE HEADERS     ###############
@@ -84,3 +87,32 @@ asCommentHeader <- function(title = "", commentChar = "#") {
   
   message(ret)
   }#eof
+
+#############################################################################
+#                                                                           #
+#                   THE FUNCTION THAT MAKES THESE HEADERS                   #
+#                                                                           #
+#############################################################################
+
+asBigCommentHeader <- function(title, commentChar = "#"){
+  #Add extra whitespace
+  wsMulti <- (3-sqrt(5))/2 #Multiple of title length
+  xtrawsN <- floor(wsMulti*nchar(title))
+  threshold <- 76#arbitrarily chosen
+  if((2*xtrawsN+nchar(title))>threshold){
+    xtrawsN <- floor((threshold-nchar(title))/2)
+    
+  }
+  xtraws <- paste0(rep(" ", xtrawsN), collapse = "")
+  title <- paste0(xtraws, title, xtraws)
+  
+  #For extra empty rows
+  wsTitle <- paste0(rep(" ", nchar(title)), collapse="")
+  
+  #Make messages generate in order for copy&paste
+  asCommentHeader("", commentChar)
+  asCommentHeader(wsTitle, commentChar)
+  asCommentHeader(title, commentChar)
+  asCommentHeader(wsTitle, commentChar)
+  asCommentHeader("", commentChar)
+}

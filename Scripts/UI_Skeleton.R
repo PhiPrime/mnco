@@ -14,12 +14,12 @@
 ##Fix the visibility toggle         #
 #####################################
 
-# Library
+#############################     LIBRARIES     #############################
 library(shiny)
 library(miniUI)
 library(shinyjs)
 
-# Base UI Function
+########################     FULL SHINY FUNCTION     ########################
 CO_UI <- function() {
   
   #Generate the UI
@@ -77,6 +77,7 @@ CO_UI <- function() {
     )
   )
   
+
   #Generate the server for the UI
   server <- function(input, output, session) {
     # Closes the application
@@ -164,5 +165,5 @@ CO_UI <- function() {
   runGadget(ui, server)
 }
 
-# Run the UI
+##############################     RUN UI     ###############################
 CO_UI()
