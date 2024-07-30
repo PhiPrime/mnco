@@ -10,15 +10,15 @@ saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
   
   # Delete centerHistory.rds
   if (file.exists(filePath)) {
-    cat("CAUTION: \"", fileName, "\" will now be deleted and recreated!\n", 
-        sep = "")
+    warning(cat("CAUTION: \"", fileName, 
+                "\" will now be deleted and recreated!\n", sep = ""))
   }
   
   if (promptDelete) {
     input <- readline(prompt = "\tAre you sure you want to proceed? (y/n): ")
     
     if (tolower(input) != "y") {
-      cat("NOTICE: Save aborted!")
+      message(cat("NOTICE: Save aborted!"))
       return(invisible())
     }
   }
@@ -45,8 +45,10 @@ saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
   }
   
   # PRINT SUCCESS MESSAGE
-  cat("SUCCESS: Center data saved for ", saveCount, " dates, ", sep="")
-  cat(failCount, " dates skipped (incomplete set)\n", sep="")
+  message(cat("SUCCESS: Center data saved for ", saveCount, 
+              " dates, ", sep=""))
+  
+  message(cat(failCount, " dates skipped (incomplete set)\n", sep=""))
 }
 
 ### saveCenterData
@@ -67,9 +69,10 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
     dat <- readRDS(filePath)
     dat <- rbind(dat[dat$Date != Sys.Date(),], history)
   } else {
-    # ADD SILENT CHECK HERE?
-    cat("NOTICE: ", fileName, " does not exist.", 
-        "\n\tCreating ", fileName, "...\n", sep="")
+    # ADD SILENT CHECK HERE? 
+    # -We should start using message() and warning() in addition to stop()
+    message(cat("NOTICE: ", fileName, " does not exist.", 
+        "\n\tCreating ", fileName, "...\n", sep=""))
     dat <- history
   }
   

@@ -23,8 +23,8 @@ attendanceCheck <- function(allowedBdays = 5)
     mutate(Name = Student,
            Phone = ifelse(is.na(Mobile_Phone), 
                           ifelse(is.na(Home_Phone), 
-                                 Other_Phone, Home_Phone), Mobile_Phone)) %>%
-        
+                                 Other_Phone, Home_Phone), Mobile_Phone),
+           Link = paste0("[Message]()")) %>%
     select(Last_Attendance_Date, Name, Account, Phone)
   
   
@@ -125,6 +125,8 @@ setStudentsOnVacation <- function(dat = data.frame(
   matrix(ncol=2, nrow = 0, 
          dimnames = list(NULL, 
                          c("Student", "returnDate"))))){
+  fileLoc <- paste0(getwd(), "/Cache/StudentsOnVacation", ".rds")
+  
   #Query last attendance date
   dat <- merge(dat,
         mutate(getStudentData(),
@@ -148,7 +150,7 @@ setStudentsOnVacation <- function(dat = data.frame(
   #Only save those that meet requirements 
   dat <- dat[req1&req2,]
   
-  fileLoc <- paste0(getwd(), "/Cache/StudentsOnVacation", ".rds")
+  
   if(dim(dat)[1]==0){
     #Send warning about empty file
     warning(paste0("The following file is now empty:\n", fileLoc))

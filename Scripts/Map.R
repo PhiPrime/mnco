@@ -54,7 +54,7 @@ generateMap <- function(useCache = TRUE){
     
   } else {
     if(useCache) {
-      print(paste0("Caution: No file found named: ", 
+      warning(paste0("No file found named: ", 
                    fileLoc,". One will now be created."))
     }
     ret <- geocode(tidydat, address, method = 'arcgis')

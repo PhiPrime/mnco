@@ -89,7 +89,7 @@ CO_UI <- function() {
       getCenterData()
       
       #For debug use
-      print("Update pressed")
+      message("Update pressed")
     })
     
     # Handlers for update functions
@@ -104,7 +104,7 @@ CO_UI <- function() {
       saveAllCenterData()
       
       #For debug use
-      print("Save pressed")
+      message("Save pressed")
     })
     
     #Run attendanceCheck
@@ -112,7 +112,7 @@ CO_UI <- function() {
       attendanceCheck()
       
       #For debug use
-      print("Attendance check pressed")
+      message("Attendance check pressed")
     })
     
     #Run getStudentsOnVacation
@@ -120,7 +120,7 @@ CO_UI <- function() {
       getStudentsOnVacation()
       
       #For debug use
-      print("Attendance check pressed")
+      message("Attendance check pressed")
     })
     
     #Main display button
@@ -135,7 +135,7 @@ CO_UI <- function() {
       saveCenterData(silent = T)
       
       #new deck section
-      print("The following students likely need a new deck made\n")
+      message("The following students likely need a new deck made\n")
       needsNewDeck()
       kablize(needsNewDeck())
       
@@ -143,7 +143,7 @@ CO_UI <- function() {
       stus <- attendanceCheck(5)
       
       #display data
-      print("The following students have not been here in the past\n")
+      message("The following students have not been here in the past\n")
       stus
       kablize(stus)
 
@@ -151,7 +151,7 @@ CO_UI <- function() {
       sink()
       
       #If not prematurely done, send success to console
-      print("Successfully made pdf")
+      message("Successfully made pdf")
       })
     
     #BROKEN: Shows hidden update functions

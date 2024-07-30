@@ -249,8 +249,9 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
       fileRoot2 <- "Student Report"
       dat <- readRawData(fileRoot2, date, ignoreMissing)
         
-      cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
-                   "\n\t\tis being used instead of\n\t", filePath, sep="")
+      message(
+        cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
+                   "\n\t\tis being used instead of\n\t", filePath, sep=""))
       dat <- mutate(dat,
              Student = dat$Student_Name,
              Guardian = dat$Guardians,
@@ -430,8 +431,8 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   
   #Check for and notify if no new data is found
   if(dim(newdat)[1]==0){
-    cat("NOTICE: getAttendanceData(get = ", get, ", date = ", as.character(date),
-      ") found no new attendance when updating.", sep = "")
+    message(cat("NOTICE: getAttendanceData(get = ", get, ", date = ", as.character(date),
+      ") found no new attendance when updating.", sep = ""))
   } 
   
   else {
@@ -504,7 +505,8 @@ moveDataDownloads <- function(file_name) {
   if (file.exists(file_path)) {
     file.rename(file_path, file_dest)
     # CHANGE TO NOT PRINT FULL PATH
-    cat("NOTICE: ", file_path, "\n\t\t-- moved to -->\n\t", file_dest, "\n", sep="")
+    message(cat("NOTICE: ", file_path, 
+                "\n\t\t-- moved to -->\n\t", file_dest, "\n", sep=""))
     file_moved <- T
   }
   
@@ -593,7 +595,7 @@ saveTemplates <- function(date = Sys.Date()) {
   for(i in as.numeric(rownames(newLines))) {
     #Each new one needs filled by user input
     ### NOTE: This does not record line breaks in email body
-    print(paste0(
+    message(paste0(
       "Enter the Body for the template named ",
       newFile[i,]$Template_Name, ":"))
     

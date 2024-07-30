@@ -48,8 +48,11 @@ suppressDeckWarning <- function(studentRows = data.frame(
   
   if (any(names(studentRows) != correctNames)){
     
-    print(paste0("Error: suppressDeckWarning(studentRows) passed incorrect argument. Data.Frame names should be: ", correctNames))
-    stop()
+    error <- paste0(
+      "suppressDeckWarning(studentRows) passed incorrect argument.\n",
+      "Data.Frame names should be:\n\t", paste0(correctNames,
+                                                     collapse = "", sep="\n\t"))
+    stop(error)
     
   } 
   
