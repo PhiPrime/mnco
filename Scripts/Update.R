@@ -228,41 +228,51 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 # Returns data processed from Radius's "Current Batch Detail Export" file
 # Contains rolling 30 days info on attendances and skills
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
-  fileRoot <- "Current Batch Detail Export"
-  filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
+  defaultRoot <-"Current Batch Detail Export"
+  bootstrapRoot <- "Student Report"
   
-  # NEED TO REORGANIZE THIS SOMEHOW
-  if(!file.exists(filePath)){
-    #Try to move from downloads
-    moveDataDownloads(gsub(".*/", "", filePath))
-    if(!file.exists(filePath)){
-      #Check for "bootstrap" files
-      fileRoot2 <- "Student Report"
-      dat <- readRawData(fileRoot2, date, ignoreMissing)
+  dat <- readRawData(defaultRoot, date, ignoreMissing = T)
+  
+  # FIGURE OUT HOW TO THROW AND CATCH ERROR PROPERLY
+  if (nrow(dat) == 0) {
+    tryCatch(
+      {
+        dat <-
+          readRawData(bootstrapRoot, date) %>%
+          
+          # REFORMAT THESE COLUMNS
+          mutate(
+            Student = dat$Student_Name,
+            Guardian = dat$Guardians,
+            Account = dat$Account_Name,
+            Active_Learning_Plans = dat$Active_LPs,
+            Attendances = dat$Attendance,
+            Skills_Mastered = dat$Skills_Mastered,
+            Skills_Currently_Assigned = dat$Skills_Assigned,
+            Enrollment_Status = dat$Enrollment_Status,
+            BPR_Comment = NA,
+            Last_PR_Send_Date = dat$Last_PR_Sent,
+            Email_Opt_Out = NA,
+          )
         
-      message(
-        cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
-                   "\n\t\tis being used instead of\n\t", filePath, sep=""))
-      dat <- mutate(dat,
-             Student = dat$Student_Name,
-             Guardian = dat$Guardians,
-             Account = dat$Account_Name, #Unsure of formatting
-             Active_Learning_Plans = dat$Active_LPs,
-             Attendances = dat$Attendance,
-             Skills_Mastered = dat$Skills_Mastered,
-             Skills_Currently_Assigned = dat$Skills_Assigned,
-             Enrollment_Status = dat$Enrollment_Status,
-             BPR_Comment = NA,
-             Last_PR_Send_Date = dat$Last_PR_Sent,
-             Email_Opt_Out = NA,
-      )
+        # ADD CHECK FOR ATTENDANCES BEING TOO HIGH
+        message(cat(
+          "NOTICE: \"", as.rawFileName(defaultRoot, date), "\"\n",
+          "\t\tis being used instead of\n", 
+          "\t\"", as.rawFileName(bootstrapRoot, date), "\"\n",
+          sep=""
+        ))
+      },
+      
+      error = function(e) {
+        if (!ignoreMissing) {
+          stop("Neither \"", as.rawFileName(defaultRoot, date), "\" or \"",
+               as.rawFileName(bootstrapRoot, date), "\"\n\tfound in Downloads or ",
+               "Raw_Data directories.")
+        }
       }
-    }#filePath should exist
-  
-  if(!file.exists(filePath)) {
-    stop(filePath, " does not exist :(")
+    )
   }
-  dat <- readRawData(fileRoot, date, ignoreMissing)
   
   # PROCESS COLUMNS HERE
 
