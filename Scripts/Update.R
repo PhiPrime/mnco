@@ -272,9 +272,7 @@ getStudentRanking <- function(date = Sys.Date()){
   dat <- getProgressData(date)
   
   #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(getEnrollmentData(date), 
-                        Delivery = as.factor(Delivery),
-                        Monthly_Sessions = as.numeric(Total_Sessions)) %>%
+  deliveryKey <- mutate(getEnrollmentData(date)) %>%
     select(Student, Delivery, Monthly_Sessions)
   
   dat <- merge(dat,deliveryKey)
@@ -340,15 +338,18 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   names(dat)[names(dat) == "Primary_Enrollment_End"] <- "Contract_End_Date"
   
   # Reformat columns
-  dat <- mutate(dat, Membership_Type =
-                  gsub("^\\* ", "", Membership_Type))
+  dat <- dat %>%
+    mutate(Membership_Type = 
+             gsub("^\\* ", "", Membership_Type)) %>%
+    mutate(Enrollment_Contract_Length = 
+             gsub(" months?", "", Enrollment_Contract_Length)) %>%
+    mutate(Enrollment_Length_of_Stay = 
+             gsub(" months?", "", Enrollment_Length_of_Stay)) %>%
+    mutate(Student_Length_of_Stay = 
+             gsub(" months?", "", Student_Length_of_Stay)) %>%
   
-  dat <- mutate(dat, Enrollment_Contract_Length = 
-                  gsub(" months?", "", Enrollment_Contract_Length))
-  dat <- mutate(dat, Enrollment_Length_of_Stay = 
-                  gsub(" months?", "", Enrollment_Length_of_Stay))
-  dat <- mutate(dat,Student_Length_of_Stay = 
-                  gsub(" months?", "", Student_Length_of_Stay))
+    mutate(Monthly_Sessions = as.numeric(Monthly_Sessions)) %>%
+    mutate(Delivery = as.factor(Delivery))
   
   # Create new columns
   dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
@@ -362,8 +363,9 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   # REXAMINE COLUMNS AFTER ABOVE ARE REVIEWED
   
   # Remove columns
-  dat <- removeRawCols(dat, rm_cols)
-  dat <- removeRawCols(dat, na_cols, test_na = T)
+  dat <- dat %>%
+    removeRawCols(rm_cols)
+    removeRawCols(na_cols, test_na = T)
   
   return(dat)
 }#eof
