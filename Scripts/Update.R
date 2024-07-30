@@ -21,7 +21,7 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   all <- merge(all, enrollments, all.x = TRUE)
   
   return(invisible(all))
-}
+}#eof
 
 ### mergeWithFill
 # Merge columns from 'df2' into 'df1', matching rows based on common columns
@@ -60,7 +60,7 @@ mergeWithFill <- function(df1, df2, .by) {
   }
   
   return(df)
-}
+}#eof
 
 ### removeRawCols
 # Deletes columns from output of readRawData()
@@ -81,12 +81,13 @@ removeRawCols <- function(df, ..., test_na = F) {
     df[[col_name]] <- NULL
   }
   return(df)
-}
+}#eof
 
 ### readRawData
 # Reads raw data excel file from Radius. If the file is in Downloads, it is
 #   moved to Raw_Data directory.
-readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
+readRawData <- function(fileRoot, date, 
+                        ignoreMissing = F, regExFile = F) {
   # Format file root into Radius style file name
   fileName <- as.rawFileName(fileRoot, date)
   filePath <- NULL
@@ -162,7 +163,7 @@ readRawData <- function(fileRoot, date, ignoreMissing = F, regExFile = F) {
 as.rawFileName <- function(file_root, date = Sys.Date()){
   paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"), 
          ".xlsx")
-}
+}#eof
 
 ### getStudentData
 # Returns data processed from Radius's "Students Export" file
@@ -377,7 +378,7 @@ getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData("Payments.xlsx", date)
   
   return(dat)
-}
+}#eof
 
 ### getCurriculumData
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
@@ -389,7 +390,7 @@ getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
 ### getAttendanceHistory
 getAttendanceTrainingSet <- function() {
   readRDS(file.path(getwd(), "Cache", "prior2024.rds"))
-}
+}#eof
 
 ### getAttendanceData
 getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
@@ -521,7 +522,7 @@ addDifferentDurationStudent <- function(student, duration) {
   
   dat <- rbind(dat, data.frame(Student = student, Duration = duration))
   write.csv(dat, filePath, row.names = F)
-}
+}#eof
 
 removeDifferentDurationStudent <- function(student) {
   # need to add file check
@@ -530,4 +531,85 @@ removeDifferentDurationStudent <- function(student) {
   
   dat <- dat[dat$Student != student,]
   write.csv(dat, filePath, row.names = F)
+}#eof
+
+templatesNeedUpdated <- function(date = Sys.Date()) {
+  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
+  newFile <- readRawData("Template Export", date) %>%
+    #Mark LA timezone, as that's what Radius stores
+    mutate(
+      Last_Modified_Date = lubridate::force_tz(
+        Last_Modified_Date, "America/Los_Angeles"),
+      Created_Date = lubridate::force_tz(
+        Created_Date, "America/Los_Angeles"),
+      template = NA_character_)
+  
+    #Tmp contains ID & Current modified Date
+    tmp <- mutate(newFile, Current_Date = Last_Modified_Date) %>%
+      select(Created_Date, Current_Date)
+    #If any dates are different from cache return TRUE
+    rtn <- any(with(merge(readRDS(cacheFile), tmp),
+                    Last_Modified_Date!=Current_Date))
+    return(rtn)
+  }#eof
+
+saveTemplates <- function(date = Sys.Date()) {
+  
+  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
+  newFile <- readRawData("Template Export", date) %>%
+    #Mark LA timezone, as that's what Radius stores
+    mutate(
+      Last_Modified_Date = lubridate::force_tz(
+        Last_Modified_Date, "America/Los_Angeles"),
+      Created_Date = lubridate::force_tz(
+        Created_Date, "America/Los_Angeles"),
+      template = NA_character_)
+  
+  if(file.exists(cacheFile)){
+    #If cache exists, pull it in and look for what's new
+    cache <- readRDS(cacheFile)
+    #tmp contains ID & cache's Modified Date
+    tmp <- mutate(cache, Old_Date = Last_Modified_Date,
+                         cachedTemplate = template) %>%
+      select(Created_Date, Old_Date, cachedTemplate)
+    
+    #Updated is a boolean that is TRUE for positions in newFile that
+    # need to be updated
+    updated <- which(with(merge(newFile, tmp),
+                          Last_Modified_Date!=Old_Date|
+                            is.na(cachedTemplate)))
+    
+    #newLines are rows that need filled
+    newLines <- newFile[updated,]
+    newFile[!updated,] <- merge(select(newFile[!updated,], -template),
+                                #If not updated use data in cache
+                                cache)
+  } else {#If no cache file everything will need updated
+    newLines <- newFile
+  }
+  
+  #Iterate through new rows and prompt user to input 
+  # template body for each one
+  for(i in as.numeric(rownames(newLines))) {
+    #Each new one needs filled by user input
+    ##NOTE: This does not accept the newlines from the email body,
+    ##      something needs to be done so this will actually work.
+    newFile[i,]$template <- readline(prompt = paste0(
+      "Enter the Body for the template named ",
+      newFile[i,]$Template_Name, ":\n"))
+  }
+  
+  saveRDS(newFile, cacheFile)
+}
+  
+getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
+  idDate <- strptime(createdDate, "%m/%d/%Y %I:%M:%S %p")
+  regexEx <- gsub(" [AP]M", "", 
+                  gsub(" [0-9]+:", " [0-9]+:", idDate))
+  
+  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
+  
+  dat <- readRDS(cacheFile)
+  rtn <- dat[grepl(regexEx, dat$Created_Date),]$template
+  
 }
