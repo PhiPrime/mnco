@@ -1,6 +1,6 @@
 #
 # UI Skeleton
-# Currently just functions as a proof of concept
+# All buttons currently broken
 #####################################
 #             TO DO:                #
 ##Incorporate vacation functions    #
@@ -18,7 +18,7 @@
 library(shiny)
 library(miniUI)
 library(shinyjs)
-
+library(stringi)
 ########################     FULL SHINY FUNCTION     ########################
 CO_UI <- function() {
   
@@ -36,47 +36,17 @@ CO_UI <- function() {
       
         #Layout for the function buttons
         splitLayout(
-          #Update Buttons
           verticalLayout(
-            actionButton("update_button", "Update"),
-            
-            #BROKEN: Conditional Button
-            #checkboxInput("update_checkbox", "Hide/Show Update Functions", FALSE),
-            
-            # Contains lesser functions for display
-            tabPanel("hidden_update",
-                 verticalLayout(
-                    actionButton("update_students_button", "Update Students"),
-                    actionButton("update_accounts_button", "Update Accounts"),
-                    actionButton("update_progress_button", "Update Progress"),
-                    actionButton("update_enrollments_button", "Update Enrollments")
-                 )
-            )
-        
-          ),
-          #Save Section
-          verticalLayout(
-            #Save Button
-            actionButton("save_button", "Save")
-          ),
-          
-          #Attendance Section
-          verticalLayout(
-            actionButton("a_check_button", "Attendance Check"),
-            actionButton("v_check_button", "Vacation Check")
-          ),
-          
-          verticalLayout(
-            actionButton("kablize_button", "Funny Kablize Button")
+            textAreaInput("v_input_field", "Input Student Names:", "", width = "1000px"),
+            actionButton("v_input_button", "Send on vacation"),
+            actionButton("v_return_button", "Return from vacation"),
           )
         ),
-      
         #Close the program
         actionButton("close_button", "Close",)
       ),
     )
   )
-  
 
   #Generate the server for the UI
   server <- function(input, output, session) {
@@ -85,82 +55,26 @@ CO_UI <- function() {
       stopApp()
     })
     
-    # Runs getCenterData()
-    observeEvent(input$update_button, {
-      getCenterData()
-      
-      #For debug use
-      message("Update pressed")
+    # Sends input students on vacation
+    observeEvent(input$v_input_button, {
+      #Gather the input
+      str_list <- str_split_1(input$v_input_field, "\n")
+      for (x in str_list) {
+        sendOnVacation(x)
+        message("Sent ", x, " on vacation")
+      }
     })
     
-    # Handlers for update functions
-    observeEvent(input$update_students_button, { getStudentData() })
-    observeEvent(input$update_accounts_button, { getAccountData() })
-    observeEvent(input$update_progress_button, { getProgressData() })
-    observeEvent(input$update_enrollments_button, { getEnrollmentData() })
-    
-    
-    # Runs saveAllCenterData()
-    observeEvent(input$save_button, {
-      saveAllCenterData()
-      
-      #For debug use
-      message("Save pressed")
+    # Returns input students from vacation
+    observeEvent(input$v_return_button, {
+      #Gather the input
+      str_list <- str_split_1(input$v_input_field, "\n")
+      for (x in str_list) {
+        returnStudentFromVacation(x)
+        message("Returned ", x, " from vacation")
+      }
     })
-    
-    #Run attendanceCheck
-    observeEvent(input$a_check_button, {
-      attendanceCheck()
-      
-      #For debug use
-      message("Attendance check pressed")
-    })
-    
-    #Run getStudentsOnVacation
-    observeEvent(input$v_check_button, {
-      getStudentsOnVacation()
-      
-      #For debug use
-      message("Attendance check pressed")
-    })
-    
-    #Main display button
-    #Essentially just runs the markdown file
-    #Does not display the text, only the data
-    observeEvent(input$kablize_button, {
-      #sink output into a file
-      sink("button_test.pdf")
-      
-      #update and save section
-      getCenterData()
-      saveCenterData(silent = T)
-      
-      #new deck section
-      message("The following students likely need a new deck made\n")
-      needsNewDeck()
-      kablize(needsNewDeck())
-      
-      #attendance check: allowable days set to 5
-      stus <- attendanceCheck(5)
-      
-      #display data
-      message("The following students have not been here in the past\n")
-      stus
-      kablize(stus)
-
-      #End output sink
-      sink()
-      
-      #If not prematurely done, send success to console
-      message("Successfully made pdf")
-      })
-    
-    #BROKEN: Shows hidden update functions
-    #observe({
-      #toggle(id = "hidden_update", condition = input$update_checkbox)
-    #})
   }
-  
   #run the gadget
   runGadget(ui, server)
 }
