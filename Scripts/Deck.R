@@ -9,9 +9,9 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
   
   #Select students under minAllowed  
   ret <- filter(studentProgress, 
-                Student %in% needsDeckBasedOnAssessment(date),
-                Skills_Currently_Assigned < minAllowed &
-                  Enrollment_Status == "Enrolled")
+                Student %in% needsDeckBasedOnAssessment(date)|
+                (Skills_Currently_Assigned < minAllowed &
+                  Enrollment_Status == "Enrolled"))
   
   ret <- ret[order(ret$Skills_Currently_Assigned),]
   
@@ -94,7 +94,7 @@ setSuppressedStudents <- function(dat = data.frame(
                            "Skills_Mastered", "Attendances", 
                            "creation", "expDate"))))){
   #Check for expired stints
-  dat <- dat[which((today()<dat$expDate)),]
+  dat <- dat[which((Sys.Date()<dat$expDate)),]
   
   fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   saveRDS(dat, fileLoc)

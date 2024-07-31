@@ -48,7 +48,7 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
   #Option 1
   ret <- c(ret,
            assessments$Student[
-             assessments$Date>assessments$Last_Attendance_Date])
+             assessments$Date>=assessments$Last_Attendance_Date])
   
   #Option 2
   ret <- c(ret,

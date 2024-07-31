@@ -8,9 +8,11 @@ kablize <- function(todisplay){
       names(todisplay)[i] <- paste0(names(todisplay)[i], "...")
     }
   }
-  todisplay <- kbl(todisplay, booktabs = TRUE) %>%
+  todisplay <- kbl(todisplay, booktabs = TRUE,
+                   "latex", escapse = FALSE) %>%
     kable_styling(latex_options = "striped",
-                  position = "left")
+                  position = "left",
+                  bootstrap_options = c("hover", "condensed"))
   return(todisplay)
 }
 
