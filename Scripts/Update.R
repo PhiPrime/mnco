@@ -275,6 +275,14 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   }
   
   # PROCESS COLUMNS HERE
+  rm_cols <- c()
+  na_cols <- c("BPR_Comment")
+  
+  maybe_cols <- c("Guardian", "Email_Opt_Out")
+  
+  # Remove columns
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
 
   # MERGE getStudentRanking() INTO dat
   return(dat)
