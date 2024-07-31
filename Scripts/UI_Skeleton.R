@@ -4,7 +4,6 @@
 #####################################
 #             TO DO:                #
 ##Add css stylesheet to format      #
-##Fix the visibility toggle         #
 #####################################
 
 #############################     LIBRARIES     #############################
@@ -26,13 +25,20 @@ CO_UI <- function() {
         
         #Title Bar
         gadgetTitleBar("Center\nOverview", NULL, NULL),
-      
+        
+        #Display buttons
+        splitLayout(
+          actionButton("v_display_toggle", "Vacation"),
+        ),
+        
         #Layout for the function buttons
         splitLayout(
-          verticalLayout(
-            textAreaInput("v_input_field", "Input Student Names:", "", width = "1000px"),
-            actionButton("v_input_button", "Send on vacation"),
-            actionButton("v_return_button", "Return from vacation"),
+          div(id = "display_vacation",
+            verticalLayout(
+              textAreaInput("v_input_field", "Input Student Names:", "", width = "1000px"),
+              actionButton("v_input_button", "Send on vacation"),
+              actionButton("v_return_button", "Return from vacation"),
+            )
           )
         ),
         #Close the program
@@ -40,12 +46,17 @@ CO_UI <- function() {
       ),
     )
   )
-
+  
   #Generate the server for the UI
   server <- function(input, output, session) {
     # Closes the application
     observeEvent(input$close_button, {
       stopApp()
+    })
+    
+    # Toggles vacation display
+    observeEvent(input$v_display_toggle, {
+      toggle(id = "display_vacation")
     })
     
     # Sends input students on vacation
