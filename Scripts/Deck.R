@@ -1,7 +1,7 @@
 ##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
-needsNewDeck <- function(minAllowed = 5){
-  studentProgress <- getProgressData()
+needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
+  studentProgress <- getProgressData(date)
   #Set any NAs to 0
   studentProgress[
     is.na(studentProgress$Skills_Currently_Assigned),]$
@@ -9,7 +9,7 @@ needsNewDeck <- function(minAllowed = 5){
   
   #Select students under minAllowed  
   ret <- filter(studentProgress, 
-                Student %in% needsDeckBasedOnAssessment(),
+                Student %in% needsDeckBasedOnAssessment(date),
                 Skills_Currently_Assigned < minAllowed &
                   Enrollment_Status == "Enrolled")
   

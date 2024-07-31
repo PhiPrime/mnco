@@ -26,7 +26,7 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
 }#eof
 
 ## Returns vector of names of students need a new deck due to an assessment
-needsDeckBasedOnAssessment <- function(date){
+needsDeckBasedOnAssessment <- function(date = Sys.time()){
     
   ## Ways to tell if a deck needs made based on assessments:
   ### 1) Assessment Date is between Last_Attendance_Date and today
