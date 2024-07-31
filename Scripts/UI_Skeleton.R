@@ -1,15 +1,8 @@
 #
 # UI Skeleton
-# All buttons currently broken
+# 
 #####################################
 #             TO DO:                #
-##Incorporate vacation functions    #
-###"send" and "return"              #
-###Create input to accept multiple  #
-###-"who" args and a date           #
-##Incorporate pricing functions     #
-##Incorporate all save functions    #
-##Add output / export               #
 ##Add css stylesheet to format      #
 ##Fix the visibility toggle         #
 #####################################
