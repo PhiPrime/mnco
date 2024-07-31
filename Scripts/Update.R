@@ -317,38 +317,6 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   
 }#eof
 
-getAssessments <- function(updateGlobal = FALSE, 
-                           date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
-                            "to [0-9]+_[0-9]+_[0-9]+"), 
-                     date, ignoreMissing, regExFile = TRUE)
-  
-  #Tidy up
-  tdat <- transmute(dat,
-                   Lead_Id = as.character(Lead_Id),
-                   Account_Id = Account_Id,
-                   Student= paste(Student_First_Name, Student_Last_Name),
-                   Enrollment_Status = as.factor(Enrollment_Status),
-                   Grade = as.factor(Grade),
-                   Assessment = Assessment_Title,
-                   Level = as.factor(Assessment_Level),
-                   Percent = Score*100,
-                   Pre = `Pre/Post`=="Pre",
-                   Group = Group=="Yes",
-                   Center = as.factor(Center))
-  
-  
-  
-  if(updateGlobal){
-    students <- filter(dat, Enrollment_Status == "Enrolled")
-    inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
-    assign("activeAssessment",students,envir = .GlobalEnv)
-    assign("inactiveAssessments",inactiveStudents,envir = .GlobalEnv)
-  } else {
-    return(tdat)
-  }
-}#eof
-
 ##saveTemplates 
 ## Uses "Template Export" with given date and checks if cache needs updated
 saveTemplates <- function(date = Sys.Date()) {

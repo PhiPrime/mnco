@@ -116,3 +116,11 @@ asBigCommentHeader <- function(title, commentChar = "#"){
   asCommentHeader(wsTitle, commentChar)
   asCommentHeader("", commentChar)
 }
+
+##########################     CLASS FUNCTIONS     ##########################
+as_Grade <- function(x){
+  #I'll do this later 
+  ret <- x
+    return(ret)
+}
+

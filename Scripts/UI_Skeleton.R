@@ -166,4 +166,5 @@ CO_UI <- function() {
 }
 
 ##############################     RUN UI     ###############################
-CO_UI()
+##Had to comment it out since sourcing this file will run the function
+#CO_UI()
