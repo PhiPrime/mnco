@@ -20,11 +20,45 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
                     Pre = `Pre/Post`=="Pre",
                     Group = Group=="Yes",
                     Center = as.factor(Center))
-  
+  tdat <- tdat[order(tdat$Date, decreasing = TRUE),]
   
   return(tdat)
 }#eof
 
+## Returns vector of names of students need a new deck due to an assessment
+needsDeckBasedOnAssessment <- function(date){
+    
+  ## Ways to tell if a deck needs made based on assessments:
+  ### 1) Assessment Date is between Last_Attendance_Date and today
+  ### 2) Active_Learning_Plans... == 0 & Pre | == 1 & Post | <2 & NF
+  ### 3) Save data in a cache and keep track of all assessments for each student
+  
+  ## We will use options 1&2
+  ret <- NA_character_
+  assessments <- getAssessments(date)
+  
+  #Option 1
+  stus <- select(getStudentData(date),
+                 Student, Last_Attendance_Date)
+  prog <- select(getProgressData(date),
+                 Student, Active_Learning_Plans)
+  assessments <- merge(assessments, stus) %>%
+    merge(prog)
+  
+  #Option 1
+  ret <- c(ret,
+           assessments$Student[
+             assessments$Date>assessments$Last_Attendance_Date])
+  
+  #Option 2
+  ret <- c(ret,
+           assessments$Student[with(assessments,
+                                    (Active_Learning_Plans==0)|
+                                      (Active_Learning_Plans==1)&!Pre)])
+  
+  return(ret)
+  
+  }#eof
 
 
 ###########################     OTHER SOURCES     ###########################

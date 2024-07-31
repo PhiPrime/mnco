@@ -9,6 +9,7 @@ needsNewDeck <- function(minAllowed = 5){
   
   #Select students under minAllowed  
   ret <- filter(studentProgress, 
+                Student %in% needsDeckBasedOnAssessment(),
                 Skills_Currently_Assigned < minAllowed &
                   Enrollment_Status == "Enrolled")
   

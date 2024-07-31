@@ -87,7 +87,7 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 # Contains rolling 30 days info on attendances and skills
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   fileRoot <- "Current Batch Detail Export"
-  filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot))
+  filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot, date))
   
   # NEED TO REORGANIZE THIS SOMEHOW
   if(!file.exists(filePath)){
@@ -99,7 +99,7 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
       dat <- readRawData(fileRoot2, date, ignoreMissing)
         
       message(
-        cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2)), 
+        cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2, date)), 
                    "\n\t\tis being used instead of\n\t", filePath, sep=""))
       dat <- mutate(dat,
              Student = dat$Student_Name,
