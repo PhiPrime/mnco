@@ -598,4 +598,8 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
     return(rtn)
   }#eof
 
-
+#For creating format of text files using an id & student name
+asMessageTxtFile <- function(id, student){
+  return(paste0(gsub("[ -]", "_", 
+              paste(id,student, sep = "__")),".txt"))
+}

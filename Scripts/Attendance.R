@@ -18,13 +18,15 @@ attendanceCheck <- function(allowedBdays = 5)
                                      acceptableDates[1]) &
                               Delivery=="In-Center" &
                               Enrollment_Status == "Enrolled") %>%
-    #Select phone in this order: Mobile, Home, Other
-    mutate(Name = Student,
-           Phone = ifelse(is.na(Mobile_Phone), 
+    
+    transmute(Last_Attendance_Date = Last_Attendance_Date,
+              Name = Student,
+              #Select phone in this order: Mobile, Home, Other
+              Phone = ifelse(is.na(Mobile_Phone), 
                           ifelse(is.na(Home_Phone), 
                                  Other_Phone, Home_Phone), Mobile_Phone),
-           Link = paste0("[Message]()")) %>%
-    select(Last_Attendance_Date, Name, Account, Phone)
+              Link = paste0("[Message](./Cache/", 
+                    asMessageTxtFile(Last_Attendance_Date, Name),")")) 
   
   
   flaggedStudents <- flaggedStudents[
@@ -171,3 +173,5 @@ returnStudentFromVacation <- function(who){
   setStudentsOnVacation(dat)
 }#eof
 
+###########################     OTHER SOURCES     ###########################
+source("Scripts/Update.R")
