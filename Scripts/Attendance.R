@@ -67,7 +67,8 @@ sendOnVacation <- function(who,
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
     #Then try some formats
-    addThisYear <- function(old) {mdy(paste(old, lubridate::year(Sys.Date())))}
+    addThisYear <- function(old) {lubridate::mdy(paste(
+      old, lubridate::year(Sys.Date())))}
     returnDate <- tryCatch(
       expr = mdy(returnDate),
       error = function(e) {
