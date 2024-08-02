@@ -132,10 +132,10 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   }
   
   # PROCESS COLUMNS HERE
-  rm_cols <- c()
+  rm_cols <- c("Guardian")
   na_cols <- c("BPR_Comment")
   
-  maybe_cols <- c("Guardian", "Email_Opt_Out")
+  maybe_cols <- c("Email_Opt_Out")
   
   # Remove columns
   dat <- removeRawCols(dat, rm_cols)
