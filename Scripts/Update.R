@@ -15,6 +15,7 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   
   # Merge into one data frame
   # NEED TO EXAMINE MERGING
+  # MERGE getStudentRanking()
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
@@ -140,67 +141,79 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
   # Remove columns
   dat <- removeRawCols(dat, rm_cols)
   dat <- removeRawCols(dat, na_cols, test_na = T)
-
-  # MERGE getStudentRanking() INTO dat
+  
   return(dat)
 }#eof
 
-getStudentRanking <- function(date = Sys.Date()){
-  dat <- getProgressData(date)
+getStudentRanking <- function(date = Sys.Date()) {
+  # Get the relevant data
+  progress <- getProgressData(date) %>%
+    select(Student, Skills_Mastered, Attendances)
   
-  #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(getEnrollmentData(date)) %>%
-    select(Student, Delivery, Monthly_Sessions)
+  deliveryKey <- getEnrollmentData(date) %>%
+    select(Student, Monthly_Sessions, Delivery)
   
-  dat <- merge(dat,deliveryKey)
+  differentDurationStudents <- 
+    read.csv("Cache/differentDurationStudents.csv")
   
-  #Sort and select desired data
-  # Add column for session duration
-  differentDurationStudents <- read.csv("Cache/differentDurationStudents.csv")
-  dat <- merge(dat, differentDurationStudents, all.x = T)
-  dat$Duration <- coalesce(dat$Duration, 60)
-  dat <- mutate(dat, Attendances = Attendances * Duration/60)
-  
-  #Subset valid contestants
-  dat <- dat[which(dat$Attendances >= dat$Monthly_Sessions/2 & 
-                     dat$Skills_Mastered>2 & 
-                     dat$Delivery == "In-Center"),]
-  
+  # Merge and filter the data
+  dat <- progress %>%
+    merge(differentDurationStudents, all.x = T) %>%
+    merge(deliveryKey, all.x = T) %>%
+    
+    # Scale attendances based on session length
+    mutate(Duration = coalesce(Duration, 60),
+           Attendances = Attendances * Duration / 60) %>% 
+    
+    # Subset valid contestants
+    filter(Attendances >= Monthly_Sessions / 2,
+           Skills_Mastered > 2,
+           Delivery == "In-Center")
+    
   #Create statistics for based on CI
   CI <- 95
   outlierThreshold <- 4
   roundingDig <- 4
-  dat <- mutate(dat, Pest = Skills_Mastered/Attendances, .after = Student)
   
-  #Outlier test
-  dat <- mutate(dat, 
-                zscore = (mean(dat$Pest)-Pest)/
-                  (sd(dat$Pest)/sqrt(Attendances)), .after = Pest)
-  #Get sd without outliers
-  samdev <- sd(dat$Pest[dat$zscore<outlierThreshold])
-  dat <- mutate(dat, 
-                UB = round(Pest-qnorm((1-CI/100)/2)*
-                             samdev/sqrt(Attendances),roundingDig),
-                LB = round(Pest+qnorm((1-CI/100)/2)*
-                             samdev/sqrt(Attendances),roundingDig),
-                .after = zscore)
-  dat <- mutate(dat, fontsize = round(32*LB/max(dat$LB), 1))
-  dat <- dat[order(dat$LB, decreasing = TRUE),]
-  dat <- mutate(dat, Rank = dim(dat)[1] +1 - rank(LB, ties.method = "max"),
-                .before = Student)
+  # Calculate ranking
+  dat <- dat %>%
+    mutate(
+      Pest = Skills_Mastered / Attendances,
+      
+      #Outlier test
+      zscore = (mean(Pest) - Pest) / (sd(Pest) / sqrt(Attendances)),
+      samdev = sd(Pest[abs(zscore) < outlierThreshold]),
+      
+      UB = round(Pest - qnorm((1 - CI / 100) / 2) *
+                   samdev / sqrt(Attendances), roundingDig),
+      LB = round(Pest + qnorm((1 - CI / 100) / 2) *
+                   samdev / sqrt(Attendances), roundingDig),
+      
+      Font_Size = round(32 * LB / max(LB), 1),
+      
+      Rank = rank(-LB, ties.method = "min"),
+      Rank_Display = paste0(
+        Rank,
+        case_when(
+          Rank %% 100 %in% 11:13 ~ "th",
+          Rank %% 10 == 1 ~ "st",
+          Rank %% 10 == 2 ~ "nd",
+          Rank %% 10 == 3 ~ "rd",
+          TRUE ~ "th"
+        )
+      )
+    ) %>%
+    select(-samdev)
   
+  # Reorder columns and sort by rank
+  col_order <- union(
+    c("Rank", "Student", "LB", "Pest", "UB", "zscore", "Font_Size", "Rank_Display"),
+    names(dat)
+  )
   
-  dat <- mutate(dat, rankSuffix = ifelse(grepl("[2-9]?1$", 
-                                               as.character(Rank)), "st",
-                                         ifelse(grepl("[2-9]?2$",
-                                                      as.character(Rank)), "nd",
-                                                ifelse(grepl("[2-9]?3$",
-                                                             as.character(Rank)),
-                                                       "rd","th")))) %>%
-    mutate(rankDisplay = paste0(Rank, rankSuffix))
-  
-  #Select reasonable data
-  # dat <- select(dat, )
+  dat <- dat %>% 
+    select(all_of(col_order)) %>%
+    arrange(Rank)
   
   return(dat)
 }#eof
