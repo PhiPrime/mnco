@@ -15,7 +15,7 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   
   # Merge into one data frame
   # NEED TO EXAMINE MERGING
-  # MERGE getStudentRanking()
+  # MERGE getStudentRanking
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
@@ -433,14 +433,6 @@ mergeWithFill <- function(df1, df2, .by) {
     colName.x <- paste0(colName, ".x")
     colName.y <- paste0(colName, ".y")
     
-    # Use NA if column is empty
-    # DOES NOT WORK ON EMPTY DATA FRAMES YET
-    # NEED TO PROPERLY MERGE DATA IN getCenterData() THEN FIND SOLUTION
-    #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
-    #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
-    #col.x <- df[[colName.x]]
-    #col.y <- df[[colName.y]]
-    
     # Fill value for common column to col.x and rename to col
     df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
     names(df)[names(df) == colName.x] <- colName
@@ -450,6 +442,39 @@ mergeWithFill <- function(df1, df2, .by) {
     # Delete col.y
     df[[colName.y]] <- NULL
   }
+  
+  return(df)
+}#eof
+
+mergeWithoutFill <- function(df1, df2, .by) {
+  # Merge df1 and df2. Common columns are suffixed with .x and .y
+  df <- merge(df1, df2, all.x = T, by = .by)
+  
+  # Iterate through common columns
+  for (col in intersect(names(df1), names(df2))) {
+    # Skip iteration if column was used to match
+    if (col %in% .by) next
+    
+    # Suffixed column strings
+    col.x <- paste0(col, ".x")
+    col.y <- paste0(col, ".y")
+    
+    if (identical(df[[col.x]], df[[col.y]])) {
+    
+      # Fill value for common column to col.x and rename to col
+      df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
+      names(df)[names(df) == col.x] <- col
+      # CHANGE TO THIS? MAYBE DOESN'T WORK
+      #df <- rename(df, col = col.x)
+    
+      # Delete col.y
+      df[[col.y]] <- NULL
+    }
+  }
+  unmerged <- setdiff(names(df), union(names(df1), names(df2)))
+  unmerged <- sort(unmerged)
+  
+  df <- select(df, all_of(unmerged))
   
   return(df)
 }#eof
