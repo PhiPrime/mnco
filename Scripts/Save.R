@@ -1,6 +1,5 @@
-#### Save functions:
+##########################     SAVE FUNCTIONS     ###########################
 
-### saveAllCenterData
 # FIGURE OUT IF SHOULD SAVE DATES WITH MISSING FILES
 saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
                               promptDelete = T) {
@@ -51,7 +50,6 @@ saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
   message(cat(failCount, " dates skipped (incomplete set)\n", sep=""))
 }
 
-### saveCenterData
 # Appends the output of getCenterData() to centerHistory.rds
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL saveAllCenterData() - USE ALL.EQUAL?
 saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {

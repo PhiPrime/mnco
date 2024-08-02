@@ -1,3 +1,4 @@
+#################     MAKE INTO UNIFIED KABLE FUNCTION     ##################
 kablize <- function(todisplay){
     
   rm <- gsub("(^.{1,8})", "", names(todisplay))
@@ -7,12 +8,15 @@ kablize <- function(todisplay){
       names(todisplay)[i] <- paste0(names(todisplay)[i], "...")
     }
   }
-  todisplay <- kbl(todisplay, booktabs = TRUE) %>%
+  todisplay <- kbl(todisplay, booktabs = TRUE,
+                   "latex", escapse = FALSE) %>%
     kable_styling(latex_options = "striped",
-                  position = "left")
+                  position = "left",
+                  bootstrap_options = c("hover", "condensed"))
   return(todisplay)
 }
 
+#######     FUNCTION TO GENERATE "MOST PRODUCTIVE STUDENT" KABLE     ########
 displayMostProductiveStudents <- function(){
   
 }

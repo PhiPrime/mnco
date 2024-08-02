@@ -1,10 +1,9 @@
-### Libraries
+#############################     LIBRARIES     #############################
 library(tidyverse)
 library(lubridate)
 library(readxl)
 
-#### Update functions:
-
+#########################     UPDATE FUNCTIONS     ##########################
 ### getCenterData
 # Returns data frame containing center data for a given date
 getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
@@ -21,148 +20,6 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   all <- merge(all, enrollments, all.x = TRUE)
   
   return(invisible(all))
-}#eof
-
-### mergeWithFill
-# Merge columns from 'df2' into 'df1', matching rows based on common columns
-#   in '.by'.
-# Common columns not in '.by' are filled with values from 'df1'. If values 
-#   are NA, they are filled from 'df2'.
-mergeWithFill <- function(df1, df2, .by) {
-  # Merge df1 and df2. Common columns are suffixed with .x and .y
-  df <- merge(df1, df2, all.x = T, by = .by)
-  
-  # Iterate through common columns
-  for (colName in intersect(names(df1), names(df2))) {
-    # Skip iteration if column was used to match
-    if (colName %in% .by) next
-    
-    # Suffixed column strings
-    colName.x <- paste0(colName, ".x")
-    colName.y <- paste0(colName, ".y")
-    
-    # Use NA if column is empty
-    # DOES NOT WORK ON EMPTY DATA FRAMES YET
-    # NEED TO PROPERLY MERGE DATA IN getCenterData() THEN FIND SOLUTION
-    #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
-    #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
-    #col.x <- df[[colName.x]]
-    #col.y <- df[[colName.y]]
-    
-    # Fill value for common column to col.x and rename to col
-    df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
-    names(df)[names(df) == colName.x] <- colName
-    # CHANGE TO THIS? MAYBE DOESN'T WORK
-    #df <- rename(df, col = col.x)
-    
-    # Delete col.y
-    df[[colName.y]] <- NULL
-  }
-  
-  return(df)
-}#eof
-
-### removeRawCols
-# Deletes columns from output of readRawData()
-removeRawCols <- function(df, ..., test_na = F) {
-  # Iterate through column names
-  for (col_name in unlist(list(...))) {
-    # Test columns
-    if (!(col_name %in% names(df))) {
-      # Column doesn't exist
-      stop("Column \'", col_name, "\' does not exist in data frame.")
-    } else if ( test_na && !all(is.na(df[[col_name]])) ) {
-      # Column not NA but should be
-      stop("Column \'", col_name, "\' is expected to be NA but isn't.",
-           "\n  Run print_raw_na_cols() to get today's list of NA columns.")
-    }
-    
-    # Delete column
-    df[[col_name]] <- NULL
-  }
-  return(df)
-}#eof
-
-### readRawData
-# Reads raw data excel file from Radius. If the file is in Downloads, it is
-#   moved to Raw_Data directory.
-readRawData <- function(fileRoot, date, 
-                        ignoreMissing = F, regExFile = F) {
-  # Format file root into Radius style file name
-  fileName <- as.rawFileName(fileRoot, date)
-  filePath <- NULL
-  
-  #If regex find a match with fileRoot in either folder
-  #If regex find a match with fileRoot in either folder
-  if(regExFile) {
-    #Compare first to rawFiles,
-    rawFiles <- list.files(file.path(getwd(), "Raw_Data"))
-    fileOptions <- rawFiles[grepl(fileRoot, rawFiles)]
-    
-    if(length(fileOptions)==1){
-      #If only one is found assign it
-      fileRoot <- fileOptions
-    }else if(length(fileOptions)>1){ 
-      #If more than 1, error
-      stop(paste0("\"",fileRoot, "\" matched with the following files...", 
-                  paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                  "\"\n...and does not know how to proceed, ",
-                  "be more specific and try again."))
-    } else if (length(fileOptions)==0){
-      #If not found compare to downloads folder
-      downloadPath <- file.path(regmatches(getwd(), 
-                                           regexpr("^.*?[/].*?[/].*?(?=/)",
-                                                   getwd(), perl = T)), 
-                                "Downloads")
-      downloadFiles <- list.files(downloadPath)
-      fileOptions <- downloadFiles[grepl(fileRoot, downloadFiles)]
-      
-      
-      if(length(fileOptions)==1){
-        #If only one is found assign it
-        fileRoot <- fileOptions
-      }else if(length(fileOptions)>1){
-        #If more than 1 match, error
-        stop(paste0("\"",fileRoot, "\" matched with the following files...", 
-                    paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                    "\"\n...and does not know how to proceed, ",
-                    "be more specific and try again."))
-      } else if (length(fileOptions)==0){
-        #If no matches stop and error
-        stop(paste0("After searching both \"./Raw_Data\",",
-                    "and \"./Downloads\" \"", fileRoot, "\" yielded no matches.",
-                    " Please try again."))
-      }}
-  }
-    # Default behavior: attempt to move file from Downloads, then look
-    #   in Raw_Data
-    filePath <- file.path(getwd(), "Raw_Data", fileName)
-    fileMoved <- moveDataDownloads(fileName)
-    
-    if (!fileMoved && !file.exists(filePath)) {
-      # File not found in Downloads or Raw_Data
-      if (!ignoreMissing) {
-        stop("\"", fileName, "\" not found in Raw_Data or Downloads directories")
-      } else {
-        # Set filePath to read empty version of the raw data file
-        emptyFileName <- paste0(fileRoot, "  EMPTY", ".xlsx")
-        filePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
-      }
-    }
-  
-  
-  # Read file and reformat column names to prevent bad behaviors
-  dat <- read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
-  
-  return(dat)
-}#eof
-
-### as.rawFileName
-# Formats raw data file root as Radius style file name
-as.rawFileName <- function(file_root, date = Sys.Date()){
-  paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"), 
-         ".xlsx")
 }#eof
 
 ### getStudentData
@@ -477,28 +334,215 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   
 }#eof
 
-getAssessments <- function(updateGlobal = FALSE, 
-                           date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Students Export", date, ignoreMissing, regExFile = TRUE)
+##saveTemplates 
+## Uses "Template Export" with given date and checks if cache needs updated
+saveTemplates <- function(date = Sys.Date()) {
   
-  dat <- mutate(dat, 
-                Last_Attendance_Date = as.Date(Last_Attendance_Date, 
-                                               format = "%m/%d/%Y"))
-  #"failed to parse" warning gets thrown
+  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
+  newFile <- readRawData("Template Export", date) %>%
+    #Mark LA timezone, as that's what Radius stores
+    mutate(
+      Last_Modified_Date = lubridate::force_tz(
+        Last_Modified_Date, "America/Los_Angeles"),
+      Created_Date = lubridate::force_tz(
+        Created_Date, "America/Los_Angeles"),
+      template = NA_character_)
   
-  students <- filter(dat, Enrollment_Status == "Enrolled")
-  inactiveStudents <- filter(dat, Enrollment_Status != "Enrolled")
-  
-  if(get){
-    return(dat)
-  } else {
-    assign("students",students,envir = .GlobalEnv)
-    assign("inactiveStudents",inactiveStudents,envir = .GlobalEnv)
+  if(file.exists(cacheFile)){
+    #If cache exists, pull it in and look for what's new
+    cache <- readRDS(cacheFile)
+    #tmp contains ID & cache's Modified Date
+    tmp <- mutate(cache, Old_Date = Last_Modified_Date,
+                  cachedTemplate = template) %>%
+      select(Created_Date, Old_Date, cachedTemplate)
+    
+    #Updated is a boolean that is TRUE for positions in newFile that
+    # need to be updated
+    updated <- which(with(merge(newFile, tmp),
+                          Last_Modified_Date!=Old_Date|
+                            is.na(cachedTemplate)))
+    
+    #newLines are rows that need filled
+    newLines <- newFile[updated,]
+    newFile[!updated,] <- merge(select(newFile[!updated,], -template),
+                                #If not updated use data in cache
+                                cache)
+  } else {#If no cache file everything will need updated
+    newLines <- newFile
   }
+  
+  #Iterate through new rows and prompt user to input 
+  # template body for each one
+  for(i in as.numeric(rownames(newLines))) {
+    #Each new one needs filled by user input
+    ### NOTE: This does not record line breaks in email body
+    message(paste0(
+      "Enter the Body for the template named ",
+      newFile[i,]$Template_Name, ":"))
+    
+    newFile[i,]$template <- paste0(scan(what = ""), sep = " ", collapse =)
+  }
+  
+  saveRDS(newFile, cacheFile)
+}
+
+##getTemplate
+## Uses Template cache to return template based on creation date
+getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
+  idDate <- strptime(createdDate, "%m/%d/%Y %I:%M:%S %p")
+  regexEx <- gsub(" [AP]M", "", 
+                  gsub(" [0-9]+:", " [0-9]+:", idDate))
+  
+  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
+  
+  dat <- readRDS(cacheFile)
+  rtn <- dat[grepl(regexEx, dat$Created_Date),]$template
+  
+}
+
+#####################     UPDATE UTILITY FUNCTIONS     ######################
+
+### mergeWithFill
+# Merge columns from 'df2' into 'df1', matching rows based on common columns
+#   in '.by'.
+# Common columns not in '.by' are filled with values from 'df1'. If values 
+#   are NA, they are filled from 'df2'.
+mergeWithFill <- function(df1, df2, .by) {
+  # Merge df1 and df2. Common columns are suffixed with .x and .y
+  df <- merge(df1, df2, all.x = T, by = .by)
+  
+  # Iterate through common columns
+  for (colName in intersect(names(df1), names(df2))) {
+    # Skip iteration if column was used to match
+    if (colName %in% .by) next
+    
+    # Suffixed column strings
+    colName.x <- paste0(colName, ".x")
+    colName.y <- paste0(colName, ".y")
+    
+    # Use NA if column is empty
+    # DOES NOT WORK ON EMPTY DATA FRAMES YET
+    # NEED TO PROPERLY MERGE DATA IN getCenterData() THEN FIND SOLUTION
+    #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
+    #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
+    #col.x <- df[[colName.x]]
+    #col.y <- df[[colName.y]]
+    
+    # Fill value for common column to col.x and rename to col
+    df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
+    names(df)[names(df) == colName.x] <- colName
+    # CHANGE TO THIS? MAYBE DOESN'T WORK
+    #df <- rename(df, col = col.x)
+    
+    # Delete col.y
+    df[[colName.y]] <- NULL
+  }
+  
+  return(df)
 }#eof
 
+### removeRawCols
+# Deletes columns from output of readRawData()
+removeRawCols <- function(df, ..., test_na = F) {
+  # Iterate through column names
+  for (col_name in unlist(list(...))) {
+    # Test columns
+    if (!(col_name %in% names(df))) {
+      # Column doesn't exist
+      stop("Column \'", col_name, "\' does not exist in data frame.")
+    } else if ( test_na && !all(is.na(df[[col_name]])) ) {
+      # Column not NA but should be
+      stop("Column \'", col_name, "\' is expected to be NA but isn't.",
+           "\n  Run print_raw_na_cols() to get today's list of NA columns.")
+    }
+    
+    # Delete column
+    df[[col_name]] <- NULL
+  }
+  return(df)
+}#eof
 
+### readRawData
+# Reads raw data excel file from Radius. If the file is in Downloads, it is
+#   moved to Raw_Data directory.
+readRawData <- function(fileRoot, date, 
+                        ignoreMissing = F, regExFile = F) {
+  # Format file root into Radius style file name
+  fileName <- as.rawFileName(fileRoot, date)
+  filePath <- NULL
+  
+  #If regex find a match with fileRoot in either folder
+  #If regex find a match with fileRoot in either folder
+  if(regExFile) {
+    #Compare first to rawFiles,
+    rawFiles <- list.files(file.path(getwd(), "Raw_Data"))
+    fileOptions <- rawFiles[grepl(fileName, rawFiles)]
+    
+    if(length(fileOptions)==1){
+      #If only one is found assign it
+      fileName <- fileOptions[1]
+    }else if(length(fileOptions)>1){ 
+      #If more than 1, error
+      stop(paste0("\"",fileName, "\" matched with the following files...", 
+                  paste("",fileOptions, sep = "\"\n\"", collapse = ""),
+                  "\"\n...and does not know how to proceed, ",
+                  "be more specific and try again."))
+    } else if (length(fileOptions)==0){
+      #If not found compare to downloads folder
+      downloadPath <- file.path(regmatches(getwd(), 
+                                           regexpr("^.*?[/].*?[/].*?(?=/)",
+                                                   getwd(), perl = T)), 
+                                "Downloads")
+      downloadFiles <- list.files(downloadPath)
+      fileOptions <- downloadFiles[grepl(fileName, downloadFiles)]
+      
+      
+      if(length(fileOptions)==1){
+        #If only one is found assign it
+        fileName <- fileOptions
+      }else if(length(fileOptions)>1){
+        #If more than 1 match, error
+        stop(paste0("\"",fileName, "\" matched with the following files...", 
+                    paste("",fileOptions, sep = "\"\n\"", collapse = ""),
+                    "\"\n...and does not know how to proceed, ",
+                    "be more specific and try again."))
+      } else if (length(fileOptions)==0){
+        #If no matches stop and error
+        stop(paste0("After searching both \"./Raw_Data\",",
+                    "and \"./Downloads\" \"", fileName, "\" yielded no matches.",
+                    " Please try again."))
+      }}
+  }
+  # Default behavior: attempt to move file from Downloads, then look
+  #   in Raw_Data
+  filePath <- file.path(getwd(), "Raw_Data", fileName)
+  fileMoved <- moveDataDownloads(fileName)
+  
+  if (!fileMoved && !file.exists(filePath)) {
+    # File not found in Downloads or Raw_Data
+    if (!ignoreMissing) {
+      stop("\"", fileName, "\" not found in Raw_Data or Downloads directories")
+    } else {
+      # Set filePath to read empty version of the raw data file
+      emptyFileName <- paste0(fileRoot, "  EMPTY", ".xlsx")
+      filePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
+    }
+  }
+  
+  
+  # Read file and reformat column names to prevent bad behaviors
+  dat <- read_excel(filePath, .name_repair = "unique_quiet")
+  names(dat) <- gsub(" ", "_", names(dat))
+  
+  return(dat)
+}#eof
 
+### as.rawFileName
+# Formats raw data file root as Radius style file name
+as.rawFileName <- function(file_root, date = Sys.Date()){
+  paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"), 
+         ".xlsx")
+}#eof
 
 moveDataDownloads <- function(file_name) {
   download_path <- file.path(regmatches(getwd(), regexpr("^.*?[/].*?[/].*?(?=/)", 
@@ -571,64 +615,8 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
     return(rtn)
   }#eof
 
-saveTemplates <- function(date = Sys.Date()) {
-  
-  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
-  newFile <- readRawData("Template Export", date) %>%
-    #Mark LA timezone, as that's what Radius stores
-    mutate(
-      Last_Modified_Date = lubridate::force_tz(
-        Last_Modified_Date, "America/Los_Angeles"),
-      Created_Date = lubridate::force_tz(
-        Created_Date, "America/Los_Angeles"),
-      template = NA_character_)
-  
-  if(file.exists(cacheFile)){
-    #If cache exists, pull it in and look for what's new
-    cache <- readRDS(cacheFile)
-    #tmp contains ID & cache's Modified Date
-    tmp <- mutate(cache, Old_Date = Last_Modified_Date,
-                         cachedTemplate = template) %>%
-      select(Created_Date, Old_Date, cachedTemplate)
-    
-    #Updated is a boolean that is TRUE for positions in newFile that
-    # need to be updated
-    updated <- which(with(merge(newFile, tmp),
-                          Last_Modified_Date!=Old_Date|
-                            is.na(cachedTemplate)))
-    
-    #newLines are rows that need filled
-    newLines <- newFile[updated,]
-    newFile[!updated,] <- merge(select(newFile[!updated,], -template),
-                                #If not updated use data in cache
-                                cache)
-  } else {#If no cache file everything will need updated
-    newLines <- newFile
-  }
-  
-  #Iterate through new rows and prompt user to input 
-  # template body for each one
-  for(i in as.numeric(rownames(newLines))) {
-    #Each new one needs filled by user input
-    ### NOTE: This does not record line breaks in email body
-    message(paste0(
-      "Enter the Body for the template named ",
-      newFile[i,]$Template_Name, ":"))
-    
-    newFile[i,]$template <- paste0(scan(what = ""), sep = " ", collapse =)
-  }
-  
-  saveRDS(newFile, cacheFile)
-}
-  
-getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
-  idDate <- strptime(createdDate, "%m/%d/%Y %I:%M:%S %p")
-  regexEx <- gsub(" [AP]M", "", 
-                  gsub(" [0-9]+:", " [0-9]+:", idDate))
-  
-  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
-  
-  dat <- readRDS(cacheFile)
-  rtn <- dat[grepl(regexEx, dat$Created_Date),]$template
-  
+#For creating format of text files using an id & student name
+asMessageTxtFile <- function(id, student){
+  return(paste0(gsub("[ -]", "_", 
+              paste(id,student, sep = "__")),".txt"))
 }

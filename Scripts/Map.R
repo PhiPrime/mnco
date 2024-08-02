@@ -1,4 +1,4 @@
-#### Map functions:
+###########################     MAP FUNCTIONS     ###########################
 
 ### generateMap
 generateMap <- function(useCache = TRUE){

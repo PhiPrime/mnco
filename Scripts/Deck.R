@@ -1,8 +1,7 @@
-#### Deck functions:
-
+##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
-needsNewDeck <- function(minAllowed = 5){
-  studentProgress <- getProgressData()
+needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
+  studentProgress <- getProgressData(date)
   #Set any NAs to 0
   studentProgress[
     is.na(studentProgress$Skills_Currently_Assigned),]$
@@ -10,8 +9,9 @@ needsNewDeck <- function(minAllowed = 5){
   
   #Select students under minAllowed  
   ret <- filter(studentProgress, 
-                Skills_Currently_Assigned < minAllowed &
-                  Enrollment_Status == "Enrolled")
+                Student %in% needsDeckBasedOnAssessment(date)|
+                (Skills_Currently_Assigned < minAllowed &
+                  Enrollment_Status == "Enrolled"))
   
   ret <- ret[order(ret$Skills_Currently_Assigned),]
   
@@ -27,6 +27,7 @@ needsNewDeck <- function(minAllowed = 5){
   return(ret)
 }#eof
 
+#######################     SUPPRESSION FUNCTIONS     #######################
 ### suppressDeckWarning
 suppressDeckWarning <- function(studentRows = data.frame(
   matrix(ncol=5, nrow = 0, 
@@ -93,7 +94,7 @@ setSuppressedStudents <- function(dat = data.frame(
                            "Skills_Mastered", "Attendances", 
                            "creation", "expDate"))))){
   #Check for expired stints
-  dat <- dat[which((today()<dat$expDate)),]
+  dat <- dat[which((Sys.Date()<dat$expDate)),]
   
   fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   saveRDS(dat, fileLoc)

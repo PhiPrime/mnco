@@ -1,6 +1,5 @@
-#### Attendance functions:
+#######################     ATTENDANCE FUNCTIONS     ########################
 
-### attendanceCheck
 attendanceCheck <- function(allowedBdays = 5)
 {
   #Get list of dates any student attended
@@ -19,13 +18,18 @@ attendanceCheck <- function(allowedBdays = 5)
                                      acceptableDates[1]) &
                               Delivery=="In-Center" &
                               Enrollment_Status == "Enrolled") %>%
-    #Select phone in this order: Mobile, Home, Other
-    mutate(Name = Student,
-           Phone = ifelse(is.na(Mobile_Phone), 
+    
+    transmute(Last_Attendance_Date = Last_Attendance_Date,
+              Name = Student,
+              #Select phone in this order: Mobile, Home, Other
+              Phone = ifelse(is.na(Mobile_Phone), 
                           ifelse(is.na(Home_Phone), 
                                  Other_Phone, Home_Phone), Mobile_Phone),
-           Link = paste0("[Message]()")) %>%
-    select(Last_Attendance_Date, Name, Account, Phone)
+             Link = cell_spec("Message", format = "latex",
+                               link = paste0("./Cache/",
+                                       asMessageTxtFile(Last_Attendance_Date,
+                                                        Name))))
+              
   
   
   flaggedStudents <- flaggedStudents[
@@ -39,7 +43,9 @@ attendanceCheck <- function(allowedBdays = 5)
   return(flaggedStudents)
 }#eof
 
-### sendOnVacation
+########################     VACATION FUNCTIONS     #########################
+
+## sendOnVacation
 # Sets a student to not appear in attendanceCheck(),
 # should reappear if returnDate is reached or a new attendance occurs
 
@@ -61,7 +67,8 @@ sendOnVacation <- function(who,
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
     #Then try some formats
-    addThisYear <- function(old) {mdy(paste(old, lubridate::year(Sys.Date())))}
+    addThisYear <- function(old) {lubridate::mdy(paste(
+      old, lubridate::year(Sys.Date())))}
     returnDate <- tryCatch(
       expr = mdy(returnDate),
       error = function(e) {
@@ -169,3 +176,6 @@ returnStudentFromVacation <- function(who){
   dat <- dat[!grepl(who, dat$Student),]
   setStudentsOnVacation(dat)
 }#eof
+
+###########################     OTHER SOURCES     ###########################
+source("Scripts/Update.R")
