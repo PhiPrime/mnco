@@ -591,14 +591,22 @@ moveDataDownloads <- function(file_name) {
     stop("Downloads folder not found at \"", download_path, "\"")
   }
   
-  if(!grepl("Overview$", getwd())) {
-    stop("While trying to moveDataDownloads, \"",
-         getwd(),
-         "\"\n\tis the working directory but does not end with \"Overview\"")
+  if (!file.exists(download_path)) {
+    stop("Downloads folder not found at \"", download_path, "\"")
   }
+  
+  # if(!grepl("Overview$", getwd())) {
+  #   stop("While trying to moveDataDownloads, \"",
+  #        getwd(),
+  #        "\"\n\tis the working directory but does not end with \"Overview\"")
+  # }
   
   file_dest <- file.path(getwd(), "Raw_Data", file_name)
   file_moved <- F
+  
+  if (!file.exists(gsub(file_name, "", file_dest))) {
+    stop("Raw_Data folder not found at \"", download_path, "\"")
+  }
   
   if (file.exists(file_path)) {
     file.rename(file_path, file_dest)
