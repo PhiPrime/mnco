@@ -2,3 +2,15 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+
+^Cache$
+^Output$
+^Raw_Data$
+^Raw_Helper$
+^Scripts$
+
+^centerOverview\.md$
+^centerOverview\.pdf$
+^centerOverview\.Rmd$
+^centerOverview\.Rproj$
+^git-cheatsheet\.txt$
