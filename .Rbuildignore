@@ -14,3 +14,5 @@
 ^centerOverview\.Rmd$
 ^centerOverview\.Rproj$
 ^git-cheatsheet\.txt$
+
+^data-raw$
