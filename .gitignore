@@ -1,9 +1,8 @@
 .Rproj.user
 .Rhistory
 .RData
-.Ruserdata
-sandbox.Rmd
-
 .httr-oauth
 .DS_Store
 .quarto
+
+sandbox.Rmd
