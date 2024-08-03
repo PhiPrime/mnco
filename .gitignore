@@ -3,3 +3,7 @@
 .RData
 .Ruserdata
 sandbox.Rmd
+
+.httr-oauth
+.DS_Store
+.quarto
