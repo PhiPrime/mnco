@@ -16,10 +16,6 @@ library(shinyjs)
 library(stringi)
 ########################     FULL SHINY FUNCTION     ########################
 
-#Backwards initialization
-rmdfiles <- c("centerOverview.Rmd")
-sapply(rmdfiles, knit, quiet = T)
-
 CO_UI <- function() {
   
   #Generate the UI
