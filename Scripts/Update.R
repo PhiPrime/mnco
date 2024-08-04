@@ -15,13 +15,13 @@ getCenterData <- function(date = Sys.Date(), ignoreMissing = F) {
   
   # Merge into one data frame
   # NEED TO EXAMINE MERGING
+  # MERGE getStudentRanking
   all <- mergeWithFill(students, accounts, .by = "Account_Id")
   all <- merge(all, progress, all.x = TRUE)
   all <- merge(all, enrollments, all.x = TRUE)
   
   return(invisible(all))
 }#eof
-
 
 ### getStudentData
 # Returns data processed from Radius's "Students Export" file
@@ -86,104 +86,134 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
 # Returns data processed from Radius's "Current Batch Detail Export" file
 # Contains rolling 30 days info on attendances and skills
 getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
-  fileRoot <- "Current Batch Detail Export"
-  filePath <- file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot, date))
+  defaultRoot <-"Current Batch Detail Export"
+  bootstrapRoot <- "Student Report"
   
-  # NEED TO REORGANIZE THIS SOMEHOW
-  if(!file.exists(filePath)){
-    #Try to move from downloads
-    moveDataDownloads(gsub(".*/", "", filePath))
-    if(!file.exists(filePath)){
-      #Check for "bootstrap" files
-      fileRoot2 <- "Student Report"
-      dat <- readRawData(fileRoot2, date, ignoreMissing)
+  dat <- readRawData(defaultRoot, date, ignoreMissing = T)
+  
+  # FIGURE OUT HOW TO THROW AND CATCH ERROR PROPERLY
+  if (nrow(dat) == 0) {
+    tryCatch(
+      {
+        dat <-
+          readRawData(bootstrapRoot, date) %>%
+          
+          # REFORMAT THESE COLUMNS
+          mutate(
+            Student = dat$Student_Name,
+            Guardian = dat$Guardians,
+            Account = dat$Account_Name,
+            Active_Learning_Plans = dat$Active_LPs,
+            Attendances = dat$Attendance,
+            Skills_Mastered = dat$Skills_Mastered,
+            Skills_Currently_Assigned = dat$Skills_Assigned,
+            Enrollment_Status = dat$Enrollment_Status,
+            BPR_Comment = NA,
+            Last_PR_Send_Date = dat$Last_PR_Sent,
+            Email_Opt_Out = NA,
+          )
         
-      message(
-        cat("NOTICE: ", file.path(getwd(), "Raw_Data", as.rawFileName(fileRoot2, date)), 
-                   "\n\t\tis being used instead of\n\t", filePath, sep=""))
-      dat <- mutate(dat,
-             Student = dat$Student_Name,
-             Guardian = dat$Guardians,
-             Account = dat$Account_Name, #Unsure of formatting
-             Active_Learning_Plans = dat$Active_LPs,
-             Attendances = dat$Attendance,
-             Skills_Mastered = dat$Skills_Mastered,
-             Skills_Currently_Assigned = dat$Skills_Assigned,
-             Enrollment_Status = dat$Enrollment_Status,
-             BPR_Comment = NA,
-             Last_PR_Send_Date = dat$Last_PR_Sent,
-             Email_Opt_Out = NA,
-      )
+        # ADD CHECK FOR ATTENDANCES BEING TOO HIGH
+        message(cat(
+          "NOTICE: \"", as.rawFileName(defaultRoot, date), "\"\n",
+          "\t\tis being used instead of\n", 
+          "\t\"", as.rawFileName(bootstrapRoot, date), "\"\n",
+          sep=""
+        ))
+      },
+      
+      error = function(e) {
+        if (!ignoreMissing) {
+          stop("Neither \"", as.rawFileName(defaultRoot, date), "\" or \"",
+               as.rawFileName(bootstrapRoot, date), "\"\n\tfound in Downloads or ",
+               "Raw_Data directories.")
+        }
       }
-    }#filePath should exist
-  
-  if(!file.exists(filePath)) {
-    stop(filePath, " does not exist :(")
+    )
   }
-  dat <- readRawData(fileRoot, date, ignoreMissing)
   
   # PROCESS COLUMNS HERE
-
-  # MERGE getStudentRanking() INTO dat
+  rm_cols <- c("Guardian")
+  na_cols <- c("BPR_Comment")
+  
+  maybe_cols <- c("Email_Opt_Out")
+  
+  # Remove columns
+  dat <- removeRawCols(dat, rm_cols)
+  dat <- removeRawCols(dat, na_cols, test_na = T)
+  
   return(dat)
 }#eof
 
-getStudentRanking <- function(date = Sys.Date()){
-  dat <- getProgressData(date)
+getStudentRanking <- function(date = Sys.Date()) {
+  # Get the relevant data
+  progress <- getProgressData(date) %>%
+    select(Student, Skills_Mastered, Attendances)
   
-  #Merge in delivery record from Enrollments
-  deliveryKey <- mutate(getEnrollmentData(date)) %>%
-    select(Student, Delivery, Monthly_Sessions)
+  deliveryKey <- getEnrollmentData(date) %>%
+    select(Student, Monthly_Sessions, Delivery)
   
-  dat <- merge(dat,deliveryKey)
+  differentDurationStudents <- 
+    read.csv("Cache/differentDurationStudents.csv")
   
-  #Sort and select desired data
-  # Add column for session duration
-  differentDurationStudents <- read.csv("Cache/differentDurationStudents.csv")
-  dat <- merge(dat, differentDurationStudents, all.x = T)
-  dat$Duration <- coalesce(dat$Duration, 60)
-  dat <- mutate(dat, Attendances = Attendances * Duration/60)
-  
-  #Subset valid contestants
-  dat <- dat[which(dat$Attendances >= dat$Monthly_Sessions/2 & 
-                     dat$Skills_Mastered>2 & 
-                     dat$Delivery == "In-Center"),]
-  
+  # Merge and filter the data
+  dat <- progress %>%
+    merge(differentDurationStudents, all.x = T) %>%
+    merge(deliveryKey, all.x = T) %>%
+    
+    # Scale attendances based on session length
+    mutate(Duration = coalesce(Duration, 60),
+           Attendances = Attendances * Duration / 60) %>% 
+    
+    # Subset valid contestants
+    filter(Attendances >= Monthly_Sessions / 2,
+           Skills_Mastered > 2,
+           Delivery == "In-Center")
+    
   #Create statistics for based on CI
   CI <- 95
   outlierThreshold <- 4
   roundingDig <- 4
-  dat <- mutate(dat, Pest = Skills_Mastered/Attendances, .after = Student)
   
-  #Outlier test
-  dat <- mutate(dat, 
-                zscore = (mean(dat$Pest)-Pest)/
-                  (sd(dat$Pest)/sqrt(Attendances)), .after = Pest)
-  #Get sd without outliers
-  samdev <- sd(dat$Pest[dat$zscore<outlierThreshold])
-  dat <- mutate(dat, 
-                UB = round(Pest-qnorm((1-CI/100)/2)*
-                             samdev/sqrt(Attendances),roundingDig),
-                LB = round(Pest+qnorm((1-CI/100)/2)*
-                             samdev/sqrt(Attendances),roundingDig),
-                .after = zscore)
-  dat <- mutate(dat, fontsize = round(32*LB/max(dat$LB), 1))
-  dat <- dat[order(dat$LB, decreasing = TRUE),]
-  dat <- mutate(dat, Rank = dim(dat)[1] +1 - rank(LB, ties.method = "max"),
-                .before = Student)
+  # Calculate ranking
+  dat <- dat %>%
+    mutate(
+      Pest = Skills_Mastered / Attendances,
+      
+      #Outlier test
+      zscore = (mean(Pest) - Pest) / (sd(Pest) / sqrt(Attendances)),
+      samdev = sd(Pest[abs(zscore) < outlierThreshold]),
+      
+      UB = round(Pest - qnorm((1 - CI / 100) / 2) *
+                   samdev / sqrt(Attendances), roundingDig),
+      LB = round(Pest + qnorm((1 - CI / 100) / 2) *
+                   samdev / sqrt(Attendances), roundingDig),
+      
+      Font_Size = round(32 * LB / max(LB), 1),
+      
+      Rank = rank(-LB, ties.method = "min"),
+      Rank_Display = paste0(
+        Rank,
+        case_when(
+          Rank %% 100 %in% 11:13 ~ "th",
+          Rank %% 10 == 1 ~ "st",
+          Rank %% 10 == 2 ~ "nd",
+          Rank %% 10 == 3 ~ "rd",
+          TRUE ~ "th"
+        )
+      )
+    ) %>%
+    select(-samdev)
   
+  # Reorder columns and sort by rank
+  col_order <- union(
+    c("Rank", "Student", "LB", "Pest", "UB", "zscore", "Font_Size", "Rank_Display"),
+    names(dat)
+  )
   
-  dat <- mutate(dat, rankSuffix = ifelse(grepl("[2-9]?1$", 
-                                               as.character(Rank)), "st",
-                                         ifelse(grepl("[2-9]?2$",
-                                                      as.character(Rank)), "nd",
-                                                ifelse(grepl("[2-9]?3$",
-                                                             as.character(Rank)),
-                                                       "rd","th")))) %>%
-    mutate(rankDisplay = paste0(Rank, rankSuffix))
-  
-  #Select reasonable data
-  # dat <- select(dat, )
+  dat <- dat %>% 
+    select(all_of(col_order)) %>%
+    arrange(Rank)
   
   return(dat)
 }#eof
@@ -403,14 +433,6 @@ mergeWithFill <- function(df1, df2, .by) {
     colName.x <- paste0(colName, ".x")
     colName.y <- paste0(colName, ".y")
     
-    # Use NA if column is empty
-    # DOES NOT WORK ON EMPTY DATA FRAMES YET
-    # NEED TO PROPERLY MERGE DATA IN getCenterData() THEN FIND SOLUTION
-    #col.x <- ifelse(!identical(df[[colName.x]], logical(0)), df[[colName.x]], NA)
-    #col.y <- ifelse(!identical(df[[colName.y]], logical(0)), df[[colName.y]], NA)
-    #col.x <- df[[colName.x]]
-    #col.y <- df[[colName.y]]
-    
     # Fill value for common column to col.x and rename to col
     df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
     names(df)[names(df) == colName.x] <- colName
@@ -420,6 +442,39 @@ mergeWithFill <- function(df1, df2, .by) {
     # Delete col.y
     df[[colName.y]] <- NULL
   }
+  
+  return(df)
+}#eof
+
+mergeWithoutFill <- function(df1, df2, .by) {
+  # Merge df1 and df2. Common columns are suffixed with .x and .y
+  df <- merge(df1, df2, all.x = T, by = .by)
+  
+  # Iterate through common columns
+  for (col in intersect(names(df1), names(df2))) {
+    # Skip iteration if column was used to match
+    if (col %in% .by) next
+    
+    # Suffixed column strings
+    col.x <- paste0(col, ".x")
+    col.y <- paste0(col, ".y")
+    
+    if (identical(df[[col.x]], df[[col.y]])) {
+    
+      # Fill value for common column to col.x and rename to col
+      df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
+      names(df)[names(df) == col.x] <- col
+      # CHANGE TO THIS? MAYBE DOESN'T WORK
+      #df <- rename(df, col = col.x)
+    
+      # Delete col.y
+      df[[col.y]] <- NULL
+    }
+  }
+  unmerged <- setdiff(names(df), union(names(df1), names(df2)))
+  unmerged <- sort(unmerged)
+  
+  df <- select(df, all_of(unmerged))
   
   return(df)
 }#eof
@@ -507,7 +562,7 @@ readRawData <- function(fileRoot, date,
       stop("\"", fileName, "\" not found in Raw_Data or Downloads directories")
     } else {
       # Set filePath to read empty version of the raw data file
-      emptyFileName <- paste0(fileRoot, "EMPTY", ".xlsx")
+      emptyFileName <- paste0(fileRoot, "  EMPTY", ".xlsx")
       filePath <- file.path(getwd(), "Raw_Helper", emptyFileName)
     }
   }
@@ -536,14 +591,22 @@ moveDataDownloads <- function(file_name) {
     stop("Downloads folder not found at \"", download_path, "\"")
   }
   
-  if(!grepl("Overview$", getwd())) {
-    stop("While trying to moveDataDownloads, \"",
-         getwd(),
-         "\"\n\tis the working directory but does not end with \"Overview\"")
+  if (!file.exists(download_path)) {
+    stop("Downloads folder not found at \"", download_path, "\"")
   }
+  
+  # if(!grepl("Overview$", getwd())) {
+  #   stop("While trying to moveDataDownloads, \"",
+  #        getwd(),
+  #        "\"\n\tis the working directory but does not end with \"Overview\"")
+  # }
   
   file_dest <- file.path(getwd(), "Raw_Data", file_name)
   file_moved <- F
+  
+  if (!file.exists(gsub(file_name, "", file_dest))) {
+    stop("Raw_Data folder not found at \"", download_path, "\"")
+  }
   
   if (file.exists(file_path)) {
     file.rename(file_path, file_dest)

@@ -164,8 +164,8 @@ CO_UI <- function() {
     })
     
     # Generate the report
-    observeEvent(input$report_button, {
-      #Not exactly sure what should go here but, like, its cool I guess
+    observeEvent(input$r_button, {
+      rmarkdown::render("centerOverview.Rmd")
     })
   }
   #run the gadget
