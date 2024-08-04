@@ -34,7 +34,12 @@ getCenterData <- function(rawDataDir, data = "all",
   invisible(centerData)
 }
 
-as.rawFileName <- function(file_root, date = Sys.Date()){
-  paste0(file_root, "  ", paste(month(date), day(date), year(date), sep = "_"),
-         ".xlsx")
+as.rawFileName <- function(fileRoot, date) {
+  paste0(fileRoot, "  ", as.radiusDate(date), ".xlsx")
+}
+
+as.radiusDate <- function(date) {
+  paste(lubridate::month(date),
+        lubridate::day(date),
+        lubridate::year(date), sep = "_")
 }
