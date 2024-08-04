@@ -1,5 +1,16 @@
-getCenterData <- function(rawDataDir, date = Sys.Date(), ignoreMissing = F) {
-  unmerged <- list()
+#' Title
+#'
+#' @param rawDataDir
+#' @param data
+#' @param date
+#' @param ignoreMissing
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getCenterData <- function(rawDataDir, data = "all",
+                          date = Sys.Date(), ignoreMissing = F) {
 
   for (fileRoot in radiusFileRoots) {
 
