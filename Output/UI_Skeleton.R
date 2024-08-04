@@ -69,8 +69,9 @@ CO_UI <- function() {
           # Report section
           div(id = "display_report",
               verticalLayout(
-                actionButton("r_button", "Generate Report")
-              )    
+                actionButton("r_button", "Generate Report"),
+                actionButton("rank_button", "Generate Ranking")
+              )
           ),
           
           # Save Section
@@ -166,6 +167,54 @@ CO_UI <- function() {
     # Generate the report
     observeEvent(input$r_button, {
       rmarkdown::render("centerOverview.Rmd")
+    })
+    
+    #Generate the rankings
+    #utilize sink function
+    observeEvent(input$rank_button, {
+      #Get the ranking
+      rank_data <- getStudentRanking()
+      
+      #
+      rank_df <- data.frame(
+                    Rank = c(rank_data[1:18,8]),
+                    Name = c(rank_data[1:18,2]),
+                    Avg = c(rank_data[1:18,5]),
+                    Font = c(rank_data[1:18,7])
+                  )
+      o_file <- "rankings.html"
+      
+      fileConn <- file(o_file)
+      
+      #Generate the output here
+      writeLines(
+        c("<html><body><h1>Most Productive Students<//h1>",
+          "<table>",
+          "<tr><td>Rank<//td><td>Name<//td>
+          <td>Predicted Mastery Checks Per Session<//td><//tr>"
+        ),
+        o_file
+      )
+      
+      for (x in 1:18) {
+        write(c("<tr><td style=\"font-size:",
+                rank_df[x,4],"\">",
+                rank_df[x,1],
+                "<//td><td style=\"font-size:",
+                rank_df[x,4],"\">",
+                rank_df[x,2],
+                "<//td><td style=\"font-size:",
+                rank_df[x,4],"\">",
+                rank_df[x,3],
+                "<//td><//tr>"
+                ), o_file, append = TRUE)
+      }
+        
+      #end output
+      write(c("<//table>","<//body>","<//html>"), o_file, append = TRUE)
+      
+      close(fileConn)
+      message(rank_df)
     })
   }
   #run the gadget
