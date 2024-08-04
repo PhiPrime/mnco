@@ -4,7 +4,7 @@
 \alias{getCenterData}
 \title{Title}
 \usage{
-getCenterData(rawDataDir, data = "all", date = Sys.Date(), ignoreMissing = F)
+getCenterData(dir, type = "all", date = Sys.Date(), ignoreMissing = F)
 }
 \arguments{
 \item{ignoreMissing}{}
