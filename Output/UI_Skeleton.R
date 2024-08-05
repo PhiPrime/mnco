@@ -63,13 +63,14 @@ CO_UI <- function() {
           ),
           
           # Report section
-          div(id = "display_report",
-              verticalLayout(
+          hidden(
+            div(id = "display_report",
+              splitLayout(
                 actionButton("r_button", "Generate Report"),
                 actionButton("rank_button", "Generate Ranking")
               )
+            )
           ),
-          
           # Save Section
           hidden(
             div(id = "display_save",
