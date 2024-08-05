@@ -16,10 +16,6 @@ library(shinyjs)
 library(stringi)
 ########################     FULL SHINY FUNCTION     ########################
 
-#Backwards initialization
-rmdfiles <- c("centerOverview.Rmd")
-sapply(rmdfiles, knit, quiet = T)
-
 CO_UI <- function() {
   
   #Generate the UI
@@ -49,37 +45,38 @@ CO_UI <- function() {
           # Vacation section
           hidden(
             div(id = "display_vacation",
-              verticalLayout(
-                textAreaInput("v_input_field", "Input Student Names:", "", width = "1000px"),
-                actionButton("v_input_button", "Send on vacation"),
-                actionButton("v_return_button", "Return from vacation"),
-              )
+                verticalLayout(
+                  textAreaInput("v_input_field", "Input Student Names:", "", width = "1000px"),
+                  actionButton("v_input_button", "Send on vacation"),
+                  actionButton("v_return_button", "Return from vacation"),
+                )
             )
           ),
           
           # Map Section
           hidden(
             div(id = "display_map",
-              verticalLayout(
-                actionButton("map_button", "Make map")
-              )
+                verticalLayout(
+                  actionButton("map_button", "Make map")
+                )
             )
           ),
           
           # Report section
-          div(id = "display_report",
-              verticalLayout(
-                actionButton("r_button", "Generate Report"),
-                actionButton("rank_button", "Generate Ranking")
-              )
+          hidden(
+            div(id = "display_report",
+                splitLayout(
+                  actionButton("r_button", "Generate Report"),
+                  actionButton("rank_button", "Generate Ranking")
+                )
+            )
           ),
-          
           # Save Section
           hidden(
             div(id = "display_save",
-              verticalLayout(
-                actionButton("save_button", "Save All Data"),
-              )
+                verticalLayout(
+                  actionButton("save_button", "Save All Data"),
+                )
             )
           )
         ),
@@ -175,46 +172,50 @@ CO_UI <- function() {
       #Get the ranking
       rank_data <- getStudentRanking()
       
-      #
-      rank_df <- data.frame(
-                    Rank = c(rank_data[1:dim(rank_data)[1],8]),
-                    Name = c(rank_data[1:dim(rank_data)[1],2]),
-                    Avg = c(rank_data[1:dim(rank_data)[1],5]),
-                    Font = c(rank_data[1:dim(rank_data)[1],7])
-                  )
+      #initialize parameter
+      no_included <- dim(rank_data)[1]
+      
       o_file <- "rankings.html"
       
       fileConn <- file(o_file)
       
       #Generate the output here
       writeLines(
-        c("<html><body><h1>Most Productive Students<//h1>",
-          "<table>",
-          "<tr><td>Rank<//td><td>Name<//td>
-          <td>Predicted Mastery Checks Per Session<//td><//tr>"
+        c("<html style=\"display:table;margin:auto\"><body>
+          <h1 style=\"
+          text-align:center;
+          border-style:solid;
+          \">
+          Most Productive Students<//h1>",
+          "<table style=\"text-align:center;border: solid;border-collapse:collapse\">",
+          "<tr style=\"border-style:solid;border-color:black\">
+          <td style=\"text-align:center;border: solid\">Rank<//td>
+          <td style=\"text-align:center;border: solid\">Name<//td>
+          <td style=\"text-align:center;border: solid\">Predicted Mastery Checks Per Session<//td><//tr>"
         ),
         o_file
       )
       
-      for (x in 1:dim(rank_data)[1]) {
-        write(c("<tr><td style=\"font-size:",
-                rank_df[x,4],"\">",
-                rank_df[x,1],
+      for (x in 1:no_included) {
+        write(c("<tr style=\"border-style:solid;border-color:black\">
+                <td style=\"font-size:",
+                rank_data[x,7],"\">",
+                rank_data[x,8],
                 "<//td><td style=\"font-size:",
-                rank_df[x,4],"\">",
-                rank_df[x,2],
+                rank_data[x,7],"\">",
+                rank_data[x,2],
                 "<//td><td style=\"font-size:",
-                rank_df[x,4],"\">",
-                rank_df[x,3],
+                rank_data[x,7],"\">",
+                rank_data[x,5],
                 "<//td><//tr>"
-                ), o_file, append = TRUE)
+        ), o_file, append = TRUE)
       }
-        
+      
       #end output
       write(c("<//table>","<//body>","<//html>"), o_file, append = TRUE)
       
       close(fileConn)
-      message(rank_df)
+      message("Rankings produced")
     })
   }
   #run the gadget
