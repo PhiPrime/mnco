@@ -26,15 +26,14 @@ getCenterData <- function(dir, type = "all",
     }
   } else if (type %in% names(radiusFileRoots)) {
     # Get and tidy data
-    tdat <-
+    data <-
       readRawData(dir, type, date) %>%
       tidyRawData(type)
-
   } else {
     stop("`type` is not a valid argument: \'", type, "\'")
   }
 
-  invisible(tdat)
+  invisible(data)
 }
 
 #' Read Radius raw data excel file
