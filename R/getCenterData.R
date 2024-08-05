@@ -26,7 +26,7 @@ getCenterData <- function(dir, type = "all",
     }
   } else if (type %in% names(radiusFileRoots)) {
     # Get and tidy data
-    dat <-
+    tdat <-
       readRawData(dir, type, date) %>%
       tidyRawData(type)
 
@@ -64,7 +64,7 @@ readRawData <- function(x, type = NULL, date = Sys.Date()) {
   }
 
   # Read and clean column names
-  dat <- readxl::read_excel(path, .name_repair = "unique_quiet") %>%
+  dat <- readxl::read_excel(path, .name_repair = "unique_quiet")
   names(dat) <- names(dat) %>%
     stringr::str_trim() %>%
     stringr::str_replace_all(" ", "_")
