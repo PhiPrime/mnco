@@ -171,46 +171,50 @@ CO_UI <- function() {
       #Get the ranking
       rank_data <- getStudentRanking()
       
-      #
-      rank_df <- data.frame(
-                    Rank = c(rank_data[1:18,8]),
-                    Name = c(rank_data[1:18,2]),
-                    Avg = c(rank_data[1:18,5]),
-                    Font = c(rank_data[1:18,7])
-                  )
+      #initialize parameter
+      no_included <- dim(rank_data)[1]
+      
       o_file <- "rankings.html"
       
       fileConn <- file(o_file)
       
       #Generate the output here
       writeLines(
-        c("<html><body><h1>Most Productive Students<//h1>",
-          "<table>",
-          "<tr><td>Rank<//td><td>Name<//td>
-          <td>Predicted Mastery Checks Per Session<//td><//tr>"
+        c("<html style=\"display:table;margin:auto\"><body>
+          <h1 style=\"
+          text-align:center;
+          border-style:solid;
+          \">
+          Most Productive Students<//h1>",
+          "<table style=\"text-align:center;border: solid;border-collapse:collapse\">",
+          "<tr style=\"border-style:solid;border-color:black\">
+          <td style=\"text-align:center;border: solid\">Rank<//td>
+          <td style=\"text-align:center;border: solid\">Name<//td>
+          <td style=\"text-align:center;border: solid\">Predicted Mastery Checks Per Session<//td><//tr>"
         ),
         o_file
       )
       
-      for (x in 1:18) {
-        write(c("<tr><td style=\"font-size:",
-                rank_df[x,4],"\">",
-                rank_df[x,1],
+      for (x in 1:no_included) {
+        write(c("<tr style=\"border-style:solid;border-color:black\">
+                <td style=\"font-size:",
+                rank_data[x,7],"\">",
+                rank_data[x,8],
                 "<//td><td style=\"font-size:",
-                rank_df[x,4],"\">",
-                rank_df[x,2],
+                rank_data[x,7],"\">",
+                rank_data[x,2],
                 "<//td><td style=\"font-size:",
-                rank_df[x,4],"\">",
-                rank_df[x,3],
+                rank_data[x,7],"\">",
+                rank_data[x,5],
                 "<//td><//tr>"
-                ), o_file, append = TRUE)
+        ), o_file, append = TRUE)
       }
         
       #end output
       write(c("<//table>","<//body>","<//html>"), o_file, append = TRUE)
       
       close(fileConn)
-      message(rank_df)
+      message("Rankings produced")
     })
   }
   #run the gadget
