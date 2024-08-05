@@ -2,13 +2,22 @@
 % Please edit documentation in R/getCenterData.R
 \name{getCenterData}
 \alias{getCenterData}
-\title{Title}
+\title{Get tidied data from Radius files}
 \usage{
 getCenterData(dir, type = "all", date = Sys.Date(), ignoreMissing = F)
 }
 \arguments{
-\item{ignoreMissing}{}
+\item{dir}{Directory containing Radius files}
+
+\item{type}{Which kind of Radius data to get}
+
+\item{date}{What date to get data for.}
+
+\item{ignoreMissing}{Whether to throw an error if file is not found}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Get tidied data from Radius files
 }

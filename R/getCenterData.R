@@ -1,20 +1,22 @@
-#' Title
+#' Get tidied data from Radius files
 #'
-#' @param rawDataDir
-#' @param data
-#' @param date
-#' @param ignoreMissing
+#' @param date What date to get data for.
+#' @param ignoreMissing Whether to throw an error if file is not found
+#' @param dir Directory containing Radius files
+#' @param type Which kind of Radius data to get
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
 getCenterData <- function(dir, type = "all",
                           date = Sys.Date(), ignoreMissing = F) {
   # Directory must exist
-  if (!dir.exists(dir)) stop(dir, " does not exist!")
+  if (!dir.exists(dir)) stop("`dir` does not exist: \'", dir, "\'")
 
+  # USE match.arg, stopifnot
   if (type == "all") {
+    # Get all data and merge
     unmerged <- list()
 
     for (.data in names(radiusFileRoots)) {
@@ -23,35 +25,50 @@ getCenterData <- function(dir, type = "all",
       unmerged <- unmerged %>% append(dat)
     }
   } else if (type %in% names(radiusFileRoots)) {
-    rawFileName <- as.rawFileName(radiusFileRoots[[type]], date)
-    rawFilePath <- file.path(dir, rawFileName)
+    # Get and tidy data
+    dat <-
+      readRawData(dir, type, date) %>%
+      tidyRawData(type)
 
-
-
-
-    dat <- readRawData
   } else {
-    stop(type, " is not a valid argument to 'data'.")
+    stop("`type` is not a valid argument: \'", type, "\'")
   }
 
   invisible(tdat)
 }
 
-readRawData <- function(dir, data, date = Sys.Date)
-readRawData <- function(path) {
-  if (!file.exists(path)) {
-    stop(path, " does not exist!")
+#' Read Radius raw data excel file
+#'
+#' @param x File path or directory.
+#' @param type Which radius data to use.
+#' @param date What date to use.
+#'
+#' @return A data frame
+#' @export
+#'
+#' @examples
+readRawData <- function(x, type = NULL, date = Sys.Date()) {
+  # MAYBE CHANGE TO OVERLOADING
+  if (!is.null(type)) {
+    # Use x as dir
+    if (!(type %in% names(radiusFileRoots))) {
+      stop("`type` is not a valid argument: \'", type, "\'")
+    }
+
+    dir <- x
+    file <- as.rawFileName(radiusFileRoots[[type]], date)
+    path <- file.path(dir, file)
+  } else {
+    # Use x as path
+    path <- x
   }
-}
 
-# as.rawFilePath
+  # Read and clean column names
+  dat <- readxl::read_excel(path, .name_repair = "unique_quiet") %>%
+  names(dat) <- names(dat) %>%
+    stringr::str_trim() %>%
+    stringr::str_replace_all(" ", "_")
 
-as.rawFileName <- function(root, date) {
-  paste0(root, "  ", as.radiusDate(date), ".xlsx")
-}
+  return(dat)
 
-as.radiusDate <- function(date) {
-  paste(lubridate::month(date),
-        lubridate::day(date),
-        lubridate::year(date), sep = "_")
 }

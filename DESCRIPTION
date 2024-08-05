@@ -17,4 +17,5 @@ Depends:
 LazyData: true
 Imports: 
     lubridate,
+    readxl,
     stringr
