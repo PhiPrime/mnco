@@ -177,10 +177,10 @@ CO_UI <- function() {
       
       #
       rank_df <- data.frame(
-                    Rank = c(rank_data[1:18,8]),
-                    Name = c(rank_data[1:18,2]),
-                    Avg = c(rank_data[1:18,5]),
-                    Font = c(rank_data[1:18,7])
+                    Rank = c(rank_data[1:dim(rank_data)[1],8]),
+                    Name = c(rank_data[1:dim(rank_data)[1],2]),
+                    Avg = c(rank_data[1:dim(rank_data)[1],5]),
+                    Font = c(rank_data[1:dim(rank_data)[1],7])
                   )
       o_file <- "rankings.html"
       
@@ -196,7 +196,7 @@ CO_UI <- function() {
         o_file
       )
       
-      for (x in 1:18) {
+      for (x in 1:dim(rank_data)[1]) {
         write(c("<tr><td style=\"font-size:",
                 rank_df[x,4],"\">",
                 rank_df[x,1],
