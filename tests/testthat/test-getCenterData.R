@@ -1,16 +1,23 @@
-test_that("as.rawFileName() works", {
-  rawFileRoot <- "Students Export"
-  date <- as.Date("2023-08-23")
-  expect_equal(as.rawFileName(rawFileRoot, date),
-               "Students Export  8_23_2023.xlsx")
+test_that("getCenterData(type = \"student\") runs", {
+  dir = test_path("raw-data")
+  date = as.Date("08-03-2024", format = "%m-%d-%Y")
+  expect_no_error(getCenterData(dir, type = "student", date = date))
 })
 
-test_that("as.radiusDate() works for single digit month and day", {
-  date <- as.Date("2022-04-08")
-  expect_equal(as.radiusDate(date), "4_8_2022")
+test_that("getCenterData(type = \"account\") runs", {
+  dir = test_path("raw-data")
+  date = as.Date("08-03-2024", format = "%m-%d-%Y")
+  expect_no_error(getCenterData(dir, type = "account", date = date))
 })
 
-test_that("as.radiusDate() works for double digit month and day", {
-  date <- as.Date("2022-10-14")
-  expect_equal(as.radiusDate(date), "10_14_2022")
+test_that("getCenterData(type = \"progress\") runs", {
+  dir = test_path("raw-data")
+  date = as.Date("08-03-2024", format = "%m-%d-%Y")
+  expect_no_error(getCenterData(dir, type = "progress", date = date))
+})
+
+test_that("getCenterData(type = \"enrollment\") runs", {
+  dir = test_path("raw-data")
+  date = as.Date("08-03-2024", format = "%m-%d-%Y")
+  expect_no_error(getCenterData(dir, type = "enrollment", date = date))
 })
