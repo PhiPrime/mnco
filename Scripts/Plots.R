@@ -63,6 +63,6 @@ expGradedifPest <- function() {
     filter(Pest <2, gradeDif >= -2)
   p2 <- ggplot(dat, aes(x=gradeDif, y = Pest)) +
     xlab("Grade Difference") + ylab("P Skills per session") + 
-    geom_point() + geom_smooth(method = "glm")
+    geom_point() + geom_smooth()
   return(p2)
 }
