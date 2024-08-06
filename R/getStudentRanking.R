@@ -70,3 +70,21 @@ getStudentRanking <- function(dir, date = Sys.Date()) {
 
   return(dat)
 }
+
+addDifferentDurationStudent <- function(student, duration) {
+  # need to add file check
+  filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
+  dat <- read.csv(filePath)
+
+  dat <- rbind(dat, data.frame(Student = student, Duration = duration))
+  write.csv(dat, filePath, row.names = F)
+}
+
+removeDifferentDurationStudent <- function(student) {
+  # need to add file check
+  filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
+  dat <- read.csv(filePath)
+
+  dat <- dat[dat$Student != student,]
+  write.csv(dat, filePath, row.names = F)
+}

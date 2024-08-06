@@ -36,6 +36,92 @@ getCenterData <- function(dir, type = "all",
   invisible(data)
 }
 
+getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
+  dat <- readRawData("Payments.xlsx", date)
+
+  return(dat)
+}#eof
+
+### getCurriculumData
+getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
+  dat <- readRawData("Curriculum Library Export", date)
+
+  return(dat)
+}
+
+### getAttendanceHistory
+getAttendanceTrainingSet <- function() {
+  readRDS(file.path(getwd(), "Cache", "prior2024.rds"))
+}#eof
+
+### getAttendanceData
+getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
+  dat <- readRawData("Student Attendance Report Export", date)
+
+  logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
+
+  if(!file.exists(logfile)) {
+    stop("While running getAttendanceData(), \"", logfile,
+         "\" was not found.")
+  } else {
+    logdat <- read.csv(logfile)
+  }
+
+  #Mutate to tidy
+  dat <- mutate(dat,
+                date = as.Date(Attendance_Date,
+                               format = "%m/%d/%y"),
+                accountID = Account_Id,
+                name = paste(First_Name,Last_Name),
+                startTime = strptime(Arrival_Time, "%I:%M %p"),
+                endTime = strptime(Departure_Time, "%I:%M %p"),
+                totalVisits = Total_Visits,
+                membershipType = as.factor(Membership_Type),
+                sessionsPerMonth = as.factor(Sessions_Per_Month),
+                sessionsRemaining = Sessions_Remaining,
+                delivery = as.factor(Delivery))
+
+  dat <- mutate(dat,
+                line = paste(accountID,date,name,
+                             sep = ";"))
+
+  dat <- select(dat, date:delivery, line)
+
+
+  newdat <- dat[!(dat$line %in% logdat$line),]
+
+  #Check for and notify if no new data is found
+  if(dim(newdat)[1]==0){
+    message(cat("NOTICE: getAttendanceData(get = ", get, ", date = ", as.character(date),
+                ") found no new attendance when updating.", sep = ""))
+  }
+
+  else {
+    # write.csv()
+  }
+
+
+  #Save to File
+  write.csv(logdat,logfile, row.names=FALSE)
+
+  if(get){
+    return(read.csv(logfile))
+  }
+
+  ### Old code to check for two types of files. Could be useful to
+  ### convert stored data from xlsx to csv for better longterm storage.
+  # if(grepl("xlsx$", fileLoc)) {
+  #   newdat <- read_xlsx(fileLoc)
+  # } else if (grepl("csv$", fileLoc)) {
+  #   newdat <- read.csv(fileLoc)
+  # } else {
+  #   stop(paste0("While running getAttendanceData ", fileLoc,
+  #               "was not able to be read."))
+  # }
+
+
+}#eof
+
 #' Read Radius raw data excel file
 #'
 #' @param x File path or directory.
