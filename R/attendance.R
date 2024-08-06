@@ -176,6 +176,3 @@ returnStudentFromVacation <- function(who){
   dat <- dat[!grepl(who, dat$Student),]
   setStudentsOnVacation(dat)
 }#eof
-
-###########################     OTHER SOURCES     ###########################
-source("Scripts/Update.R")

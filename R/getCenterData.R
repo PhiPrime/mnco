@@ -121,39 +121,3 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
 
 
 }#eof
-
-#' Read Radius raw data excel file
-#'
-#' @param x File path or directory.
-#' @param type Which radius data to use.
-#' @param date What date to use.
-#'
-#' @return A data frame
-#' @export
-#'
-#' @examples
-readRawData <- function(x, type = NULL, date = Sys.Date()) {
-  # MAYBE CHANGE TO OVERLOADING
-  if (!is.null(type)) {
-    # Use x as dir
-    if (!(type %in% names(radiusFileRoots))) {
-      stop("`type` is not a valid argument: \'", type, "\'")
-    }
-
-    dir <- x
-    file <- as.rawFileName(radiusFileRoots[[type]], date)
-    path <- file.path(dir, file)
-  } else {
-    # Use x as path
-    path <- x
-  }
-
-  # Read and clean column names
-  dat <- readxl::read_excel(path, .name_repair = "unique_quiet")
-  names(dat) <- names(dat) %>%
-    stringr::str_trim() %>%
-    stringr::str_replace_all(" ", "_")
-
-  return(dat)
-
-}

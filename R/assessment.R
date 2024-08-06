@@ -1,13 +1,13 @@
 #######################     ASSESSMENT FUNCTIONS     ########################
 
-getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
+getAssessments <- function(dir, date = Sys.Date(), ignoreMissing = F) {
   #Get using regex since filename depends on range of dates in report
-  dat <- readRawData(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
+  dat <- readRawData.old(dir, paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
                             "to [0-9]+_[0-9]+_[0-9]+"),
                      date, ignoreMissing, regExFile = TRUE)
 
   #Arbitrarily Tidy up
-  tdat <- transmute(dat,
+  tdat <- dplyr::transmute(dat,
                     Lead_Id = as.character(Lead_Id),
                     Account_Id = Account_Id,
                     Student= paste(Student_First_Name, Student_Last_Name),
@@ -26,7 +26,7 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
 }#eof
 
 ## Returns vector of names of students need a new deck due to an assessment
-needsDeckBasedOnAssessment <- function(date = Sys.time()){
+needsDeckBasedOnAssessment <- function(dir, date = Sys.time()){
 
   ## Ways to tell if a deck needs made based on assessments:
   ### 1) Assessment Date is between Last_Attendance_Date and today
@@ -35,12 +35,12 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   ## We will use options 1&2
   ret <- NA_character_
-  assessments <- getAssessments(date)
+  assessments <- getAssessments(dir, date)
 
   #Option 1
-  stus <- select(getStudentData(date),
+  stus <- dplyr::select(getCenterData(dir, "student", date),
                  Student, Last_Attendance_Date)
-  prog <- select(getProgressData(date),
+  prog <- dplyr::select(getCenterData(dir, "progress", date),
                  Student, Active_Learning_Plans)
   assessments <- merge(assessments, stus) %>%
     merge(prog)
@@ -59,8 +59,3 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
   return(ret)
 
 }#eof
-
-
-###########################     OTHER SOURCES     ###########################
-source("./Scripts/Update.R")
-source("./Scripts/Misc.R")
