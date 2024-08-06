@@ -12,7 +12,7 @@ mergeWithFill <- function(df1, df2, .by) {
     colName.y <- paste0(colName, ".y")
 
     # Fill value for common column to col.x and rename to col
-    df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
+    df[[colName.x]] <- dplyr::coalesce(df[[colName.x]], df[[colName.y]])
     names(df)[names(df) == colName.x] <- colName
     # CHANGE TO THIS? MAYBE DOESN'T WORK
     #df <- rename(df, col = col.x)

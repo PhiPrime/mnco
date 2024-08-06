@@ -17,6 +17,7 @@ Depends:
 LazyData: true
 Imports: 
     dplyr,
+    kableExtra,
     lubridate,
     readxl,
     stringr
