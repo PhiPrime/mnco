@@ -156,7 +156,7 @@ showcaseRegularizeScore <- function(){
   dat[which(dat$gradeDif<(-3)),]$gradeDif <- -3
   
   p1 <- ggplot(dat, aes(x=gradeDif, y = LB)) +
-    ylab("Score")
+    ylab("Score") +
     geom_point() + geom_smooth() + ggtitle("No Regularization")
   
   
