@@ -9,11 +9,7 @@
 #' @export
 #'
 #' @examples
-getCenterData <- function(dir, type = "all",
-                          date = Sys.Date(), ignoreMissing = F) {
-  # Directory must exist
-  if (!dir.exists(dir)) stop("`dir` does not exist: \'", dir, "\'")
-
+getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
   # USE match.arg, stopifnot
   if (type == "all") {
     # Get all data and merge
@@ -27,7 +23,7 @@ getCenterData <- function(dir, type = "all",
   } else if (type %in% names(radiusFileRoots)) {
     # Get and tidy data
     data <-
-      readRawData(dir, type, date) %>%
+      readRawData(type, date) %>%
       tidyRawData(type)
   } else {
     stop("`type` is not a valid argument: \'", type, "\'")

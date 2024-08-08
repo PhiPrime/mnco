@@ -2,12 +2,21 @@ the <- new.env(parent = emptyenv())
 the$RAW_DATA_DIR <- file.path(".", "mnco-raw-data")
 the$CACHE_DIR <- file.path(".", "mnco-cache")
 
-getRawDataDir <- function() {
-  the$RAW_DATA_DIR
+rawDataDir <- function() {
+  dir <- the$RAW_DATA_DIR
+  if (!file.exists(dir)) {
+    stop("`RAW_DATA_DIR` does not exist: ", dir, ".\n",
+         "Call setRawDataDir() to set a valid directory.")
+  }
+  dir
 }
 
-getCacheDir <- function() {
-  the$CACHE_DIR
+cacheDir <- function() {
+  dir <- the$CACHE_DIR
+  if (!file.exists(dir)) {
+    stop("`CACHE_DIR` does not exist: ", dir, ".\n",
+         "Call setCacheDir() to set a valid directory.")
+  }
 }
 
 setRawDataDir <- function(path) {

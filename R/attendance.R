@@ -1,17 +1,17 @@
 #######################     ATTENDANCE FUNCTIONS     ########################
 
-attendanceCheck <- function(rawDir, cacheDir, date, allowedBdays = 5)
+attendanceCheck <- function(date, allowedBdays = 5)
 {
   #Get list of dates any student attended
-  uniDates <- unique(getCenterData(rawDir, "student", date)$Last_Attendance_Date)
+  uniDates <- unique(getCenterData("student", date)$Last_Attendance_Date)
 
   #Create a lists of acceptable dates, which is based on parameter
   acceptableDates <- uniDates[order(uniDates, decreasing = TRUE)][c(
     1,allowedBdays)]
 
 
-  flaggedStudents <- dplyr::filter(mergeWithFill(getCenterData(rawDir, "student", date),
-                                          getCenterData(rawDir, "account", date),
+  flaggedStudents <- dplyr::filter(mergeWithFill(getCenterData("student", date),
+                                          getCenterData("account", date),
                                           .by = "Account_Id"),
                             !dplyr::between(Last_Attendance_Date,
                                      acceptableDates[2],
@@ -38,7 +38,7 @@ attendanceCheck <- function(rawDir, cacheDir, date, allowedBdays = 5)
   #Only send back those not on vacation
   flaggedStudents <-
     flaggedStudents[!(
-      flaggedStudents$Name %in% getStudentsOnVacation(rawDir, cacheDir, date)$Student),]
+      flaggedStudents$Name %in% getStudentsOnVacation(date)$Student),]
 
   return(flaggedStudents)
 }#eof
@@ -81,7 +81,7 @@ sendOnVacation <- function(who, rawDir, cacheDir, date,
   }
 
   #Store current Student file for efficiency
-  stus <- dplyr::mutate(getCenterData(rawDir, "student", date),
+  stus <- dplyr::mutate(getCenterData("student", date),
                  Student = Student)
 
   #Make function user friendly by regexing for name
@@ -100,43 +100,43 @@ sendOnVacation <- function(who, rawDir, cacheDir, date,
                         Last_Attendance = stus$Last_Attendance_Date,
                         returnDate = returnDate)
 
-  if(dim(getStudentsOnVacation(rawDir, cacheDir, date))[1]==0){
+  if(dim(getStudentsOnVacation(date))[1]==0){
     dat <- toStore
   }
   else{
-    dat <- getStudentsOnVacation(rawDir, cacheDir, date)
+    dat <- getStudentsOnVacation(date)
     dat <- rbind(dat, toStore)
   }
 
-  setStudentsOnVacation(rawDir, cacheDir, date, dat)
+  setStudentsOnVacation(date, dat)
 
 }#eof
 
 ### getStudentsOnVacation
-getStudentsOnVacation <- function(rawDir, cacheDir, date){
-  fileLoc <- file.path(cacheDir, "StudentsOnVacation.rds")
+getStudentsOnVacation <- function(date){
+  fileLoc <- file.path("StudentsOnVacation.rds")
   if(!file.exists(fileLoc)){
     #Run null constructor
-    setStudentsOnVacation(rawDir, cacheDir, date)
+    setStudentsOnVacation(date)
   }
 
   ret <- readRDS(fileLoc)
 
   #Update before returning (to check for exp)
-  setStudentsOnVacation(rawDir, cacheDir, date, ret)
+  setStudentsOnVacation(date, ret)
   return(ret)
 }
 
 ## setStudentsOnVacation
-setStudentsOnVacation <- function(rawDir, cacheDir, date, dat = data.frame(
+setStudentsOnVacation <- function(date, dat = data.frame(
   matrix(ncol=2, nrow = 0,
          dimnames = list(NULL,
                          c("Student", "returnDate"))))){
-  fileLoc <- file.path(cacheDir, "StudentsOnVacation.rds")
+  fileLoc <- file.path("StudentsOnVacation.rds")
 
   #Query last attendance date
   dat <- merge(dat,
-               dplyr::mutate(getCenterData(rawDir, "student", date = date),
+               dplyr::mutate(getCenterData("student", date = date),
                       Student = Student,
                       Last_Attendance = Last_Attendance_Date) %>%
                  dplyr::select(Student, Last_Attendance))
@@ -169,11 +169,11 @@ setStudentsOnVacation <- function(rawDir, cacheDir, date, dat = data.frame(
 
 ### returnStudentFromVacation
 returnStudentFromVacation <- function(who, rawDir, cacheDir, date){
-  fileLoc <- file.path(cacheDir, "StudentsOnVacation.rds")
+  fileLoc <- file.path("StudentsOnVacation.rds")
 
   #Check for correct format
-  dat <- getStudentsOnVacation(rawDir, cacheDir, date)
+  dat <- getStudentsOnVacation(date)
 
   dat <- dat[!grepl(who, dat$Student),]
-  setStudentsOnVacation(rawDir, cacheDir, date, dat)
+  setStudentsOnVacation(date, dat)
 }#eof

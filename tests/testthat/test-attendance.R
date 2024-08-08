@@ -2,7 +2,7 @@ test_that("attendanceCheck() runs", {
   rawDir <- "raw-data"
   cacheDir <- "cache"
   date <- as.Date("2024-08-05")
-  expect_no_error(attendanceCheck(rawDir, cacheDir, date = date))
+  expect_no_error(attendanceCheck(date = date))
 })
 
 test_that("sendOnVacation() runs", {
@@ -17,14 +17,14 @@ test_that("getStudentsOnVacation() runs", {
   rawDir <- "raw-data"
   cacheDir <- "cache"
   date <- as.Date("2024-08-05")
-  expect_no_error(getStudentsOnVacation(rawDir, cacheDir, date))
+  expect_no_error(getStudentsOnVacation(date))
 })
 
 test_that("setStudentsOnVacation() runs", {
   rawDir <- "raw-data"
   cacheDir <- "cache"
   date <- as.Date("2024-08-05")
-  expect_no_error(setStudentsOnVacation(rawDir, cacheDir, date))
+  expect_no_error(setStudentsOnVacation(date))
 })
 
 test_that("returnStudentFromVacation() runs", {

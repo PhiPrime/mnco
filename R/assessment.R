@@ -1,8 +1,8 @@
 #######################     ASSESSMENT FUNCTIONS     ########################
 
-getAssessments <- function(dir, date = Sys.Date(), ignoreMissing = F) {
+getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
   #Get using regex since filename depends on range of dates in report
-  dat <- readRawData.old(dir, paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
+  dat <- readRawData.old(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
                             "to [0-9]+_[0-9]+_[0-9]+"),
                      date, ignoreMissing, regExFile = TRUE)
 
@@ -26,7 +26,7 @@ getAssessments <- function(dir, date = Sys.Date(), ignoreMissing = F) {
 }#eof
 
 ## Returns vector of names of students need a new deck due to an assessment
-needsDeckBasedOnAssessment <- function(dir, date = Sys.time()){
+needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   ## Ways to tell if a deck needs made based on assessments:
   ### 1) Assessment Date is between Last_Attendance_Date and today
@@ -35,12 +35,12 @@ needsDeckBasedOnAssessment <- function(dir, date = Sys.time()){
 
   ## We will use options 1&2
   ret <- NA_character_
-  assessments <- getAssessments(dir, date)
+  assessments <- getAssessments(date)
 
   #Option 1
-  stus <- dplyr::select(getCenterData(dir, "student", date),
+  stus <- dplyr::select(getCenterData("student", date),
                  Student, Last_Attendance_Date)
-  prog <- dplyr::select(getCenterData(dir, "progress", date),
+  prog <- dplyr::select(getCenterData("progress", date),
                  Student, Active_Learning_Plans)
   assessments <- merge(assessments, stus) %>%
     merge(prog)

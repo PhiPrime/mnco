@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-readRawData <- function(x, type = NULL, date = Sys.Date()) {
+readRawData <- function(type, date = Sys.Date()) {
   # MAYBE CHANGE TO OVERLOADING
   if (!is.null(type)) {
     # Use x as dir
@@ -16,12 +16,9 @@ readRawData <- function(x, type = NULL, date = Sys.Date()) {
       stop("`type` is not a valid argument: \'", type, "\'")
     }
 
-    dir <- x
-    file <- as.rawFileName(radiusFileRoots[[type]], date)
-    path <- file.path(dir, file)
-  } else {
-    # Use x as path
-    path <- x
+    dir <- rawDataDir()
+    root <- radiusFileRoots[[type]]
+    path <- as.rawFilePath(dir, root, date)
   }
 
   # Read and clean column names
@@ -34,7 +31,7 @@ readRawData <- function(x, type = NULL, date = Sys.Date()) {
 
 }
 
-readRawData.old <- function(dir, fileRoot, date,
+readRawData.old <- function(fileRoot, date,
                         ignoreMissing = F, regExFile = F) {
   # Format file root into Radius style file name
   fileName <- as.rawFileName(fileRoot, date)
@@ -84,7 +81,7 @@ readRawData.old <- function(dir, fileRoot, date,
   }
   # Default behavior: attempt to move file from Downloads, then look
   #   in Raw_Data
-  filePath <- file.path(dir, fileName)
+  filePath <- file.path(fileName)
 
   # Read file and reformat column names to prevent bad behaviors
   dat <- readxl::read_excel(filePath, .name_repair = "unique_quiet")

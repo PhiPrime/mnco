@@ -1,9 +1,9 @@
-getStudentRanking <- function(dir, date = Sys.Date()) {
+getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
-  progress <- getCenterData(dir, "progress", date) %>%
+  progress <- getCenterData("progress", date) %>%
     select(Student, Skills_Mastered, Attendances)
 
-  deliveryKey <- getCenterData(dir, "enrollment", date) %>%
+  deliveryKey <- getCenterData("enrollment", date) %>%
     select(Student, Monthly_Sessions, Delivery)
 
   differentDurationStudents <-
