@@ -6,3 +6,6 @@
 .quarto
 
 sandbox.Rmd
+
+/mnco-raw-data
+/mnco-cache
