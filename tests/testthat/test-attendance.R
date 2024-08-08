@@ -1,36 +1,41 @@
 test_that("attendanceCheck() runs", {
-  rawDir <- "raw-data"
-  cacheDir <- "cache"
-  date <- as.Date("2024-08-05")
-  expect_no_error(attendanceCheck(date = date))
+  today <- the$CURRENT_DATE
+  setCurrentDate(as.Date("2024-08-05"))
+  withr::defer(setCurrentDate(today))
+
+  expect_no_error(attendanceCheck())
 })
 
 test_that("sendOnVacation() runs", {
-  rawDir <- "raw-data"
-  cacheDir <- "cache"
-  date <- as.Date("2024-08-05")
+  today <- the$CURRENT_DATE
+  setCurrentDate(as.Date("2024-08-05"))
+  withr::defer(setCurrentDate(today))
+
   who <- "Abraham Torres"
-  expect_no_error(sendOnVacation(who, rawDir, cacheDir, date))
+  expect_no_error(sendOnVacation(who))
 })
 
 test_that("getStudentsOnVacation() runs", {
-  rawDir <- "raw-data"
-  cacheDir <- "cache"
-  date <- as.Date("2024-08-05")
-  expect_no_error(getStudentsOnVacation(date))
+  today <- the$CURRENT_DATE
+  setCurrentDate(as.Date("2024-08-05"))
+  withr::defer(setCurrentDate(today))
+
+  expect_no_error(getStudentsOnVacation())
 })
 
 test_that("setStudentsOnVacation() runs", {
-  rawDir <- "raw-data"
-  cacheDir <- "cache"
-  date <- as.Date("2024-08-05")
-  expect_no_error(setStudentsOnVacation(date))
+  today <- the$CURRENT_DATE
+  setCurrentDate(as.Date("2024-08-05"))
+  withr::defer(setCurrentDate(today))
+
+  expect_no_error(setStudentsOnVacation())
 })
 
 test_that("returnStudentFromVacation() runs", {
-  rawDir <- "raw-data"
-  cacheDir <- "cache"
-  date <- as.Date("2024-08-05")
+  today <- the$CURRENT_DATE
+  setCurrentDate(as.Date("2024-08-05"))
+  withr::defer(setCurrentDate(today))
+
   who <- "Abraham Torres"
-  expect_no_error(returnStudentFromVacation(who, rawDir, cacheDir, date))
+  expect_no_error(returnStudentFromVacation(who))
 })

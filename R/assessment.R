@@ -1,8 +1,8 @@
 #######################     ASSESSMENT FUNCTIONS     ########################
 
-getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
+getAssessments <- function(date = the$CURRENT_DATE, ignoreMissing = F) {
   #Get using regex since filename depends on range of dates in report
-  dat <- readRawData(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
+  dat <- readRawData.old(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
                             "to [0-9]+_[0-9]+_[0-9]+"),
                      date, ignoreMissing, regExFile = TRUE)
   tdat <- tidyAssessments(dat)
@@ -13,7 +13,7 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
 }#eof
 
 getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
-  relPath <- paste0("./Raw_Data/Assessments_Prior_to_",
+  relPath <- paste0(rawDataDir(), "/Assessments_Prior_to_",
                     Assessments_Prior_to_,
                     ".xlsx")
 
@@ -24,7 +24,7 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
                 "\n\t\t", gsub("^.", "", relPath), "\n\t",
                 "Please rename the relevant data to that location, then try again.\n"))
   }
-  dat <- read_excel(relPath, .name_repair = "unique_quiet")
+  dat <- readxl::read_excel(relPath, .name_repair = "unique_quiet")
   names(dat) <- gsub(" ", "_", names(dat))
 
   tdat <- tidyAssessments(dat)
@@ -33,7 +33,7 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
 
 tidyAssessments <- function(dat){
   #Arbitrarily Tidy up
-  tdat <- transmute(dat,
+  tdat <- dplyr::transmute(dat,
                     Lead_Id = as.character(Lead_Id),
                     Account_Id = Account_Id,
                     Student= paste(Student_First_Name, Student_Last_Name),
@@ -42,7 +42,7 @@ tidyAssessments <- function(dat){
                                               as.numeric(Grade),
                                               ifelse(Grade == "Pre K", -1,
                                                      ifelse(Grade == "K", 0,
-                                                            ifelse(Grade == "College", 13, NaN))))),
+                                                            ifelse(Grade == "College", 13, NA))))),
                     Assessment = Assessment_Title,
                     Level = ifelse(grepl("[A-Z]", toupper(Assessment_Level))&!is.na(Assessment_Level),
                                    ifelse(grepl("Readiness|Middle",Assessment_Level),
@@ -50,7 +50,7 @@ tidyAssessments <- function(dat){
                                           ifelse(grepl("Algebra I A|ACT",Assessment_Level),
                                                  9,#Algebra 1 is 9th, 10 & 11 are coded in
                                                  ifelse(grepl("SAT Advanced|HMM", Assessment_Level),
-                                                        12, NaN))),
+                                                        12, NA))),
                                    as.numeric(Assessment_Level)),
                     Percent = Score*100,
                     Date = strptime(Date_Taken, format = "%m/%e/%Y"),
@@ -62,14 +62,14 @@ tidyAssessments <- function(dat){
 
 getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   dat <- getHistoricAssessments(Assessments_Prior_to_)
-  dat <- filter(dat, !is.na(dat$Level))
+  dat <- dplyr::filter(dat, !is.na(dat$Level))
   dat <- dat[order(dat$Student, dat$Level, decreasing = TRUE),]
   ldat <- lapply(unique(dat$Student),
-                 with(dat, function(x)filter(dat, Student == x)[1,]))
+                 with(dat, function(x)dplyr::filter(dat, Student == x)[1,]))
   dat <- data.frame(Reduce(rbind, ldat))
-  dat <- mutate(dat, yearsSince = as.numeric(round(
+  dat <- dplyr::mutate(dat, yearsSince = as.numeric(round(
     (Sys.time()-dat$Date)/365.25)))
-  ret <- mutate(dat,
+  ret <- dplyr::mutate(dat,
                 gradeDif = as.numeric(Level)-as.numeric(Grade))
   return(ret)
 }
@@ -87,9 +87,9 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
   assessments <- getAssessments(date)
 
   #Option 1
-  stus <- select(getStudentData(date),
+  stus <- dplyr::select(getCenterData("student", date),
                  Student, Last_Attendance_Date)
-  prog <- select(getProgressData(date),
+  prog <- dplyr::select(getCenterData("progress", date),
                  Student, Active_Learning_Plans)
   assessments <- merge(assessments, stus) %>%
     merge(prog)
@@ -108,8 +108,3 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
   return(ret)
 
 }#eof
-
-
-###########################     OTHER SOURCES     ###########################
-source("./Scripts/Update.R")
-source("./Scripts/Misc.R")

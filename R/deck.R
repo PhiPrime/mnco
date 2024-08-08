@@ -1,6 +1,6 @@
 ##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
-needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
+needsNewDeck <- function(minAllowed = 5, date=the$CURRENT_DATE){
   studentProgress <- getProgressData(date)
   #Set any NAs to 0
   studentProgress[
@@ -43,7 +43,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
   maxTime <- 30
 
   if(durationDays > maxTime){ durationDays <- maxTime}
-  expDate <- Sys.Date()+lubridate::days(durationDays)
+  expDate <- the$CURRENT_DATE+lubridate::days(durationDays)
   correctNames <- c("Student", "Skills_Currently_Assigned", "Pest",
                     "Skills_Mastered", "Attendances")
 
@@ -59,7 +59,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
 
 
   #Add columns for both created & expiration date
-  studentRows <- mutate(studentRows, creation = Sys.Date(),
+  studentRows <- mutate(studentRows, creation = the$CURRENT_DATE,
                         expDate = expDate)
   if(dim(getSuppressedStudents())[1]==0){
     dat <- studentRows
@@ -94,7 +94,7 @@ setSuppressedStudents <- function(dat = data.frame(
                            "Skills_Mastered", "Attendances",
                            "creation", "expDate"))))){
   #Check for expired stints
-  dat <- dat[which((Sys.Date()<dat$expDate)),]
+  dat <- dat[which((the$CURRENT_DATE<dat$expDate)),]
 
   fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   saveRDS(dat, fileLoc)

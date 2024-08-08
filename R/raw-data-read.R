@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-readRawData <- function(type, date = Sys.Date()) {
+readRawData <- function(type, date = the$CURRENT_DATE) {
   # MAYBE CHANGE TO OVERLOADING
   if (!is.null(type)) {
     # Use x as dir
@@ -36,6 +36,7 @@ readRawData.old <- function(fileRoot, date,
   # Format file root into Radius style file name
   fileName <- as.rawFileName(fileRoot, date)
   filePath <- NULL
+  dir <- rawDataDir()
 
   #If regex find a match with fileRoot in either folder
   #If regex find a match with fileRoot in either folder
@@ -81,7 +82,7 @@ readRawData.old <- function(fileRoot, date,
   }
   # Default behavior: attempt to move file from Downloads, then look
   #   in Raw_Data
-  filePath <- file.path(fileName)
+  filePath <- file.path(dir, fileName)
 
   # Read file and reformat column names to prevent bad behaviors
   dat <- readxl::read_excel(filePath, .name_repair = "unique_quiet")

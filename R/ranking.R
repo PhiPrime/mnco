@@ -1,4 +1,4 @@
-getStudentRanking <- function(date = Sys.Date()) {
+getStudentRanking <- function(date = the$CURRENT_DATE) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
     select(Student, Skills_Mastered, Attendances)

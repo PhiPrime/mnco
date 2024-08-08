@@ -3,29 +3,29 @@
 attendanceCheck <- function(allowedBdays = 5)
 {
   #Get list of dates any student attended
-  uniDates <- unique(getStudentData()$Last_Attendance_Date)
+  uniDates <- unique(getCenterData("student")$Last_Attendance_Date)
 
   #Create a lists of acceptable dates, which is based on parameter
   acceptableDates <- uniDates[order(uniDates, decreasing = TRUE)][c(
     1,allowedBdays)]
 
 
-  flaggedStudents <- filter(mergeWithFill(getStudentData(),
-                                          getAccountData(),
+  flaggedStudents <- dplyr::filter(mergeWithFill(getCenterData("student"),
+                                          getCenterData("account"),
                                           .by = "Account_Id"),
-                            !between(Last_Attendance_Date,
+                            !dplyr::between(Last_Attendance_Date,
                                      acceptableDates[2],
                                      acceptableDates[1]) &
                               Delivery=="In-Center" &
                               Enrollment_Status == "Enrolled") %>%
 
-    transmute(Last_Attendance_Date = Last_Attendance_Date,
+    dplyr::transmute(Last_Attendance_Date = Last_Attendance_Date,
               Name = Student,
               #Select phone in this order: Mobile, Home, Other
               Phone = ifelse(is.na(Mobile_Phone),
                              ifelse(is.na(Home_Phone),
                                     Other_Phone, Home_Phone), Mobile_Phone),
-              Link = cell_spec("Message", format = "latex",
+              Link = kableExtra::cell_spec("Message", format = "latex",
                                link = paste0("./Cache/",
                                              asMessageTxtFile(Last_Attendance_Date,
                                                               Name))))
@@ -54,7 +54,7 @@ attendanceCheck <- function(allowedBdays = 5)
 #   matrix(ncol=dim(attendanceCheck()), nrow = 0,
 #          dimnames = list(NULL,
 #                          names(attendanceCheck())))),
-#   returnDate = Sys.Date()+lubridate::days(7)){
+#   returnDate = the$CURRENT_DATE+lubridate::days(7)){
 #   sendOnVacation(attendanceRows$Name, returnDate)
 # }
 
@@ -62,13 +62,13 @@ attendanceCheck <- function(allowedBdays = 5)
 sendOnVacation <- function(who,
 
                            #Default end of current month
-                           returnDate = lubridate::rollforward(Sys.Date())){
+                           returnDate = lubridate::rollforward(the$CURRENT_DATE)){
 
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
     #Then try some formats
     addThisYear <- function(old) {lubridate::mdy(paste(
-      old, lubridate::year(Sys.Date())))}
+      old, lubridate::year(the$CURRENT_DATE)))}
     returnDate <- tryCatch(
       expr = mdy(returnDate),
       error = function(e) {
@@ -81,7 +81,7 @@ sendOnVacation <- function(who,
   }
 
   #Store current Student file for efficiency
-  stus <- mutate(getStudentData(),
+  stus <- dplyr::mutate(getCenterData("student"),
                  Student = Student)
 
   #Make function user friendly by regexing for name
@@ -94,7 +94,7 @@ sendOnVacation <- function(who,
   }
 
   who <- tmp[,1]
-  stus <- filter(stus, Student%in%who)
+  stus <- dplyr::filter(stus, Student%in%who)
   #Create data frame to store
   toStore <- data.frame(Student = who,
                         Last_Attendance = stus$Last_Attendance_Date,
@@ -114,7 +114,7 @@ sendOnVacation <- function(who,
 
 ### getStudentsOnVacation
 getStudentsOnVacation <- function(){
-  fileLoc <- paste0(getwd(), "/Cache/StudentsOnVacation", ".rds")
+  fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
   if(!file.exists(fileLoc)){
     #Run null constructor
     setStudentsOnVacation()
@@ -132,18 +132,18 @@ setStudentsOnVacation <- function(dat = data.frame(
   matrix(ncol=2, nrow = 0,
          dimnames = list(NULL,
                          c("Student", "returnDate"))))){
-  fileLoc <- paste0(getwd(), "/Cache/StudentsOnVacation", ".rds")
+  fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
 
   #Query last attendance date
   dat <- merge(dat,
-               mutate(getStudentData(),
+               dplyr::mutate(getCenterData("student"),
                       Student = Student,
                       Last_Attendance = Last_Attendance_Date) %>%
-                 select(Student, Last_Attendance))
+                 dplyr::select(Student, Last_Attendance))
 
   #Requirements for vacation
   ## They were not claimed to have returned,
-  req1 <- which((Sys.Date()<dat$returnDate))
+  req1 <- which((the$CURRENT_DATE<dat$returnDate))
 
   ### Note: The following code is insufficient to see if a student
   ###        has attended since they were sent on Vacation. A restructure
@@ -151,7 +151,7 @@ setStudentsOnVacation <- function(dat = data.frame(
   ###        be a tautology
 
   ## They did not attend
-  req2 <- which(dat$Last_Attendance<Sys.Date())
+  req2 <- which(dat$Last_Attendance<the$CURRENT_DATE)
 
 
   #Only save those that meet requirements
@@ -160,7 +160,8 @@ setStudentsOnVacation <- function(dat = data.frame(
 
   if(dim(dat)[1]==0){
     #Send warning about empty file
-    warning(paste0("The following file is now empty:\n", fileLoc))
+    # To Luke: I commented this out so it wouldn't clutter testing output -Justin
+    # warning(paste0("The following file is now empty:\n", fileLoc))
   }
 
   saveRDS(dat, fileLoc)
@@ -168,7 +169,7 @@ setStudentsOnVacation <- function(dat = data.frame(
 
 ### returnStudentFromVacation
 returnStudentFromVacation <- function(who){
-  fileLoc <- paste0(getwd(), "/Cache/StudentsOnVacation", ".rds")
+  fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
 
   #Check for correct format
   dat <- getStudentsOnVacation()
@@ -176,6 +177,3 @@ returnStudentFromVacation <- function(who){
   dat <- dat[!grepl(who, dat$Student),]
   setStudentsOnVacation(dat)
 }#eof
-
-###########################     OTHER SOURCES     ###########################
-source("Scripts/Update.R")

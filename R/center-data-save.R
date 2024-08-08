@@ -1,7 +1,7 @@
 ##########################     SAVE FUNCTIONS     ###########################
 
 # FIGURE OUT IF SHOULD SAVE DATES WITH MISSING FILES
-saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
+saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = the$CURRENT_DATE,
                               promptDelete = T) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
@@ -28,7 +28,7 @@ saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
 
   # VERY HACKY, PLEASE HANDLE PROPERLY LATER
   while (date <= endDate) {
-    # TEST ignoreMissing = (date != Sys.Date())
+    # TEST ignoreMissing = (date != the$CURRENT_DATE)
 
     failed <- tryCatch(
       saveCenterData(date, silent = T),
@@ -52,7 +52,7 @@ saveAllCenterData <- function(startDate = mdy("1/1/2020"), endDate = Sys.Date(),
 
 # Appends the output of getCenterData() to centerHistory.rds
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL saveAllCenterData() - USE ALL.EQUAL?
-saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
+saveCenterData <- function(date = the$CURRENT_DATE, ignoreMissing = F, silent = F) {
   fileName <- "Cache/centerHistory.rds"
   filePath <- file.path(getwd(), fileName)
 
@@ -65,7 +65,7 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
 
   if(file.exists(filePath)) {
     dat <- readRDS(filePath)
-    dat <- rbind(dat[dat$Date != Sys.Date(),], history)
+    dat <- rbind(dat[dat$Date != the$CURRENT_DATE,], history)
   } else {
     # ADD SILENT CHECK HERE?
     # -We should start using message() and warning() in addition to stop()

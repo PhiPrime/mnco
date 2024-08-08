@@ -1,6 +1,7 @@
 the <- new.env(parent = emptyenv())
 the$RAW_DATA_DIR <- file.path(".", "mnco-raw-data")
 the$CACHE_DIR <- file.path(".", "mnco-cache")
+the$CURRENT_DATE <- Sys.Date()
 
 rawDataDir <- function() {
   dir <- the$RAW_DATA_DIR
@@ -17,6 +18,7 @@ cacheDir <- function() {
     stop("`CACHE_DIR` does not exist: ", dir, ".\n",
          "Call setCacheDir() to set a valid directory.")
   }
+  dir
 }
 
 setRawDataDir <- function(path) {
@@ -28,5 +30,11 @@ setRawDataDir <- function(path) {
 setCacheDir <- function(path) {
   old <- the$CACHE_DIR
   the$CACHE_DIR <- path
+  invisible(old)
+}
+
+setCurrentDate <- function(date) {
+  old <- the$CURRENT_DATE
+  the$CURRENT_DATE <- date
   invisible(old)
 }
