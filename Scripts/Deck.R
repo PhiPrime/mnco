@@ -160,19 +160,19 @@ showcaseRegularizeScore <- function(){
     geom_point() + geom_smooth() + ggtitle("No Regularization")
   
   
-  dat <- regularizeScore(dat,  "gradeDif", 0)
+  dat <- regularizeScore(dat,"Level", 4)#  "gradeDif", 0)
   
   p2 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
     geom_point() + geom_smooth() + ggtitle("Regularized on gradeDif")
   
   
-  dat <- regularizeScore(dat,"Level", 4)
+  dat <- regularizeScore(dat,  "gradeDif", 0)#"Level", 4)
   
   p3 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
     geom_point() + geom_smooth() + 
     ggtitle("Regularized on gradeDif & assessmentLevel")
   
   
-  ret <- gridExtra::grid.arrange(p1,p2,p3,ncol=1)
-  return(ret)
+  gridExtra::grid.arrange(p1,p2,p3,ncol=1)
+  #return(dat)
 }
