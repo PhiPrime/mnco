@@ -55,3 +55,14 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   p2 <- stdplot(max_col,max_row)
   p1+p2
 }
+
+expGradedifPest <- function() {
+  dat <- merge(mutate(getProgressData(),
+                      Pest = Skills_Mastered/Attendances),
+               getMostRecentAssessments()) %>%
+    filter(Pest <2, gradeDif >= -2)
+  p2 <- ggplot(dat, aes(x=gradeDif, y = Pest)) +
+    xlab("Grade Difference") + ylab("P Skills per session") + 
+    geom_point() + geom_smooth()
+  return(p2)
+}

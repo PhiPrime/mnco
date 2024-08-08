@@ -124,4 +124,55 @@ removeDeckSuppression <- function(studentRows = data.frame(
   setSuppressedStudents(dat)
 }#eof
 
+#Used with ranking to adjust score based on variableName
+regularizeScore <- function(dat, variableName, centerVal){
+  #if no Score present in data frame, assume it should be LB
+  if(!("Score" %in% names(dat))){ 
+    dat <- mutate(dat, Score = LB)
+  }
+  
+  gdMeans <- t(sapply(unique(dat[[variableName]]), function(x)
+    data.frame(variableName=x,
+               mean= mean(dat[dat[[variableName]]==x,]$Pest))))
+  gdMeans <- data.frame(tmp = unlist(gdMeans[,1]),
+                        Mean = unlist(gdMeans[,2]))
+  names(gdMeans)[names(gdMeans) == "tmp"] <- variableName
+  
+  gdMeans <- gdMeans[order(gdMeans[[variableName]]),] 
+  gdMeans <- mutate(gdMeans, 
+                    offset = gdMeans[gdMeans[[variableName]]==centerVal,
+                    ]$Mean-Mean)
+  dat <- merge(dat, gdMeans)
+  dat$Score <- with(dat, Score + offset)
+  dat <- select(dat, -offset, -Mean)
+  return(dat)
+}
 
+showcaseRegularizeScore <- function(){
+  dat <- merge(getStudentRanking(),
+               getMostRecentAssessments())
+  
+  #Force -3 to be min difference considered
+  dat[which(dat$gradeDif<(-3)),]$gradeDif <- -3
+  
+  p1 <- ggplot(dat, aes(x=gradeDif, y = LB)) +
+    ylab("Score") +
+    geom_point() + geom_smooth() + ggtitle("No Regularization")
+  
+  
+  dat <- regularizeScore(dat,  "gradeDif", 0)
+  
+  p2 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
+    geom_point() + geom_smooth() + ggtitle("Regularized on gradeDif")
+  
+  
+  dat <- regularizeScore(dat,"Level", 4)
+  
+  p3 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
+    geom_point() + geom_smooth() + 
+    ggtitle("Regularized on gradeDif & assessmentLevel")
+  
+  
+  ret <- gridExtra::grid.arrange(p1,p2,p3,ncol=1)
+  return(ret)
+}
