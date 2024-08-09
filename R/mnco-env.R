@@ -1,3 +1,4 @@
+# Create binding for mocking in tests
 Sys.Date <- NULL
 
 the <- new.env(parent = emptyenv())

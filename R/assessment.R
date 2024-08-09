@@ -38,25 +38,28 @@ tidyAssessments <- function(dat){
                     Account_Id = Account_Id,
                     Student= paste(Student_First_Name, Student_Last_Name),
                     Enrollment_Status = as.factor(Enrollment_Status),
-                    Grade = as.numeric(ifelse(grepl("[0-9]", Grade),
-                                              as.numeric(Grade),
-                                              ifelse(Grade == "Pre K", -1,
-                                                     ifelse(Grade == "K", 0,
-                                                            ifelse(Grade == "College", 13, NA))))),
+                    Grade = case_when(
+                      Grade == "Pre K" ~ "-1",
+                      Grade == "K" ~ "0",
+                      Grade == "College" ~ "13",
+                      grepl("[0-9]", Grade) ~ Grade,
+                      .default = "NaN"),
                     Assessment = Assessment_Title,
-                    Level = ifelse(grepl("[A-Z]", toupper(Assessment_Level))&!is.na(Assessment_Level),
-                                   ifelse(grepl("Readiness|Middle",Assessment_Level),
-                                          8, #Alg or Geo Readiness is considered 8th
-                                          ifelse(grepl("Algebra I A|ACT",Assessment_Level),
-                                                 9,#Algebra 1 is 9th, 10 & 11 are coded in
-                                                 ifelse(grepl("SAT Advanced|HMM", Assessment_Level),
-                                                        12, NA))),
-                                   as.numeric(Assessment_Level)),
+                    Level = case_when(
+                      !(grepl("[A-Z]", toupper(Assessment_Level))&
+                          !is.na(Assessment_Level)) ~ Assessment_Level,
+                      grepl("Readiness|Middle",Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
+                      grepl("Algebra I A|ACT",Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
+                      grepl("SAT Advanced|HMM", Assessment_Level) ~ "12",
+                      .default = "NaN"),
                     Percent = Score*100,
                     Date = strptime(Date_Taken, format = "%m/%e/%Y"),
                     Pre = `Pre/Post`=="Pre",
                     Group = Group=="Yes",
-                    Center = as.factor(Center))
+                    Center = as.factor(Center)) %>%
+    #Avoid NA warning when none is needed
+    dplyr::mutate(Grade = as.numeric(Grade),
+           Level = as.numeric(Level))
   return(tdat)
 }
 
@@ -96,8 +99,8 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   #Option 1
   ret <- c(ret,
-           assessments$Student[
-             assessments$Date>=assessments$Last_Attendance_Date])
+           assessments$Student[with(assessments,
+            {Date>=Last_Attendance_Date | is.na(Last_Attendance_Date)})])
 
   #Option 2
   ret <- c(ret,

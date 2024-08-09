@@ -21,6 +21,8 @@ attendanceCheck <- function(allowedBdays = 5)
 
     dplyr::transmute(Last_Attendance_Date = Last_Attendance_Date,
               Name = Student,
+              Account = paste(stringr::str_remove(Account, "^.+, "),
+                              stringr::str_remove(Account, ",.+$")),
               #Select phone in this order: Mobile, Home, Other
               Phone = ifelse(is.na(Mobile_Phone),
                              ifelse(is.na(Home_Phone),
