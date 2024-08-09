@@ -9,17 +9,14 @@
 #' @export
 #'
 #' @examples
-getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
+getCenterData <- function(type = c("all", names(radiusFileRoots)),
+                          date = Sys.Date(), ignoreMissing = F) {
+  type <- match.arg(type)
+
   # USE match.arg, stopifnot
   if (type == "all") {
     # Get all data and merge
-    unmerged <- list()
-
-    for (.data in names(radiusFileRoots)) {
-
-
-      unmerged <- unmerged %>% append(dat)
-    }
+    stu <- getCenterData()
   } else if (type %in% names(radiusFileRoots)) {
     # Get and tidy data
     data <-
@@ -33,28 +30,28 @@ getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
 }
 
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Payments.xlsx", date)
+  dat <- readRawData.old("Payments.xlsx", date)
 
   return(dat)
 }#eof
 
 ### getCurriculumData
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData("Curriculum Library Export", date)
+  dat <- readRawData.old("Curriculum Library Export", date)
 
   return(dat)
 }
 
 ### getAttendanceHistory
 getAttendanceTrainingSet <- function() {
-  readRDS(file.path(getwd(), "Cache", "prior2024.rds"))
+  readRDS(file.path(cacheDir(), "prior2024.rds"))
 }#eof
 
 ### getAttendanceData
 getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
-  dat <- readRawData("Student Attendance Report Export", date)
+  dat <- readRawData.old("Student Attendance Report Export", date)
 
-  logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")
+  logfile <- file.path(cacheDir(), "studentAttendanceLog.csv")
 
   if(!file.exists(logfile)) {
     stop("While running getAttendanceData(), \"", logfile,
