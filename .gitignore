@@ -1,5 +1,11 @@
 .Rproj.user
 .Rhistory
 .RData
-.Ruserdata
+.httr-oauth
+.DS_Store
+.quarto
+
 sandbox.Rmd
+
+/mnco-raw-data
+/mnco-cache
