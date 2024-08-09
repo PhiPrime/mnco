@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-getCenterData <- function(type = "all", date = the$CURRENT_DATE, ignoreMissing = F) {
+getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
   # USE match.arg, stopifnot
   if (type == "all") {
     # Get all data and merge
@@ -32,14 +32,14 @@ getCenterData <- function(type = "all", date = the$CURRENT_DATE, ignoreMissing =
   invisible(data)
 }
 
-getPaymentData <- function(date = the$CURRENT_DATE, ignoreMissing = F) {
+getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData("Payments.xlsx", date)
 
   return(dat)
 }#eof
 
 ### getCurriculumData
-getCurriculumData <- function(date = the$CURRENT_DATE, ignoreMissing = F) {
+getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData("Curriculum Library Export", date)
 
   return(dat)
@@ -51,7 +51,7 @@ getAttendanceTrainingSet <- function() {
 }#eof
 
 ### getAttendanceData
-getAttendanceData <- function(get = FALSE, date = the$CURRENT_DATE) {
+getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   dat <- readRawData("Student Attendance Report Export", date)
 
   logfile <- file.path(getwd(), "Cache", "studentAttendanceLog.csv")

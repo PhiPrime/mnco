@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-readRawData <- function(type, date = the$CURRENT_DATE) {
+readRawData <- function(type, date = Sys.Date()) {
   # MAYBE CHANGE TO OVERLOADING
   if (!is.null(type)) {
     # Use x as dir

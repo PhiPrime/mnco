@@ -1,6 +1,6 @@
 #######################     ASSESSMENT FUNCTIONS     ########################
 
-getAssessments <- function(date = the$CURRENT_DATE, ignoreMissing = F) {
+getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
   #Get using regex since filename depends on range of dates in report
   dat <- readRawData.old(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
                             "to [0-9]+_[0-9]+_[0-9]+"),

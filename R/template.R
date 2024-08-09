@@ -1,4 +1,4 @@
-saveTemplates <- function(date = the$CURRENT_DATE) {
+saveTemplates <- function(date = Sys.Date()) {
 
   cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
   newFile <- readRawData("Template Export", date) %>%
@@ -62,7 +62,7 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
 
 }
 
-templatesNeedUpdated <- function(date = the$CURRENT_DATE) {
+templatesNeedUpdated <- function(date = Sys.Date()) {
   cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
   newFile <- readRawData("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores

@@ -54,7 +54,7 @@ attendanceCheck <- function(allowedBdays = 5)
 #   matrix(ncol=dim(attendanceCheck()), nrow = 0,
 #          dimnames = list(NULL,
 #                          names(attendanceCheck())))),
-#   returnDate = the$CURRENT_DATE+lubridate::days(7)){
+#   returnDate = Sys.Date()+lubridate::days(7)){
 #   sendOnVacation(attendanceRows$Name, returnDate)
 # }
 
@@ -62,13 +62,13 @@ attendanceCheck <- function(allowedBdays = 5)
 sendOnVacation <- function(who,
 
                            #Default end of current month
-                           returnDate = lubridate::rollforward(the$CURRENT_DATE)){
+                           returnDate = lubridate::rollforward(Sys.Date())){
 
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
     #Then try some formats
     addThisYear <- function(old) {lubridate::mdy(paste(
-      old, lubridate::year(the$CURRENT_DATE)))}
+      old, lubridate::year(Sys.Date())))}
     returnDate <- tryCatch(
       expr = mdy(returnDate),
       error = function(e) {
@@ -143,7 +143,7 @@ setStudentsOnVacation <- function(dat = data.frame(
 
   #Requirements for vacation
   ## They were not claimed to have returned,
-  req1 <- which((the$CURRENT_DATE<dat$returnDate))
+  req1 <- which((Sys.Date()<dat$returnDate))
 
   ### Note: The following code is insufficient to see if a student
   ###        has attended since they were sent on Vacation. A restructure
@@ -151,7 +151,7 @@ setStudentsOnVacation <- function(dat = data.frame(
   ###        be a tautology
 
   ## They did not attend
-  req2 <- which(dat$Last_Attendance<the$CURRENT_DATE)
+  req2 <- which(dat$Last_Attendance<Sys.Date())
 
 
   #Only save those that meet requirements

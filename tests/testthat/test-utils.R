@@ -3,7 +3,7 @@ test_that("as.rawFilePath() works", {
   root <- "Current Batch Detail Export"
   date <- as.Date("2022-12-22")
 
-  expect_equal(as.rawFile(Pathroot, date),
+  expect_equal(as.rawFilePath(root, date),
                "Raw_Data/Current Batch Detail Export  12_22_2022.xlsx")
 })
 
