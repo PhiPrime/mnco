@@ -1,14 +1,14 @@
 tidyRawData <- function(data, type) {
   switch (type,
-    "student" = tidyStudentData(data),
-    "account" = tidyAccountData(data),
-    "progress" = tidyProgressData(data),
-    "enrollment" = tidyEnrollmentData(data),
+    "student" = tidyRawData.student(data),
+    "account" = tidyRawData.account(data),
+    "progress" = tidyRawData.progress(data),
+    "enrollment" = tidyRawData.enrollment(data),
     stop("`type` is not a valid argument: \'", type, "\'")
   )
 }
 
-tidyStudentData <- function(data) {
+tidyRawData.student <- function(data) {
   # Rename columns
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
 
@@ -40,7 +40,7 @@ tidyStudentData <- function(data) {
   return (data)
 }
 
-tidyAccountData <- function(data) {
+tidyRawData.account <- function(data) {
   # Create new columns
   data <- dplyr::mutate(data, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
 
@@ -59,7 +59,7 @@ tidyAccountData <- function(data) {
   return(data)
 }
 
-tidyProgressData <- function(data) {
+tidyRawData.progress <- function(data) {
   # PROCESS COLUMNS HERE
   rm_cols <- c("Guardian")
   na_cols <- c("BPR_Comment")
@@ -73,7 +73,7 @@ tidyProgressData <- function(data) {
   return(data)
 }
 
-tidyEnrollmentData <- function (data) {
+tidyRawData.enrollment <- function (data) {
   # Rename columns
   names(data)[names(data) == "Account_Name"] <- "Account"
   names(data)[names(data) == "Total_Sessions"] <- "Monthly_Sessions"
