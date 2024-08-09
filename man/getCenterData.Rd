@@ -4,7 +4,11 @@
 \alias{getCenterData}
 \title{Get tidied data from Radius files}
 \usage{
-getCenterData(type = "all", date = Sys.Date(), ignoreMissing = F)
+getCenterData(
+  type = c("all", names(RADIUS_FILE_ROOTS)),
+  date = Sys.Date(),
+  ignoreMissing = F
+)
 }
 \arguments{
 \item{type}{Which kind of Radius data to get}

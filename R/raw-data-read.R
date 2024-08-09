@@ -12,12 +12,12 @@ readRawData <- function(type, date = Sys.Date()) {
   # MAYBE CHANGE TO OVERLOADING
   if (!is.null(type)) {
     # Use x as dir
-    if (!(type %in% names(radiusFileRoots))) {
+    if (!(type %in% names(RADIUS_FILE_ROOTS))) {
       stop("`type` is not a valid argument: \'", type, "\'")
     }
 
     dir <- rawDataDir()
-    root <- radiusFileRoots[[type]]
+    root <- RADIUS_FILE_ROOTS[[type]]
     path <- as.rawFilePath(dir, root, date)
   }
 

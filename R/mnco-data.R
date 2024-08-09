@@ -10,4 +10,4 @@
 #'     and skills mastered}
 #'   \item{Enrollment Report}{Enrollment information}
 #' }
-"radiusFileRoots"
+"RADIUS_FILE_ROOTS"

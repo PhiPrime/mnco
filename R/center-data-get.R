@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-getCenterData <- function(type = c("all", names(radiusFileRoots)),
+getCenterData <- function(type = c("all", names(RADIUS_FILE_ROOTS)),
                           date = Sys.Date(), ignoreMissing = F) {
   type <- match.arg(type)
 
@@ -17,7 +17,7 @@ getCenterData <- function(type = c("all", names(radiusFileRoots)),
   if (type == "all") {
     # Get all data and merge
     stu <- getCenterData()
-  } else if (type %in% names(radiusFileRoots)) {
+  } else if (type %in% names(RADIUS_FILE_ROOTS)) {
     # Get and tidy data
     data <-
       readRawData(type, date) %>%
