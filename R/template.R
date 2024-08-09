@@ -3,7 +3,7 @@ saveTemplates <- function(date = Sys.Date()) {
   cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
   newFile <- readRawData("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
-    mutate(
+    dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
         Last_Modified_Date, "America/Los_Angeles"),
       Created_Date = lubridate::force_tz(
@@ -14,7 +14,7 @@ saveTemplates <- function(date = Sys.Date()) {
     #If cache exists, pull it in and look for what's new
     cache <- readRDS(cacheFile)
     #tmp contains ID & cache's Modified Date
-    tmp <- mutate(cache, Old_Date = Last_Modified_Date,
+    tmp <- dplyr::mutate(cache, Old_Date = Last_Modified_Date,
                   cachedTemplate = template) %>%
       select(Created_Date, Old_Date, cachedTemplate)
 
@@ -66,7 +66,7 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
   cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
   newFile <- readRawData("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
-    mutate(
+    dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
         Last_Modified_Date, "America/Los_Angeles"),
       Created_Date = lubridate::force_tz(
@@ -74,7 +74,7 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
       template = NA_character_)
 
   #Tmp contains ID & Current modified Date
-  tmp <- mutate(newFile, Current_Date = Last_Modified_Date) %>%
+  tmp <- dplyr::mutate(newFile, Current_Date = Last_Modified_Date) %>%
     select(Created_Date, Current_Date)
   #If any dates are different from cache return TRUE
   rtn <- any(with(merge(readRDS(cacheFile), tmp),

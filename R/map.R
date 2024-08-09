@@ -11,7 +11,7 @@ generateMap <- function(useCache = TRUE){
 
   # Consolidation
 
-  tidydat <- dat %>% mutate(name = paste(First_Name, Last_Name),
+  tidydat <- dat %>% dplyr::mutate(name = paste(First_Name, Last_Name),
                             address = paste(Billing_Street_1, Billing_City,
                                             paste(Billing_State, Billing_Zip_Code),
                                             sep = ", "),

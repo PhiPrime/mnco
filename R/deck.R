@@ -8,14 +8,14 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
     Skills_Currently_Assigned <- 0
 
   #Select students under minAllowed
-  ret <- filter(studentProgress,
+  ret <- dplyr::filter(studentProgress,
                 Student %in% needsDeckBasedOnAssessment(date)|
                   (Skills_Currently_Assigned < minAllowed &
                      Enrollment_Status == "Enrolled"))
 
   ret <- ret[order(ret$Skills_Currently_Assigned),]
 
-  ret <- mutate(ret, Pest = Skills_Mastered/Attendances)
+  ret <- dplyr::mutate(ret, Pest = Skills_Mastered/Attendances)
   ret <- select(ret,
                 Student, Skills_Currently_Assigned, Pest,
                 Skills_Mastered, Attendances)
@@ -59,7 +59,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
 
 
   #Add columns for both created & expiration date
-  studentRows <- mutate(studentRows, creation = Sys.Date(),
+  studentRows <- dplyr::mutate(studentRows, creation = Sys.Date(),
                         expDate = expDate)
   if(dim(getSuppressedStudents())[1]==0){
     dat <- studentRows

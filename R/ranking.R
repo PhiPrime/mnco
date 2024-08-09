@@ -15,11 +15,11 @@ getStudentRanking <- function(date = Sys.Date()) {
     merge(deliveryKey, all.x = T) %>%
 
     # Scale attendances based on session length
-    mutate(Duration = coalesce(Duration, 60),
+    dplyr::mutate(Duration = coalesce(Duration, 60),
            Attendances = Attendances * Duration / 60) %>%
 
     # Subset valid contestants
-    filter(Attendances >= Monthly_Sessions / 2,
+    dplyr::filter(Attendances >= Monthly_Sessions / 2,
            Skills_Mastered > 2,
            Delivery == "In-Center")
 
@@ -30,7 +30,7 @@ getStudentRanking <- function(date = Sys.Date()) {
 
   # Calculate ranking
   dat <- dat %>%
-    mutate(
+    dplyr::mutate(
       Pest = Skills_Mastered / Attendances,
 
       #Outlier test
