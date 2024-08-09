@@ -1,7 +1,7 @@
 ##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
 needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
-  studentProgress <- getProgressData(date)
+  studentProgress <- getCenterData("progress", date)
   #Set any NAs to 0
   studentProgress[
     is.na(studentProgress$Skills_Currently_Assigned),]$
@@ -9,16 +9,16 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
 
   #Select students under minAllowed
   ret <- dplyr::filter(studentProgress,
-                Student %in% needsDeckBasedOnAssessment(date)|
-                  (Skills_Currently_Assigned < minAllowed &
-                     Enrollment_Status == "Enrolled"))
+                       Student %in% needsDeckBasedOnAssessment(date)|
+                         (Skills_Currently_Assigned < minAllowed &
+                            Enrollment_Status == "Enrolled"))
 
   ret <- ret[order(ret$Skills_Currently_Assigned),]
 
   ret <- dplyr::mutate(ret, Pest = Skills_Mastered/Attendances)
   ret <- dplyr::select(ret,
-                Student, Skills_Currently_Assigned, Pest,
-                Skills_Mastered, Attendances)
+                       Student, Skills_Currently_Assigned, Pest,
+                       Skills_Mastered, Attendances)
 
   #Check for suppressed students and remove if so
   dat <- getSuppressedStudents()
@@ -60,7 +60,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
 
   #Add columns for both created & expiration date
   studentRows <- dplyr::mutate(studentRows, creation = Sys.Date(),
-                        expDate = expDate)
+                               expDate = expDate)
   if(dim(getSuppressedStudents())[1]==0){
     dat <- studentRows
   }
@@ -124,4 +124,55 @@ removeDeckSuppression <- function(studentRows = data.frame(
   setSuppressedStudents(dat)
 }#eof
 
+#Used with ranking to adjust score based on variableName
+regularizeScore <- function(dat, variableName, centerVal){
+  #if no Score present in data frame, assume it should be LB
+  if(!("Score" %in% names(dat))){
+    dat <- dplyr::mutate(dat, Score = LB)
+  }
 
+  gdMeans <- t(sapply(unique(dat[[variableName]]), function(x)
+    data.frame(variableName=x,
+               mean= mean(dat[dat[[variableName]]==x,]$Pest))))
+  gdMeans <- data.frame(tmp = unlist(gdMeans[,1]),
+                        Mean = unlist(gdMeans[,2]))
+  names(gdMeans)[names(gdMeans) == "tmp"] <- variableName
+
+  gdMeans <- gdMeans[order(gdMeans[[variableName]]),]
+  gdMeans <- dplyr::mutate(gdMeans,
+                           offset = gdMeans[gdMeans[[variableName]]==centerVal,
+                           ]$Mean-Mean)
+  dat <- merge(dat, gdMeans)
+  dat$Score <- with(dat, Score + offset)
+  dat <- dplyr::select(dat, -offset, -Mean)
+  return(dat)
+}
+
+showcaseRegularizeScore <- function(){
+  dat <- merge(getStudentRanking(),
+               getMostRecentAssessments())
+
+  #Force -3 to be min difference considered
+  dat[which(dat$gradeDif<(-3)),]$gradeDif <- -3
+
+  p1 <- ggplot(dat, aes(x=gradeDif, y = LB)) +
+    ylab("Score") +
+    geom_point() + geom_smooth() + ggtitle("No Regularization")
+
+
+  dat <- regularizeScore(dat,"Level", 4)#  "gradeDif", 0)
+
+  p2 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
+    geom_point() + geom_smooth() + ggtitle("Regularized on gradeDif")
+
+
+  dat <- regularizeScore(dat,  "gradeDif", 0)#"Level", 4)
+
+  p3 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
+    geom_point() + geom_smooth() +
+    ggtitle("Regularized on gradeDif & assessmentLevel")
+
+
+  gridExtra::grid.arrange(p1,p2,p3,ncol=1)
+  #return(dat)
+}
