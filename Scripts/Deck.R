@@ -8,15 +8,15 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
     Skills_Currently_Assigned <- 0
   
   #Select students under minAllowed  
-  ret <- filter(studentProgress, 
+  ret <- dplyr::filter(studentProgress, 
                 Student %in% needsDeckBasedOnAssessment(date)|
                 (Skills_Currently_Assigned < minAllowed &
                   Enrollment_Status == "Enrolled"))
   
   ret <- ret[order(ret$Skills_Currently_Assigned),]
   
-  ret <- mutate(ret, Pest = Skills_Mastered/Attendances)
-  ret <- select(ret, 
+  ret <- dplyr::mutate(ret, Pest = Skills_Mastered/Attendances)
+  ret <- dplyr::select(ret, 
                 Student, Skills_Currently_Assigned, Pest, 
                 Skills_Mastered, Attendances)
   
@@ -59,7 +59,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
   
   
   #Add columns for both created & expiration date
-  studentRows <- mutate(studentRows, creation = Sys.Date(),
+  studentRows <- dplyr::mutate(studentRows, creation = Sys.Date(),
                         expDate = expDate)
   if(dim(getSuppressedStudents())[1]==0){
     dat <- studentRows
@@ -128,7 +128,7 @@ removeDeckSuppression <- function(studentRows = data.frame(
 regularizeScore <- function(dat, variableName, centerVal){
   #if no Score present in data frame, assume it should be LB
   if(!("Score" %in% names(dat))){ 
-    dat <- mutate(dat, Score = LB)
+    dat <- dplyr::mutate(dat, Score = LB)
   }
   
   gdMeans <- t(sapply(unique(dat[[variableName]]), function(x)
@@ -139,12 +139,12 @@ regularizeScore <- function(dat, variableName, centerVal){
   names(gdMeans)[names(gdMeans) == "tmp"] <- variableName
   
   gdMeans <- gdMeans[order(gdMeans[[variableName]]),] 
-  gdMeans <- mutate(gdMeans, 
+  gdMeans <- dplyr::mutate(gdMeans, 
                     offset = gdMeans[gdMeans[[variableName]]==centerVal,
                     ]$Mean-Mean)
   dat <- merge(dat, gdMeans)
   dat$Score <- with(dat, Score + offset)
-  dat <- select(dat, -offset, -Mean)
+  dat <- dplyr::select(dat, -offset, -Mean)
   return(dat)
 }
 
@@ -173,6 +173,6 @@ showcaseRegularizeScore <- function(){
     ggtitle("Regularized on gradeDif & assessmentLevel")
   
   
-  gridExtra::grid.arrange(p1,p2,p3,ncol=1)
+  gridExtra::grid.dplyr::arrange(p1,p2,p3,ncol=1)
   #return(dat)
 }

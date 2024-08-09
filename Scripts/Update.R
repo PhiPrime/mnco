@@ -32,10 +32,10 @@ getStudentData <- function(date = Sys.Date(), ignoreMissing = F){
   names(dat)[names(dat) == "Lead_Id...2"] <- "Lead_Id"
   
   # Reformat columns
-  dat <- mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
+  dat <- dplyr::mutate(dat, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
   
   # Create new columns
-  dat <- mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
+  dat <- dplyr::mutate(dat, Student = paste(First_Name, Last_Name), .before = Student_Id)
   
   # Columns to be removed
   # ORGANIZE rm_cols
@@ -65,7 +65,7 @@ getAccountData <- function(date = Sys.Date(), ignoreMissing = F){
   dat <- readRawData("Account Export", date, ignoreMissing)
   
   # Create new columns
-  dat <- mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
+  dat <- dplyr::mutate(dat, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
   
   # Columns to be removed
   rm_cols <- c("First_Name", "Last_Name", "Last_Modified_By...20",
@@ -99,7 +99,7 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
           readRawData(bootstrapRoot, date) %>%
           
           # REFORMAT THESE COLUMNS
-          mutate(
+          dplyr::mutate(
             Student = dat$Student_Name,
             Guardian = dat$Guardians,
             Account = dat$Account_Name,
@@ -148,10 +148,10 @@ getProgressData <- function(date = Sys.Date(), ignoreMissing = F) {
 getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
   progress <- getProgressData(date) %>%
-    select(Student, Skills_Mastered, Attendances)
+    dplyr::select(Student, Skills_Mastered, Attendances)
   
   deliveryKey <- getEnrollmentData(date) %>%
-    select(Student, Monthly_Sessions, Delivery)
+    dplyr::select(Student, Monthly_Sessions, Delivery)
   
   differentDurationStudents <- 
     read.csv("Cache/differentDurationStudents.csv")
@@ -162,11 +162,11 @@ getStudentRanking <- function(date = Sys.Date()) {
     merge(deliveryKey, all.x = T) %>%
     
     # Scale attendances based on session length
-    mutate(Duration = coalesce(Duration, 60),
+    dplyr::mutate(Duration = coalesce(Duration, 60),
            Attendances = Attendances * Duration / 60) %>% 
     
     # Subset valid contestants
-    filter(Attendances >= Monthly_Sessions / 2,
+    dplyr::filter(Attendances >= Monthly_Sessions / 2,
            Skills_Mastered > 2,
            Delivery == "In-Center")
     
@@ -177,7 +177,7 @@ getStudentRanking <- function(date = Sys.Date()) {
   
   # Calculate ranking
   dat <- dat %>%
-    mutate(
+    dplyr::mutate(
       Pest = Skills_Mastered / Attendances,
       
       #Outlier test
@@ -194,7 +194,7 @@ getStudentRanking <- function(date = Sys.Date()) {
       Rank = rank(-LB, ties.method = "min"),
       Rank_Display = paste0(
         Rank,
-        case_when(
+        dplyr::case_when(
           Rank %% 100 %in% 11:13 ~ "th",
           Rank %% 10 == 1 ~ "st",
           Rank %% 10 == 2 ~ "nd",
@@ -203,7 +203,7 @@ getStudentRanking <- function(date = Sys.Date()) {
         )
       )
     ) %>%
-    select(-samdev)
+    dplyr::select(-samdev)
   
   # Reorder columns and sort by rank
   col_order <- union(
@@ -212,8 +212,8 @@ getStudentRanking <- function(date = Sys.Date()) {
   )
   
   dat <- dat %>% 
-    select(all_of(col_order)) %>%
-    arrange(Rank)
+    dplyr::select(all_of(col_order)) %>%
+    dplyr::arrange(Rank)
   
   return(dat)
 }#eof
@@ -229,20 +229,20 @@ getEnrollmentData <- function(date = Sys.Date(), ignoreMissing = F) {
   
   # Reformat columns
   dat <- dat %>%
-    mutate(Membership_Type = 
+    dplyr::mutate(Membership_Type = 
              gsub("^\\* ", "", Membership_Type)) %>%
-    mutate(Enrollment_Contract_Length = 
+    dplyr::mutate(Enrollment_Contract_Length = 
              gsub(" months?", "", Enrollment_Contract_Length)) %>%
-    mutate(Enrollment_Length_of_Stay = 
+    dplyr::mutate(Enrollment_Length_of_Stay = 
              gsub(" months?", "", Enrollment_Length_of_Stay)) %>%
-    mutate(Student_Length_of_Stay = 
+    dplyr::mutate(Student_Length_of_Stay = 
              gsub(" months?", "", Student_Length_of_Stay)) %>%
   
-    mutate(Monthly_Sessions = as.numeric(Monthly_Sessions)) %>%
-    mutate(Delivery = as.factor(Delivery))
+    dplyr::mutate(Monthly_Sessions = as.numeric(Monthly_Sessions)) %>%
+    dplyr::mutate(Delivery = as.factor(Delivery))
   
   # Create new columns
-  dat <- mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
+  dat <- dplyr::mutate(dat, Student = paste(Student_First_Name, Student_Last_Name),
                 .before = Student_First_Name)
   
   # Columns to be removed
@@ -293,7 +293,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   }
   
     #Mutate to tidy
-    dat <- mutate(dat,
+    dat <- dplyr::mutate(dat,
                   date = as.Date(Attendance_Date,
                                  format = "%m/%d/%y"),
                   accountID = Account_Id,
@@ -306,11 +306,11 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
                   sessionsRemaining = Sessions_Remaining,
                   delivery = as.factor(Delivery))
     
-    dat <- mutate(dat,
+    dat <- dplyr::mutate(dat,
                   line = paste(accountID,date,name, 
                                sep = ";"))
     
-    dat <- select(dat, date:delivery, line)
+    dat <- dplyr::select(dat, date:delivery, line)
   
   
   newdat <- dat[!(dat$line %in% logdat$line),]
@@ -354,7 +354,7 @@ saveTemplates <- function(date = Sys.Date()) {
   cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
   newFile <- readRawData("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
-    mutate(
+    dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
         Last_Modified_Date, "America/Los_Angeles"),
       Created_Date = lubridate::force_tz(
@@ -365,9 +365,9 @@ saveTemplates <- function(date = Sys.Date()) {
     #If cache exists, pull it in and look for what's new
     cache <- readRDS(cacheFile)
     #tmp contains ID & cache's Modified Date
-    tmp <- mutate(cache, Old_Date = Last_Modified_Date,
+    tmp <- dplyr::mutate(cache, Old_Date = Last_Modified_Date,
                   cachedTemplate = template) %>%
-      select(Created_Date, Old_Date, cachedTemplate)
+      dplyr::select(Created_Date, Old_Date, cachedTemplate)
     
     #Updated is a boolean that is TRUE for positions in newFile that
     # need to be updated
@@ -377,7 +377,7 @@ saveTemplates <- function(date = Sys.Date()) {
     
     #newLines are rows that need filled
     newLines <- newFile[updated,]
-    newFile[!updated,] <- merge(select(newFile[!updated,], -template),
+    newFile[!updated,] <- merge(dplyr::select(newFile[!updated,], -template),
                                 #If not updated use data in cache
                                 cache)
   } else {#If no cache file everything will need updated
@@ -474,7 +474,7 @@ mergeWithoutFill <- function(df1, df2, .by) {
   unmerged <- setdiff(names(df), union(names(df1), names(df2)))
   unmerged <- sort(unmerged)
   
-  df <- select(df, all_of(unmerged))
+  df <- dplyr::select(df, all_of(unmerged))
   
   return(df)
 }#eof
@@ -645,7 +645,7 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
   cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
   newFile <- readRawData("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
-    mutate(
+    dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
         Last_Modified_Date, "America/Los_Angeles"),
       Created_Date = lubridate::force_tz(
@@ -653,8 +653,8 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
       template = NA_character_)
   
     #Tmp contains ID & Current modified Date
-    tmp <- mutate(newFile, Current_Date = Last_Modified_Date) %>%
-      select(Created_Date, Current_Date)
+    tmp <- dplyr::mutate(newFile, Current_Date = Last_Modified_Date) %>%
+      dplyr::select(Created_Date, Current_Date)
     #If any dates are different from cache return TRUE
     rtn <- any(with(merge(readRDS(cacheFile), tmp),
                     Last_Modified_Date!=Current_Date))
