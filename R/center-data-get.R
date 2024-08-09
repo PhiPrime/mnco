@@ -16,17 +16,26 @@ getCenterData <- function(type = c("all", names(RADIUS_FILE_ROOTS)),
   # USE match.arg, stopifnot
   if (type == "all") {
     # Get all data and merge
-    stu <- getCenterData()
+    stu <- getCenterData("student", date)
+    acc <- getCenterData("account", date)
+    pro <- getCenterData("progress", date)
+    enr <- getCenterData("enrollment", date)
+
+    tdat <- stu %>%
+      mergeWithFill(acc, .by = "Account_Id") %>%
+      merge(pro, all.x = T) %>%
+      merge(enr, all.x = T)
+
   } else if (type %in% names(RADIUS_FILE_ROOTS)) {
     # Get and tidy data
-    data <-
+    tdat <-
       readRawData(type, date) %>%
       tidyRawData(type)
   } else {
     stop("`type` is not a valid argument: \'", type, "\'")
   }
 
-  invisible(data)
+  invisible(tdat)
 }
 
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {

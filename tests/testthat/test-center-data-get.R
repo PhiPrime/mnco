@@ -1,3 +1,8 @@
+test_that("getCenterData(type = \"all\") runs", {
+  date = as.Date("2024-08-05")
+  expect_no_error(getCenterData(type = "all", date = date))
+})
+
 test_that("getCenterData(type = \"student\") runs", {
   date = as.Date("08-05-2024", format = "%m-%d-%Y")
   expect_no_error(getCenterData(type = "student", date = date))
