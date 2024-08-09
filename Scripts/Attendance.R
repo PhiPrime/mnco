@@ -21,6 +21,8 @@ attendanceCheck <- function(allowedBdays = 5)
     
     transmute(Last_Attendance_Date = Last_Attendance_Date,
               Name = Student,
+              Account = paste(str_remove(Account, "^.+, "),
+                              str_remove(Account, ",.+$")),
               #Select phone in this order: Mobile, Home, Other
               Phone = ifelse(is.na(Mobile_Phone), 
                           ifelse(is.na(Home_Phone), 
