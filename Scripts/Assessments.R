@@ -33,19 +33,19 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
 
 tidyAssessments <- function(dat){
   #Arbitrarily Tidy up
-  tdat <- transmute(dat,
+  tdat <- dplyr::transmute(dat,
                     Lead_Id = as.character(Lead_Id),
                     Account_Id = Account_Id,
                     Student= paste(Student_First_Name, Student_Last_Name),
                     Enrollment_Status = as.factor(Enrollment_Status),
-                    Grade = case_when(
+                    Grade = dplyr::case_when(
                       Grade == "Pre K" ~ "-1",
                       Grade == "K" ~ "0",
                       Grade == "College" ~ "13",
                       grepl("[0-9]", Grade) ~ Grade,
                       .default = "NaN"),
                     Assessment = Assessment_Title,
-                    Level = case_when(
+                    Level = dplyr::case_when(
                       !(grepl("[A-Z]", toupper(Assessment_Level))&
                           !is.na(Assessment_Level)) ~ Assessment_Level,
                                       grepl("Readiness|Middle",Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
@@ -58,21 +58,21 @@ tidyAssessments <- function(dat){
                     Group = Group=="Yes",
                     Center = as.factor(Center)) %>%
     #Avoid NA warning when none is needed
-    mutate(Grade = as.numeric(Grade),
+    dplyr::mutate(Grade = as.numeric(Grade),
            Level = as.numeric(Level))
   return(tdat)
 }
 
 getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   dat <- getHistoricAssessments(Assessments_Prior_to_)
-  dat <- filter(dat, !is.na(dat$Level))
+  dat <- dplyr::filter(dat, !is.na(dat$Level))
   dat <- dat[order(dat$Student, dat$Level, decreasing = TRUE),]
   ldat <- lapply(unique(dat$Student), 
-                with(dat, function(x)filter(dat, Student == x)[1,]))
+                with(dat, function(x)dplyr::filter(dat, Student == x)[1,]))
   dat <- data.frame(Reduce(rbind, ldat))
-  dat <- mutate(dat, yearsSince = as.numeric(round(
+  dat <- dplyr::mutate(dat, yearsSince = as.numeric(round(
     (Sys.time()-dat$Date)/365.25)))
-  ret <- mutate(dat, 
+  ret <- dplyr::mutate(dat, 
                 gradeDif = as.numeric(Level)-as.numeric(Grade))
   return(ret)
 }
@@ -90,9 +90,9 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
   assessments <- getAssessments(date)
   
   #Option 1
-  stus <- select(getStudentData(date),
+  stus <- dplyr::select(getStudentData(date),
                  Student, Last_Attendance_Date)
-  prog <- select(getProgressData(date),
+  prog <- dplyr::select(getProgressData(date),
                  Student, Active_Learning_Plans)
   assessments <- merge(assessments, stus) %>%
     merge(prog)

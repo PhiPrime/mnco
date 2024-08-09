@@ -11,7 +11,7 @@ generateMap <- function(useCache = TRUE){
   
   # Consolidation
   
-  tidydat <- dat %>% mutate(name = paste(First_Name, Last_Name),    
+  tidydat <- dat %>% dplyr::mutate(name = paste(First_Name, Last_Name),    
                             address = paste(Billing_Street_1, Billing_City,
                                             paste(Billing_State, Billing_Zip_Code),
                                             sep = ", "),
@@ -28,7 +28,7 @@ generateMap <- function(useCache = TRUE){
                                           Student_Last_Name),
                             info = paste(name, total, sep="<br>"))
   
-  tidydat <- select(tidydat, name, total, info, address, Enrollment_Status,
+  tidydat <- dplyr::select(tidydat, name, total, info, address, Enrollment_Status,
                     Enrollment_Length_of_Stay, Monthly_Amount)
   
   ##Check for cached data then 

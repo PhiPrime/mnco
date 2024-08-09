@@ -10,7 +10,7 @@ attendanceCheck <- function(allowedBdays = 5)
     1,allowedBdays)]
   
   
-  flaggedStudents <- filter(mergeWithFill(getStudentData(), 
+  flaggedStudents <- dplyr::filter(mergeWithFill(getStudentData(), 
                                           getAccountData(), 
                                           .by = "Account_Id"), 
                             !between(Last_Attendance_Date, 
@@ -19,7 +19,7 @@ attendanceCheck <- function(allowedBdays = 5)
                               Delivery=="In-Center" &
                               Enrollment_Status == "Enrolled") %>%
     
-    transmute(Last_Attendance_Date = Last_Attendance_Date,
+    dplyr::transmute(Last_Attendance_Date = Last_Attendance_Date,
               Name = Student,
               Account = paste(str_remove(Account, "^.+, "),
                               str_remove(Account, ",.+$")),
@@ -83,7 +83,7 @@ sendOnVacation <- function(who,
   }
   
   #Store current Student file for efficiency 
-  stus <- mutate(getStudentData(), 
+  stus <- dplyr::mutate(getStudentData(), 
                  Student = Student)
   
   #Make function user friendly by regexing for name
@@ -96,7 +96,7 @@ sendOnVacation <- function(who,
   }
   
   who <- tmp[,1]
-  stus <- filter(stus, Student%in%who)
+  stus <- dplyr::filter(stus, Student%in%who)
   #Create data frame to store
   toStore <- data.frame(Student = who,
                         Last_Attendance = stus$Last_Attendance_Date,
@@ -138,10 +138,10 @@ setStudentsOnVacation <- function(dat = data.frame(
   
   #Query last attendance date
   dat <- merge(dat,
-        mutate(getStudentData(),
+        dplyr::mutate(getStudentData(),
          Student = Student,
          Last_Attendance = Last_Attendance_Date) %>%
-    select(Student, Last_Attendance))
+    dplyr::select(Student, Last_Attendance))
   
   #Requirements for vacation
   ## They were not claimed to have returned,
