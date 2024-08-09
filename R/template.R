@@ -16,7 +16,7 @@ saveTemplates <- function(date = Sys.Date()) {
     #tmp contains ID & cache's Modified Date
     tmp <- dplyr::mutate(cache, Old_Date = Last_Modified_Date,
                   cachedTemplate = template) %>%
-      select(Created_Date, Old_Date, cachedTemplate)
+      dplyr::select(Created_Date, Old_Date, cachedTemplate)
 
     #Updated is a boolean that is TRUE for positions in newFile that
     # need to be updated
@@ -26,7 +26,7 @@ saveTemplates <- function(date = Sys.Date()) {
 
     #newLines are rows that need filled
     newLines <- newFile[updated,]
-    newFile[!updated,] <- merge(select(newFile[!updated,], -template),
+    newFile[!updated,] <- merge(dplyr::select(newFile[!updated,], -template),
                                 #If not updated use data in cache
                                 cache)
   } else {#If no cache file everything will need updated
@@ -75,7 +75,7 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
 
   #Tmp contains ID & Current modified Date
   tmp <- dplyr::mutate(newFile, Current_Date = Last_Modified_Date) %>%
-    select(Created_Date, Current_Date)
+    dplyr::select(Created_Date, Current_Date)
   #If any dates are different from cache return TRUE
   rtn <- any(with(merge(readRDS(cacheFile), tmp),
                   Last_Modified_Date!=Current_Date))

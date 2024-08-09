@@ -28,7 +28,7 @@ generateMap <- function(useCache = TRUE){
                                           Student_Last_Name),
                             info = paste(name, total, sep="<br>"))
 
-  tidydat <- select(tidydat, name, total, info, address, Enrollment_Status,
+  tidydat <- dplyr::select(tidydat, name, total, info, address, Enrollment_Status,
                     Enrollment_Length_of_Stay, Monthly_Amount)
 
   ##Check for cached data then

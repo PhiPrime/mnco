@@ -38,14 +38,14 @@ tidyAssessments <- function(dat){
                     Account_Id = Account_Id,
                     Student= paste(Student_First_Name, Student_Last_Name),
                     Enrollment_Status = as.factor(Enrollment_Status),
-                    Grade = case_when(
+                    Grade = dplyr::case_when(
                       Grade == "Pre K" ~ "-1",
                       Grade == "K" ~ "0",
                       Grade == "College" ~ "13",
                       grepl("[0-9]", Grade) ~ Grade,
                       .default = "NaN"),
                     Assessment = Assessment_Title,
-                    Level = case_when(
+                    Level = dplyr::case_when(
                       !(grepl("[A-Z]", toupper(Assessment_Level))&
                           !is.na(Assessment_Level)) ~ Assessment_Level,
                       grepl("Readiness|Middle",Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th

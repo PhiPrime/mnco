@@ -81,7 +81,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
                 line = paste(accountID,date,name,
                              sep = ";"))
 
-  dat <- select(dat, date:delivery, line)
+  dat <- dplyr::select(dat, date:delivery, line)
 
 
   newdat <- dat[!(dat$line %in% logdat$line),]

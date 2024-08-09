@@ -16,7 +16,7 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
   ret <- ret[order(ret$Skills_Currently_Assigned),]
 
   ret <- dplyr::mutate(ret, Pest = Skills_Mastered/Attendances)
-  ret <- select(ret,
+  ret <- dplyr::select(ret,
                 Student, Skills_Currently_Assigned, Pest,
                 Skills_Mastered, Attendances)
 

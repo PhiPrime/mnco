@@ -1,10 +1,10 @@
 getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
-    select(Student, Skills_Mastered, Attendances)
+    dplyr::select(Student, Skills_Mastered, Attendances)
 
   deliveryKey <- getCenterData("enrollment", date) %>%
-    select(Student, Monthly_Sessions, Delivery)
+    dplyr::select(Student, Monthly_Sessions, Delivery)
 
   differentDurationStudents <-
     read.csv("Cache/differentDurationStudents.csv")
@@ -47,7 +47,7 @@ getStudentRanking <- function(date = Sys.Date()) {
       Rank = rank(-LB, ties.method = "min"),
       Rank_Display = paste0(
         Rank,
-        case_when(
+        dplyr::case_when(
           Rank %% 100 %in% 11:13 ~ "th",
           Rank %% 10 == 1 ~ "st",
           Rank %% 10 == 2 ~ "nd",
@@ -56,7 +56,7 @@ getStudentRanking <- function(date = Sys.Date()) {
         )
       )
     ) %>%
-    select(-samdev)
+    dplyr::select(-samdev)
 
   # Reorder columns and sort by rank
   col_order <- union(
@@ -65,8 +65,8 @@ getStudentRanking <- function(date = Sys.Date()) {
   )
 
   dat <- dat %>%
-    select(all_of(col_order)) %>%
-    arrange(Rank)
+    dplyr::select(all_of(col_order)) %>%
+    dplyr::arrange(Rank)
 
   return(dat)
 }
