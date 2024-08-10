@@ -13,10 +13,10 @@ tidyRawData.student <- function(data) {
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
 
   # Reformat columns
-  data <- dplyr::mutate(data, Last_Attendance_Date = as.Date(Last_Attendance_Date, format = "%m/%d/%Y"))
+  data <- dplyr::mutate(data, Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"))
 
   # Create new columns
-  data <- dplyr::mutate(data, Student = paste(First_Name, Last_Name), .before = Student_Id)
+  data <- dplyr::mutate(data, Student = paste(.data$First_Name, .data$Last_Name), .before = "Student_Id")
 
   # Columns to be removed
   # ORGANIZE rm_cols
@@ -42,7 +42,7 @@ tidyRawData.student <- function(data) {
 
 tidyRawData.account <- function(data) {
   # Create new columns
-  data <- dplyr::mutate(data, Account = paste0(Last_Name, ", ", First_Name), .before = Account_Id)
+  data <- dplyr::mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
 
   # Columns to be removed
   rm_cols <- c("First_Name", "Last_Name", "Last_Modified_By...20",
@@ -82,20 +82,20 @@ tidyRawData.enrollment <- function (data) {
   # Reformat columns
   data <- data %>%
     dplyr::mutate(Membership_Type =
-             gsub("^\\* ", "", Membership_Type)) %>%
+             gsub("^\\* ", "", .data$Membership_Type)) %>%
     dplyr::mutate(Enrollment_Contract_Length =
-             gsub(" months?", "", Enrollment_Contract_Length)) %>%
+             gsub(" months?", "", .data$Enrollment_Contract_Length)) %>%
     dplyr::mutate(Enrollment_Length_of_Stay =
-             gsub(" months?", "", Enrollment_Length_of_Stay)) %>%
+             gsub(" months?", "", .data$Enrollment_Length_of_Stay)) %>%
     dplyr::mutate(Student_Length_of_Stay =
-             gsub(" months?", "", Student_Length_of_Stay)) %>%
+             gsub(" months?", "", .data$Student_Length_of_Stay)) %>%
 
-    dplyr::mutate(Monthly_Sessions = as.numeric(Monthly_Sessions)) %>%
-    dplyr::mutate(Delivery = as.factor(Delivery))
+    dplyr::mutate(Monthly_Sessions = as.numeric(.data$Monthly_Sessions)) %>%
+    dplyr::mutate(Delivery = as.factor(.data$Delivery))
 
   # Create new columns
-  data <- dplyr::mutate(data, Student = paste(Student_First_Name, Student_Last_Name),
-                .before = Student_First_Name)
+  data <- dplyr::mutate(data, Student = paste(.data$Student_First_Name, .data$Student_Last_Name),
+                .before = "Student_First_Name")
 
   # Columns to be removed
   # Session_Length is handled as Duration in getProgressData()
