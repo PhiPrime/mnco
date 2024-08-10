@@ -4,7 +4,7 @@
 getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
                        contractLength = 7,
                        sessionCount = 10,
-                       nstu = dim(getStudentData()[which(getStudentData()$Enrollment_Status=="Enrolled"),])[1]){
+                       nstu = dim(getCenterData("student")[which(getCenterData("student")$Enrollment_Status=="Enrolled"),])[1]){
 
   ######### Adjustable #########
 
@@ -46,7 +46,7 @@ getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
 
 ### getPricingGrid
 getPricingGrid <- function(verbose = FALSE,
-                           nstu = dim(getStudentData()[which(getStudentData()$Enrollment_Status=="Enrolled"),])[1]){
+                           nstu = dim(getCenterData("student")[which(getCenterData("student")$Enrollment_Status=="Enrolled"),])[1]){
   df <- data.frame()
   for(gradeBin in c("Kindergarten to Pre-Algebra","Algebra and Beyond")){
     for (contractLen in c(1,7,12)){
