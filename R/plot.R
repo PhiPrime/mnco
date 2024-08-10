@@ -53,5 +53,18 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   # Make with swapped axes since independent variable is unknown
   p1 <- stdplot(max_row,max_col)
   p2 <- stdplot(max_col,max_row)
-  p1+p2
+  # To Luke: p1+p2 throws error bc can't add ggplot objects -Justin
+  c(p1, p2)
+  # p1+p2
+}
+
+expGradedifPest <- function() {
+  dat <- merge(dplyr::mutate(getCenterData("progress"),
+                             Pest = Skills_Mastered/Attendances),
+               getMostRecentAssessments()) %>%
+    dplyr::filter(Pest <2, gradeDif >= -2)
+  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Pest)) +
+    ggplot2::xlab("Grade Difference") + ggplot2::ylab("P Skills per session") +
+    ggplot2::geom_point() + ggplot2::geom_smooth()
+  return(p2)
 }
