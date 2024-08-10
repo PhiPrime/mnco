@@ -39,7 +39,7 @@ getStudentRanking <- function(date = Sys.Date()) {
 
       UB = round(.data$Pest - stats::qnorm((1 - CI / 100) / 2) *
                    .data$samdev / sqrt(.data$Attendances), roundingDig),
-      LB = round(Pest + stats::qnorm((1 - CI / 100) / 2) *
+      LB = round(.data$Pest + stats::qnorm((1 - CI / 100) / 2) *
                    .data$samdev / sqrt(.data$Attendances), roundingDig),
 
       Font_Size = round(32 * .data$LB / max(.data$LB), 1),
@@ -66,7 +66,7 @@ getStudentRanking <- function(date = Sys.Date()) {
 
   dat <- dat %>%
     dplyr::select(all_of(col_order)) %>%
-    dplyr::arrange(Rank)
+    dplyr::arrange(.data$Rank)
 
   return(dat)
 }

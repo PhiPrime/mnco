@@ -47,7 +47,7 @@ generateMap <- function(useCache = TRUE){
     #Subset new entries
     new <- tidydat[!tidydat$name %in% cached$name,]
     if(dim(new)[1]>0){
-      new <- tidygeocoder::geocode(new, address, method = 'arcgis')
+      new <- tidygeocoder::geocode(new, .data$address, method = 'arcgis')
       ret <- rbind(cached, new)
     } else {
       ret <- cached
@@ -58,7 +58,7 @@ generateMap <- function(useCache = TRUE){
       warning(paste0("No file found named: ",
                      fileLoc,". One will now be created."))
     }
-    ret <- tidygeocoder::geocode(tidydat, address, method = 'arcgis')
+    ret <- tidygeocoder::geocode(tidydat, .data$address, method = 'arcgis')
   }
 
   write.xlsx(ret, fileLoc)

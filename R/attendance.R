@@ -16,8 +16,8 @@ attendanceCheck <- function(allowedBdays = 5)
                             !dplyr::between(.data$Last_Attendance_Date,
                                      acceptableDates[2],
                                      acceptableDates[1]) &
-                              Delivery=="In-Center" &
-                              Enrollment_Status == "Enrolled") %>%
+                              .data$Delivery=="In-Center" &
+                              .data$Enrollment_Status == "Enrolled") %>%
 
     dplyr::transmute(Last_Attendance_Date = .data$Last_Attendance_Date,
               Name = .data$Student,
