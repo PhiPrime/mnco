@@ -7,7 +7,7 @@ getStudentRanking <- function(date = Sys.Date()) {
     dplyr::select(Student, Monthly_Sessions, Delivery)
 
   differentDurationStudents <-
-    read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
+    utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
 
   # Merge and filter the data
   dat <- progress %>%
@@ -34,12 +34,12 @@ getStudentRanking <- function(date = Sys.Date()) {
       Pest = Skills_Mastered / Attendances,
 
       #Outlier test
-      zscore = (mean(Pest) - Pest) / (sd(Pest) / sqrt(Attendances)),
-      samdev = sd(Pest[abs(zscore) < outlierThreshold]),
+      zscore = (mean(Pest) - Pest) / (stats::sd(Pest) / sqrt(Attendances)),
+      samdev = stats::sd(Pest[abs(zscore) < outlierThreshold]),
 
-      UB = round(Pest - qnorm((1 - CI / 100) / 2) *
+      UB = round(Pest - stats::qnorm((1 - CI / 100) / 2) *
                    samdev / sqrt(Attendances), roundingDig),
-      LB = round(Pest + qnorm((1 - CI / 100) / 2) *
+      LB = round(Pest + stats::qnorm((1 - CI / 100) / 2) *
                    samdev / sqrt(Attendances), roundingDig),
 
       Font_Size = round(32 * LB / max(LB), 1),
@@ -74,17 +74,17 @@ getStudentRanking <- function(date = Sys.Date()) {
 addDifferentDurationStudent <- function(student, duration) {
   # need to add file check
   filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
-  dat <- read.csv(filePath)
+  dat <- utils::read.csv(filePath)
 
   dat <- rbind(dat[dat$Student != student,], data.frame(Student = student, Duration = duration))
-  write.csv(dat, filePath, row.names = F)
+  utils::write.csv(dat, filePath, row.names = F)
 }
 
 removeDifferentDurationStudent <- function(student) {
   # need to add file check
   filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
-  dat <- read.csv(filePath)
+  dat <- utils::read.csv(filePath)
 
   dat <- dat[dat$Student != student,]
-  write.csv(dat, filePath, row.names = F)
+  utils::write.csv(dat, filePath, row.names = F)
 }

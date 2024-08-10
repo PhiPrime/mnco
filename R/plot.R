@@ -11,7 +11,7 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
 
 
   #Find corelations that aren't (nearly) direct and assign value of 0
-  cor_mat <- cor(numdata)
+  cor_mat <- stats::cor(numdata)
   cor_mat[cor_mat >= .97] <- 0
 
   #Find which variables have the largest correlation

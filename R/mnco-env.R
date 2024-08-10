@@ -1,6 +1,8 @@
 # Create binding for mocking in tests
 Sys.Date <- NULL
 
+utils::globalVariables(".data")
+
 the <- new.env(parent = emptyenv())
 the$RAW_DATA_DIR <- file.path(".", "mnco-raw-data")
 the$CACHE_DIR <- file.path(".", "mnco-cache")

@@ -66,7 +66,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
     stop("While running getAttendanceData(), \"", logfile,
          "\" was not found.")
   } else {
-    logdat <- read.csv(logfile)
+    logdat <- utils::read.csv(logfile)
   }
 
   #Mutate to tidy
@@ -99,15 +99,15 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   }
 
   else {
-    # write.csv()
+    # utils::write.csv()
   }
 
 
   #Save to File
-  write.csv(logdat,logfile, row.names=FALSE)
+  utils::write.csv(logdat,logfile, row.names=FALSE)
 
   if(get){
-    return(read.csv(logfile))
+    return(utils::read.csv(logfile))
   }
 
   ### Old code to check for two types of files. Could be useful to
@@ -115,7 +115,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   # if(grepl("xlsx$", fileLoc)) {
   #   newdat <- read_xlsx(fileLoc)
   # } else if (grepl("csv$", fileLoc)) {
-  #   newdat <- read.csv(fileLoc)
+  #   newdat <- utils::read.csv(fileLoc)
   # } else {
   #   stop(paste0("While running getAttendanceData ", fileLoc,
   #               "was not able to be read."))

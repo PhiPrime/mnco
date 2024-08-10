@@ -21,7 +21,10 @@ Imports:
     gridExtra,
     kableExtra,
     lubridate,
+    magrittr,
     outliers,
     readxl,
+    stats,
     stringr,
-    tidygeocoder
+    tidygeocoder,
+    utils
