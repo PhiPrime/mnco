@@ -18,14 +18,14 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   } else {
     # ADD SILENT CHECK HERE?
     # -We should start using message() and warning() in addition to stop()
-    message(cat("NOTICE: ", filePath, " does not exist.",
-                "\n\tCreating ", filePath, "...\n", sep=""))
+    message("NOTICE: ", filePath, " does not exist.",
+                "\n\tCreating ", filePath, "...\n", sep="")
     dat <- history
   }
 
   saveRDS(dat, filePath)
 
-  if(!silent) cat("SUCCESS: Center history saved for ", as.character(date),
+  if(!silent) message("SUCCESS: Center history saved for ", as.character(date),
                   "!\n", sep="")
 }
 
@@ -37,14 +37,14 @@ saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.D
 
   # Delete centerHistory.rds
   if (file.exists(filePath)) {
-    message(cat("CAUTION: \"", filePath,
-                "\" will now be deleted and recreated!\n", sep = ""))
+    message("CAUTION: \"", filePath,
+                "\" will now be deleted and recreated!\n", sep = "")
 
     if (promptDelete) {
       input <- readline(prompt = "\tAre you sure you want to proceed? (y/n): ")
 
       if (tolower(input) != "y") {
-        message(cat("NOTICE: Save aborted!"))
+        message("NOTICE: Save aborted!")
         return(invisible())
       }
     }
@@ -72,8 +72,8 @@ saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.D
   }
 
   # PRINT SUCCESS MESSAGE
-  message(cat("SUCCESS: Center data saved for ", saveCount,
-              " dates, ", sep=""))
+  message("SUCCESS: Center data saved for ", saveCount,
+              " dates, ", sep="")
 
-  message(cat(failCount, " dates skipped (incomplete set)\n", sep=""))
+  message(failCount, " dates skipped (incomplete set)\n", sep="")
 }

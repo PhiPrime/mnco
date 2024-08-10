@@ -162,8 +162,7 @@ setStudentsOnVacation <- function(dat = data.frame(
 
   if(dim(dat)[1]==0){
     #Send warning about empty file
-    # To Luke: I commented this out so it wouldn't clutter testing output -Justin
-    # warning(paste0("The following file is now empty:\n", fileLoc))
+    warning(paste0("The following file is now empty:\n", fileLoc))
   }
 
   saveRDS(dat, fileLoc)

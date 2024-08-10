@@ -94,8 +94,8 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
 
   #Check for and notify if no new data is found
   if(dim(newdat)[1]==0){
-    message(cat("NOTICE: getAttendanceData(get = ", get, ", date = ", as.character(date),
-                ") found no new attendance when updating.", sep = ""))
+    message("NOTICE: getAttendanceData(get = ", get, ", date = ", as.character(date),
+                ") found no new attendance when updating.", sep = "")
   }
 
   else {
