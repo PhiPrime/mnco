@@ -34,46 +34,46 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
 tidyAssessments <- function(dat){
   #Arbitrarily Tidy up
   tdat <- dplyr::transmute(dat,
-                    Lead_Id = as.character(Lead_Id),
-                    Account_Id = Account_Id,
-                    Student= paste(Student_First_Name, Student_Last_Name),
-                    Enrollment_Status = as.factor(Enrollment_Status),
+                    Lead_Id = as.character(.data$Lead_Id),
+                    Account_Id = .data$Account_Id,
+                    Student= paste(.data$Student_First_Name, .data$Student_Last_Name),
+                    Enrollment_Status = as.factor(.data$Enrollment_Status),
                     Grade = dplyr::case_when(
-                      Grade == "Pre K" ~ "-1",
-                      Grade == "K" ~ "0",
-                      Grade == "College" ~ "13",
-                      grepl("[0-9]", Grade) ~ Grade,
+                      .data$Grade == "Pre K" ~ "-1",
+                      .data$Grade == "K" ~ "0",
+                      .data$Grade == "College" ~ "13",
+                      grepl("[0-9]", .data$Grade) ~ .data$Grade,
                       .default = "NaN"),
-                    Assessment = Assessment_Title,
+                    Assessment = .data$Assessment_Title,
                     Level = dplyr::case_when(
-                      !(grepl("[A-Z]", toupper(Assessment_Level))&
-                          !is.na(Assessment_Level)) ~ Assessment_Level,
-                      grepl("Readiness|Middle",Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
-                      grepl("Algebra I A|ACT",Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
-                      grepl("SAT Advanced|HMM", Assessment_Level) ~ "12",
+                      !(grepl("[A-Z]", toupper(.data$Assessment_Level))&
+                          !is.na(Assessment_Level)) ~ .data$Assessment_Level,
+                      grepl("Readiness|Middle",.data$Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
+                      grepl("Algebra I A|ACT",.data$Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
+                      grepl("SAT Advanced|HMM", .data$Assessment_Level) ~ "12",
                       .default = "NaN"),
-                    Percent = Score*100,
-                    Date = strptime(Date_Taken, format = "%m/%e/%Y"),
-                    Pre = `Pre/Post`=="Pre",
-                    Group = Group=="Yes",
-                    Center = as.factor(Center)) %>%
+                    Percent = .data$Score*100,
+                    Date = strptime(.data$Date_Taken, format = "%m/%e/%Y"),
+                    Pre = .data$`Pre/Post`=="Pre",
+                    Group = .data$Group=="Yes",
+                    Center = as.factor(.data$Center)) %>%
     #Avoid NA warning when none is needed
-    dplyr::mutate(Grade = as.numeric(Grade),
-           Level = as.numeric(Level))
+    dplyr::mutate(Grade = as.numeric(.data$Grade),
+           Level = as.numeric(.data$Level))
   return(tdat)
 }
 
 getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   dat <- getHistoricAssessments(Assessments_Prior_to_)
-  dat <- dplyr::filter(dat, !is.na(dat$Level))
+  dat <- dplyr::filter(dat, !is.na(.data$Level))
   dat <- dat[order(dat$Student, dat$Level, decreasing = TRUE),]
   ldat <- lapply(unique(dat$Student),
-                 with(dat, function(x)dplyr::filter(dat, Student == x)[1,]))
+                 with(dat, function(x)dplyr::filter(dat, .data$Student == x)[1,]))
   dat <- data.frame(Reduce(rbind, ldat))
   dat <- dplyr::mutate(dat, yearsSince = as.numeric(round(
-    (Sys.time()-dat$Date)/365.25)))
+    (Sys.time()-.data$Date)/365.25)))
   ret <- dplyr::mutate(dat,
-                gradeDif = as.numeric(Level)-as.numeric(Grade))
+                gradeDif = as.numeric(.data$Level)-as.numeric(.data$Grade))
   return(ret)
 }
 
@@ -91,9 +91,9 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   #Option 1
   stus <- dplyr::select(getCenterData("student", date),
-                 Student, Last_Attendance_Date)
+                 "Student", "Last_Attendance_Date")
   prog <- dplyr::select(getCenterData("progress", date),
-                 Student, Active_Learning_Plans)
+                 "Student", "Active_Learning_Plans")
   assessments <- merge(assessments, stus) %>%
     merge(prog)
 
