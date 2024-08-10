@@ -60,10 +60,10 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
 
 expGradedifPest <- function() {
   dat <- merge(dplyr::mutate(getCenterData("progress"),
-                             Pest = Skills_Mastered/Attendances),
+                             Pest = .data$Skills_Mastered/.data$Attendances),
                getMostRecentAssessments()) %>%
-    dplyr::filter(Pest <2, gradeDif >= -2)
-  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Pest)) +
+    dplyr::filter(.data$Pest <2, .data$gradeDif >= -2)
+  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=.data$gradeDif, y = .data$Pest)) +
     ggplot2::xlab("Grade Difference") + ggplot2::ylab("P Skills per session") +
     ggplot2::geom_point() + ggplot2::geom_smooth()
   return(p2)
