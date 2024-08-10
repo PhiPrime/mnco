@@ -65,7 +65,7 @@ getStudentRanking <- function(date = Sys.Date()) {
   )
 
   dat <- dat %>%
-    dplyr::select(all_of(col_order)) %>%
+    dplyr::select(tidyselect::all_of(col_order)) %>%
     dplyr::arrange(.data$Rank)
 
   return(dat)

@@ -33,7 +33,7 @@ generateMap <- function(useCache = TRUE){
                            "Monthly_Amount")
 
   ##Check for cached data then
-  fileLoc <- file.path(cacheDir(), "geocodeCache.xlsx")
+  fileLoc <- file.path(cacheDir(), "geocodeCache.csv")
 
   cacheNames <- c("name", "total", "info", "address", "Enrollment_Status",
                   "Enrollment_Length_of_Stay", "Monthly_Amount",
@@ -41,7 +41,7 @@ generateMap <- function(useCache = TRUE){
 
   if(file.exists(fileLoc) & useCache) {
 
-    cached <- read_excel(fileLoc, .name_repair = "unique_quiet")
+    cached <- utils::read.csv(fileLoc)
     names(cached) <- gsub(" ", "_", names(cached))
 
     #Subset new entries
@@ -55,16 +55,16 @@ generateMap <- function(useCache = TRUE){
 
   } else {
     if(useCache) {
-      warning(paste0("No file found named: ",
+      message(paste0("No file found named: ",
                      fileLoc,". One will now be created."))
     }
     ret <- tidygeocoder::geocode(tidydat, .data$address, method = 'arcgis')
   }
 
-  write.xlsx(ret, fileLoc)
+  utils::write.csv(ret, fileLoc)
   tidydat <- ret
 
-  as.data.frame(tidydat) %>% leaflet() %>% addTiles() %>%
-    addMarkers(clusterOptions = markerClusterOptions(),
-               popup = tidydat$info)
+  as.data.frame(tidydat) %>% leaflet::leaflet() %>% leaflet::addTiles() %>%
+    leaflet::addMarkers(clusterOptions = leaflet::markerClusterOptions(),
+               popup = .data$info)
 }#eof

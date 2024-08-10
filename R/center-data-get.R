@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-getCenterData <- function(type = c("all", names(RADIUS_FILE_ROOTS)),
+getCenterData <- function(type = c("all", radiusFileRoots("types")),
                           date = Sys.Date(), ignoreMissing = F) {
   type <- match.arg(type)
 
@@ -26,13 +26,11 @@ getCenterData <- function(type = c("all", names(RADIUS_FILE_ROOTS)),
       merge(pro, all.x = T) %>%
       merge(enr, all.x = T)
 
-  } else if (type %in% names(RADIUS_FILE_ROOTS)) {
+  } else {
     # Get and tidy data
     tdat <-
       readRawData(type, date) %>%
       tidyRawData(type)
-  } else {
-    stop("`type` is not a valid argument: \'", type, "\'")
   }
 
   invisible(tdat)

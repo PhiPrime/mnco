@@ -72,7 +72,7 @@ sendOnVacation <- function(who,
     addThisYear <- function(old) {lubridate::mdy(paste(
       old, lubridate::year(Sys.Date())))}
     returnDate <- tryCatch(
-      expr = mdy(returnDate),
+      expr = lubridate::mdy(returnDate),
       error = function(e) {
         addThisYear(returnDate)
       },
