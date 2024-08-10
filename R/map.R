@@ -4,8 +4,8 @@
 generateMap <- function(useCache = TRUE){
   # Data Retrieval
 
-  getAccountData()
-  getEnrollmentData()
+  accounts <- getCenterData("account")
+  enrollments <- getCenterData("enrollment")
 
   dat <- merge(accounts, enrollments, by = "Account_Id", all.x = TRUE)
 
@@ -22,17 +22,17 @@ generateMap <- function(useCache = TRUE){
                               gsub(" month(s?)", "",
                                    Enrollment_Length_of_Stay)),
                             total = Monthly_Amount*Enrollment_Length_of_Stay,
-                            name = paste0(First_Name, " ", Last_Name,
-                                          ", with ",
-                                          Student_First_Name, " ",
-                                          Student_Last_Name),
+                            # name = paste0(First_Name, " ", Last_Name,
+                            #               ", with ",
+                            #               Student_First_Name, " ",
+                            #               Student_Last_Name),
                             info = paste(name, total, sep="<br>"))
 
   tidydat <- dplyr::select(tidydat, name, total, info, address, Enrollment_Status,
                     Enrollment_Length_of_Stay, Monthly_Amount)
 
   ##Check for cached data then
-  fileLoc <- paste0(getwd(), "/Data/geocodeCache", ".xlsx")
+  fileLoc <- file.path(cacheDir(), "geocodeCache.xlsx")
 
   cacheNames <- c("name", "total", "info", "address", "Enrollment_Status",
                   "Enrollment_Length_of_Stay", "Monthly_Amount",
@@ -46,7 +46,7 @@ generateMap <- function(useCache = TRUE){
     #Subset new entries
     new <- tidydat[!tidydat$name %in% cached$name,]
     if(dim(new)[1]>0){
-      new <- geocode(new, address, method = 'arcgis')
+      new <- tidygeocoder::geocode(new, address, method = 'arcgis')
       ret <- rbind(cached, new)
     } else {
       ret <- cached
@@ -57,7 +57,7 @@ generateMap <- function(useCache = TRUE){
       warning(paste0("No file found named: ",
                      fileLoc,". One will now be created."))
     }
-    ret <- geocode(tidydat, address, method = 'arcgis')
+    ret <- tidygeocoder::geocode(tidydat, address, method = 'arcgis')
   }
 
   write.xlsx(ret, fileLoc)

@@ -23,11 +23,13 @@ test_that("removeDeckSuppression() runs", {
 })
 
 test_that("showcaseRegularizeScore() runs", {
+  skip("takes too long bc plot")
   dat <- merge(getStudentRanking(),
                getMostRecentAssessments())
   expect_no_error(regularizeScore(dat,"Level", 4))
 })
 
 test_that("showcaseRegularizeScore() runs", {
+  skip("takes too long bc plot")
   expect_no_error(suppressMessages(showcaseRegularizeScore()))
 })

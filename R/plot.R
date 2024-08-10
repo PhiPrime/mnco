@@ -47,7 +47,7 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
     ggplot2::ggplot(numdata, ggplot2::aes(x=.data[[whatOnX]], y=.data[[whatOnY]])) +
       ggplot2::geom_point() +
       ggplot2::geom_smooth(method = "loess", formula = y~x) +
-      labs(x = whatOnX, y = whatOnY)
+      ggplot2::labs(x = whatOnX, y = whatOnY)
   }
 
   # Make with swapped axes since independent variable is unknown
