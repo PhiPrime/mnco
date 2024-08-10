@@ -20,6 +20,7 @@ Imports:
     ggplot2,
     gridExtra,
     kableExtra,
+    leaflet,
     lubridate,
     magrittr,
     outliers,
@@ -27,4 +28,5 @@ Imports:
     stats,
     stringr,
     tidygeocoder,
+    tidyselect,
     utils

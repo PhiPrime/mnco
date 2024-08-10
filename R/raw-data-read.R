@@ -10,16 +10,10 @@
 #' @examples
 readRawData <- function(type, date = Sys.Date()) {
   # MAYBE CHANGE TO OVERLOADING
-  if (!is.null(type)) {
-    # Use x as dir
-    if (!(type %in% names(RADIUS_FILE_ROOTS))) {
-      stop("`type` is not a valid argument: \'", type, "\'")
-    }
+  dir <- rawDataDir()
+  root <- radiusFileRoots(type)
+  path <- as.rawFilePath(dir, root, date)
 
-    dir <- rawDataDir()
-    root <- RADIUS_FILE_ROOTS[[type]]
-    path <- as.rawFilePath(dir, root, date)
-  }
 
   # Read and clean column names
   dat <- readxl::read_excel(path, .name_repair = "unique_quiet")

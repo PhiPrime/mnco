@@ -9,16 +9,16 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
 
   #Select students under minAllowed
   ret <- dplyr::filter(studentProgress,
-                       Student %in% needsDeckBasedOnAssessment(date)|
-                         (Skills_Currently_Assigned < minAllowed &
-                            Enrollment_Status == "Enrolled"))
+                       .data$Student %in% needsDeckBasedOnAssessment(date)|
+                         (.data$Skills_Currently_Assigned < minAllowed &
+                            .data$Enrollment_Status == "Enrolled"))
 
   ret <- ret[order(ret$Skills_Currently_Assigned),]
 
-  ret <- dplyr::mutate(ret, Pest = Skills_Mastered/Attendances)
+  ret <- dplyr::mutate(ret, Pest = .data$Skills_Mastered/.data$Attendances)
   ret <- dplyr::select(ret,
-                       Student, Skills_Currently_Assigned, Pest,
-                       Skills_Mastered, Attendances)
+                       "Student", "Skills_Currently_Assigned", "Pest",
+                       "Skills_Mastered", "Attendances")
 
   #Check for suppressed students and remove if so
   dat <- getSuppressedStudents()
@@ -128,7 +128,7 @@ removeDeckSuppression <- function(studentRows = data.frame(
 regularizeScore <- function(dat, variableName, centerVal){
   #if no Score present in data frame, assume it should be LB
   if(!("Score" %in% names(dat))){
-    dat <- dplyr::mutate(dat, Score = LB)
+    dat <- dplyr::mutate(dat, Score = .data$LB)
   }
 
   gdMeans <- t(sapply(unique(dat[[variableName]]), function(x)
@@ -141,10 +141,10 @@ regularizeScore <- function(dat, variableName, centerVal){
   gdMeans <- gdMeans[order(gdMeans[[variableName]]),]
   gdMeans <- dplyr::mutate(gdMeans,
                            offset = gdMeans[gdMeans[[variableName]]==centerVal,
-                           ]$Mean-Mean)
+                           ]$Mean-.data$Mean)
   dat <- merge(dat, gdMeans)
   dat$Score <- with(dat, Score + offset)
-  dat <- dplyr::select(dat, -offset, -Mean)
+  dat <- dplyr::select(dat, -"offset", -"Mean")
   return(dat)
 }
 
@@ -155,20 +155,20 @@ showcaseRegularizeScore <- function(){
   #Force -3 to be min difference considered
   dat[which(dat$gradeDif<(-3)),]$gradeDif <- -3
 
-  p1 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = LB)) +
+  p1 <- ggplot2::ggplot(dat, ggplot2::aes(x=.data$gradeDif, y = .data$LB)) +
     ggplot2::ylab("Score") +
     ggplot2::geom_point() + ggplot2::geom_smooth() + ggplot2::ggtitle("No Regularization")
 
 
   dat <- regularizeScore(dat,"Level", 4)#  "gradeDif", 0)
 
-  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Score)) +
+  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=.data$gradeDif, y = .data$Score)) +
     ggplot2::geom_point() + ggplot2::geom_smooth() + ggplot2::ggtitle("Regularized on gradeDif")
 
 
   dat <- regularizeScore(dat,  "gradeDif", 0)#"Level", 4)
 
-  p3 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Score)) +
+  p3 <- ggplot2::ggplot(dat, ggplot2::aes(x=.data$gradeDif, y = .data$Score)) +
     ggplot2::geom_point() + ggplot2::geom_smooth() +
     ggplot2::ggtitle("Regularized on gradeDif & assessmentLevel")
 

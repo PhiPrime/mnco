@@ -5,7 +5,7 @@
 \title{Get tidied data from Radius files}
 \usage{
 getCenterData(
-  type = c("all", names(RADIUS_FILE_ROOTS)),
+  type = c("all", radiusFileRoots("types")),
   date = Sys.Date(),
   ignoreMissing = F
 )

@@ -1,10 +1,10 @@
 getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
-    dplyr::select(Student, Skills_Mastered, Attendances)
+    dplyr::select("Student", "Skills_Mastered", "Attendances")
 
   deliveryKey <- getCenterData("enrollment", date) %>%
-    dplyr::select(Student, Monthly_Sessions, Delivery)
+    dplyr::select("Student", "Monthly_Sessions", "Delivery")
 
   differentDurationStudents <-
     utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
@@ -15,13 +15,13 @@ getStudentRanking <- function(date = Sys.Date()) {
     merge(deliveryKey, all.x = T) %>%
 
     # Scale attendances based on session length
-    dplyr::mutate(Duration = dplyr::coalesce(Duration, 60),
-           Attendances = Attendances * Duration / 60) %>%
+    dplyr::mutate(Duration = dplyr::coalesce(.data$Duration, 60),
+           Attendances = .data$Attendances * .data$Duration / 60) %>%
 
     # Subset valid contestants
-    dplyr::filter(Attendances >= Monthly_Sessions / 2,
-           Skills_Mastered > 2,
-           Delivery == "In-Center")
+    dplyr::filter(.data$Attendances >= .data$Monthly_Sessions / 2,
+                  .data$Skills_Mastered > 2,
+                  .data$Delivery == "In-Center")
 
   #Create statistics for based on CI
   CI <- 95
@@ -31,32 +31,32 @@ getStudentRanking <- function(date = Sys.Date()) {
   # Calculate ranking
   dat <- dat %>%
     dplyr::mutate(
-      Pest = Skills_Mastered / Attendances,
+      Pest = .data$Skills_Mastered / .data$Attendances,
 
       #Outlier test
-      zscore = (mean(Pest) - Pest) / (stats::sd(Pest) / sqrt(Attendances)),
-      samdev = stats::sd(Pest[abs(zscore) < outlierThreshold]),
+      zscore = (mean(.data$Pest) - .data$Pest) / (stats::sd(.data$Pest) / sqrt(.data$Attendances)),
+      samdev = stats::sd(.data$Pest[abs(.data$zscore) < outlierThreshold]),
 
-      UB = round(Pest - stats::qnorm((1 - CI / 100) / 2) *
-                   samdev / sqrt(Attendances), roundingDig),
-      LB = round(Pest + stats::qnorm((1 - CI / 100) / 2) *
-                   samdev / sqrt(Attendances), roundingDig),
+      UB = round(.data$Pest - stats::qnorm((1 - CI / 100) / 2) *
+                   .data$samdev / sqrt(.data$Attendances), roundingDig),
+      LB = round(.data$Pest + stats::qnorm((1 - CI / 100) / 2) *
+                   .data$samdev / sqrt(.data$Attendances), roundingDig),
 
-      Font_Size = round(32 * LB / max(LB), 1),
+      Font_Size = round(32 * .data$LB / max(.data$LB), 1),
 
-      Rank = rank(-LB, ties.method = "min"),
+      Rank = rank(-.data$LB, ties.method = "min"),
       Rank_Display = paste0(
-        Rank,
+        .data$Rank,
         dplyr::case_when(
-          Rank %% 100 %in% 11:13 ~ "th",
-          Rank %% 10 == 1 ~ "st",
-          Rank %% 10 == 2 ~ "nd",
-          Rank %% 10 == 3 ~ "rd",
+          .data$Rank %% 100 %in% 11:13 ~ "th",
+          .data$Rank %% 10 == 1 ~ "st",
+          .data$Rank %% 10 == 2 ~ "nd",
+          .data$Rank %% 10 == 3 ~ "rd",
           TRUE ~ "th"
         )
       )
     ) %>%
-    dplyr::select(-samdev)
+    dplyr::select(-"samdev")
 
   # Reorder columns and sort by rank
   col_order <- union(
@@ -65,8 +65,8 @@ getStudentRanking <- function(date = Sys.Date()) {
   )
 
   dat <- dat %>%
-    dplyr::select(all_of(col_order)) %>%
-    dplyr::arrange(Rank)
+    dplyr::select(tidyselect::all_of(col_order)) %>%
+    dplyr::arrange(.data$Rank)
 
   return(dat)
 }

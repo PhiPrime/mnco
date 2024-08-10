@@ -19,6 +19,6 @@ moveDataDownloads <- function() {
     message("NOTICE: No raw data files were found in \"", downloadsDir(), "\".")
   }
 
-  return(file_moved)
+  return(fileMoved)
 
 }

@@ -13,24 +13,24 @@ attendanceCheck <- function(allowedBdays = 5)
   flaggedStudents <- dplyr::filter(mergeWithFill(getCenterData("student"),
                                           getCenterData("account"),
                                           .by = "Account_Id"),
-                            !dplyr::between(Last_Attendance_Date,
+                            !dplyr::between(.data$Last_Attendance_Date,
                                      acceptableDates[2],
                                      acceptableDates[1]) &
-                              Delivery=="In-Center" &
-                              Enrollment_Status == "Enrolled") %>%
+                              .data$Delivery=="In-Center" &
+                              .data$Enrollment_Status == "Enrolled") %>%
 
-    dplyr::transmute(Last_Attendance_Date = Last_Attendance_Date,
-              Name = Student,
-              Account = paste(stringr::str_remove(Account, "^.+, "),
-                              stringr::str_remove(Account, ",.+$")),
+    dplyr::transmute(Last_Attendance_Date = .data$Last_Attendance_Date,
+              Name = .data$Student,
+              Account = paste(stringr::str_remove(.data$Account, "^.+, "),
+                              stringr::str_remove(.data$Account, ",.+$")),
               #Select phone in this order: Mobile, Home, Other
-              Phone = ifelse(is.na(Mobile_Phone),
-                             ifelse(is.na(Home_Phone),
-                                    Other_Phone, Home_Phone), Mobile_Phone),
+              Phone = ifelse(is.na(.data$Mobile_Phone),
+                             ifelse(is.na(.data$Home_Phone),
+                                    .data$Other_Phone, .data$Home_Phone),.data$ Mobile_Phone),
               Link = kableExtra::cell_spec("Message", format = "latex",
                                link = paste0("./Cache/",
-                                             asMessageTxtFile(Last_Attendance_Date,
-                                                              Name))))
+                                             asMessageTxtFile(.data$Last_Attendance_Date,
+                                                              .data$Name))))
 
 
 
@@ -72,7 +72,7 @@ sendOnVacation <- function(who,
     addThisYear <- function(old) {lubridate::mdy(paste(
       old, lubridate::year(Sys.Date())))}
     returnDate <- tryCatch(
-      expr = mdy(returnDate),
+      expr = lubridate::mdy(returnDate),
       error = function(e) {
         addThisYear(returnDate)
       },
@@ -84,7 +84,7 @@ sendOnVacation <- function(who,
 
   #Store current Student file for efficiency
   stus <- dplyr::mutate(getCenterData("student"),
-                 Student = Student)
+                 Student = .data$Student)
 
   #Make function user friendly by regexing for name
   names <- stus$Student
@@ -96,7 +96,7 @@ sendOnVacation <- function(who,
   }
 
   who <- tmp[,1]
-  stus <- dplyr::filter(stus, Student%in%who)
+  stus <- dplyr::filter(stus, .data$Student%in%who)
   #Create data frame to store
   toStore <- data.frame(Student = who,
                         Last_Attendance = stus$Last_Attendance_Date,
@@ -139,9 +139,9 @@ setStudentsOnVacation <- function(dat = data.frame(
   #Query last attendance date
   dat <- merge(dat,
                dplyr::mutate(getCenterData("student"),
-                      Student = Student,
-                      Last_Attendance = Last_Attendance_Date) %>%
-                 dplyr::select(Student, Last_Attendance))
+                      Student = .data$Student,
+                      Last_Attendance = .data$Last_Attendance_Date) %>%
+                 dplyr::select("Student", "Last_Attendance"))
 
   #Requirements for vacation
   ## They were not claimed to have returned,
@@ -170,7 +170,7 @@ setStudentsOnVacation <- function(dat = data.frame(
 
 ### returnStudentFromVacation
 returnStudentFromVacation <- function(who){
-  fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
+  fileLoc <- paste0(cacheDir(), "StudentsOnVacation", ".rds")
 
   #Check for correct format
   dat <- getStudentsOnVacation()

@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-getCenterData <- function(type = c("all", names(RADIUS_FILE_ROOTS)),
+getCenterData <- function(type = c("all", radiusFileRoots("types")),
                           date = Sys.Date(), ignoreMissing = F) {
   type <- match.arg(type)
 
@@ -26,13 +26,11 @@ getCenterData <- function(type = c("all", names(RADIUS_FILE_ROOTS)),
       merge(pro, all.x = T) %>%
       merge(enr, all.x = T)
 
-  } else if (type %in% names(RADIUS_FILE_ROOTS)) {
+  } else {
     # Get and tidy data
     tdat <-
       readRawData(type, date) %>%
       tidyRawData(type)
-  } else {
-    stop("`type` is not a valid argument: \'", type, "\'")
   }
 
   invisible(tdat)
@@ -71,23 +69,23 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
 
   #Mutate to tidy
   dat <- dplyr::mutate(dat,
-                date = as.Date(Attendance_Date,
+                date = as.Date(.data$Attendance_Date,
                                format = "%m/%d/%y"),
-                accountID = Account_Id,
-                name = paste(First_Name,Last_Name),
-                startTime = strptime(Arrival_Time, "%I:%M %p"),
-                endTime = strptime(Departure_Time, "%I:%M %p"),
-                totalVisits = Total_Visits,
-                membershipType = as.factor(Membership_Type),
-                sessionsPerMonth = as.factor(Sessions_Per_Month),
-                sessionsRemaining = Sessions_Remaining,
-                delivery = as.factor(Delivery))
+                accountID = .data$Account_Id,
+                name = paste(.data$First_Name,.data$Last_Name),
+                startTime = strptime(.data$Arrival_Time, "%I:%M %p"),
+                endTime = strptime(.data$Departure_Time, "%I:%M %p"),
+                totalVisits = .data$Total_Visits,
+                membershipType = as.factor(.data$Membership_Type),
+                sessionsPerMonth = as.factor(.data$Sessions_Per_Month),
+                sessionsRemaining = .data$Sessions_Remaining,
+                delivery = as.factor(.data$Delivery))
 
   dat <- dplyr::mutate(dat,
-                line = paste(accountID,date,name,
+                line = paste(.data$accountID,.data$date,.data$name,
                              sep = ";"))
 
-  dat <- dplyr::select(dat, date:delivery, line)
+  dat <- dplyr::select(dat, "date":"delivery", "line")
 
 
   newdat <- dat[!(dat$line %in% logdat$line),]
