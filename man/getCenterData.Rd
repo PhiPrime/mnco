@@ -16,8 +16,6 @@ getCenterData(
 \item{date}{What date to get data for.}
 
 \item{ignoreMissing}{Whether to throw an error if file is not found}
-
-\item{dir}{Directory containing Radius files}
 }
 \value{
 A data frame

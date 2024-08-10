@@ -1,5 +1,14 @@
 ##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
+#' Title
+#'
+#' @param minAllowed
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
   studentProgress <- getCenterData("progress", date)
   #Set any NAs to 0

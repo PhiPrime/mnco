@@ -2,7 +2,6 @@
 #'
 #' @param date What date to get data for.
 #' @param ignoreMissing Whether to throw an error if file is not found
-#' @param dir Directory containing Radius files
 #' @param type Which kind of Radius data to get
 #'
 #' @return A data frame

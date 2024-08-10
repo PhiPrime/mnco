@@ -1,16 +1,22 @@
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 moveDataDownloads <- function() {
   files <- list.files(downloadsDir(), pattern = "\\d{1,2}_\\d{1,2}_\\d{4}.xlsx$")
   fileSrc <- file.path(downloadsDir(), files)
   fileDest <- file.path(rawDataDir(), files)
 
-  fileMoved <- ifelse(
+  filesMoved <- ifelse(
     identical(file.rename(fileSrc, fileDest), logical(0)),
     FALSE,
     TRUE
   )
 
   # CHANGE TO NOT PRINT FULL PATH
-  if (fileMoved) {
+  if (filesMoved) {
     message("NOTICE: The following files have been moved from ",
             "\"", downloadsDir(), "\" to \"", rawDataDir(), "\".\n",
             "\t", paste0(files, collapse = "\n\t")
@@ -19,6 +25,6 @@ moveDataDownloads <- function() {
     message("NOTICE: No raw data files were found in \"", downloadsDir(), "\".")
   }
 
-  return(fileMoved)
+  invisible(filesMoved)
 
 }

@@ -1,5 +1,13 @@
 #######################     ATTENDANCE FUNCTIONS     ########################
 
+#' Title
+#'
+#' @param allowedBdays
+#'
+#' @return
+#' @export
+#'
+#' @examples
 attendanceCheck <- function(allowedBdays = 5)
 {
   #Get list of dates any student attended
