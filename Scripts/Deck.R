@@ -6,20 +6,20 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
   studentProgress[
     is.na(studentProgress$Skills_Currently_Assigned),]$
     Skills_Currently_Assigned <- 0
-  
-  #Select students under minAllowed  
-  ret <- dplyr::filter(studentProgress, 
+
+  #Select students under minAllowed
+  ret <- dplyr::filter(studentProgress,
                 Student %in% needsDeckBasedOnAssessment(date)|
                 (Skills_Currently_Assigned < minAllowed &
                   Enrollment_Status == "Enrolled"))
-  
+
   ret <- ret[order(ret$Skills_Currently_Assigned),]
-  
+
   ret <- dplyr::mutate(ret, Pest = Skills_Mastered/Attendances)
-  ret <- dplyr::select(ret, 
-                Student, Skills_Currently_Assigned, Pest, 
+  ret <- dplyr::select(ret,
+                Student, Skills_Currently_Assigned, Pest,
                 Skills_Mastered, Attendances)
-  
+
   #Check for suppressed students and remove if so
   dat <- getSuppressedStudents()
   ret <- ret[!ret$Student %in% dat$Student,]
@@ -30,34 +30,34 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
 #######################     SUPPRESSION FUNCTIONS     #######################
 ### suppressDeckWarning
 suppressDeckWarning <- function(studentRows = data.frame(
-  matrix(ncol=5, nrow = 0, 
-         dimnames = list(NULL, 
-                         c("Student", "Skills_Currently_Assigned", "Pest", 
+  matrix(ncol=5, nrow = 0,
+         dimnames = list(NULL,
+                         c("Student", "Skills_Currently_Assigned", "Pest",
                            "Skills_Mastered", "Attendances")))),
   durationDays = 2){
-  ### 
+  ###
   # Add readline() commands and a while loop to make friendly UI to quickly
   # suppress students
-  
+
   #Don't allow suppression longer than `maxTime` days
   maxTime <- 30
-  
+
   if(durationDays > maxTime){ durationDays <- maxTime}
   expDate <- Sys.Date()+lubridate::days(durationDays)
-  correctNames <- c("Student", "Skills_Currently_Assigned", "Pest", 
+  correctNames <- c("Student", "Skills_Currently_Assigned", "Pest",
                     "Skills_Mastered", "Attendances")
-  
+
   if (any(names(studentRows) != correctNames)){
-    
+
     error <- paste0(
       "suppressDeckWarning(studentRows) passed incorrect argument.\n",
       "Data.Frame names should be:\n\t", paste0(correctNames,
                                                      collapse = "", sep="\n\t"))
     stop(error)
-    
-  } 
-  
-  
+
+  }
+
+
   #Add columns for both created & expiration date
   studentRows <- dplyr::mutate(studentRows, creation = Sys.Date(),
                         expDate = expDate)
@@ -69,7 +69,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
     dat <- rbind(dat, studentRows)
   }
   setSuppressedStudents(dat)
-  
+
   return()
 }#eof
 
@@ -80,7 +80,7 @@ getSuppressedStudents <- function(){
     #Run null constructor
     setSuppressedStudents()
   }
-  
+
   ret <- readRDS(fileLoc)
   #Update before returning
   setSuppressedStudents(ret)
@@ -88,37 +88,37 @@ getSuppressedStudents <- function(){
 }
 
 setSuppressedStudents <- function(dat = data.frame(
-  matrix(ncol=7, nrow = 0, 
-         dimnames = list(NULL, 
-                         c("Student", "Skills_Currently_Assigned", "Pest", 
-                           "Skills_Mastered", "Attendances", 
+  matrix(ncol=7, nrow = 0,
+         dimnames = list(NULL,
+                         c("Student", "Skills_Currently_Assigned", "Pest",
+                           "Skills_Mastered", "Attendances",
                            "creation", "expDate"))))){
   #Check for expired stints
   dat <- dat[which((Sys.Date()<dat$expDate)),]
-  
+
   fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
   saveRDS(dat, fileLoc)
 }
 
 ### removeDeckSuppression
 removeDeckSuppression <- function(studentRows = data.frame(
-  matrix(ncol=7, nrow = 0, 
-         dimnames = list(NULL, 
-                         c("Student", "Skills_Currently_Assigned", "Pest", 
-                           "Skills_Mastered", "Attendances", 
+  matrix(ncol=7, nrow = 0,
+         dimnames = list(NULL,
+                         c("Student", "Skills_Currently_Assigned", "Pest",
+                           "Skills_Mastered", "Attendances",
                            "creation", "expDate"))))){
-  
-  correctNames <- c("Student", "Skills_Currently_Assigned", "Pest", 
-                    "Skills_Mastered", "Attendances", 
+
+  correctNames <- c("Student", "Skills_Currently_Assigned", "Pest",
+                    "Skills_Mastered", "Attendances",
                     "creation", "expDate")
   fileLoc <- paste0(getwd(), "/Cache/suppressedStudents", ".rds")
-  
+
   #Check for correct format
   if (any(names(studentRows) != correctNames)){
     stop(paste0("suppressDeckWarning(studentRows) passed incorrect argument. Data.Frame names should be: ", correctNames))
-    
-  }  
-  
+
+  }
+
   dat <- getSuppressedStudents()
   dat <- dat[!dat$Student %in% studentRows$Student,]
   setSuppressedStudents(dat)
@@ -127,19 +127,19 @@ removeDeckSuppression <- function(studentRows = data.frame(
 #Used with ranking to adjust score based on variableName
 regularizeScore <- function(dat, variableName, centerVal){
   #if no Score present in data frame, assume it should be LB
-  if(!("Score" %in% names(dat))){ 
+  if(!("Score" %in% names(dat))){
     dat <- dplyr::mutate(dat, Score = LB)
   }
-  
+
   gdMeans <- t(sapply(unique(dat[[variableName]]), function(x)
     data.frame(variableName=x,
                mean= mean(dat[dat[[variableName]]==x,]$Pest))))
   gdMeans <- data.frame(tmp = unlist(gdMeans[,1]),
                         Mean = unlist(gdMeans[,2]))
   names(gdMeans)[names(gdMeans) == "tmp"] <- variableName
-  
-  gdMeans <- gdMeans[order(gdMeans[[variableName]]),] 
-  gdMeans <- dplyr::mutate(gdMeans, 
+
+  gdMeans <- gdMeans[order(gdMeans[[variableName]]),]
+  gdMeans <- dplyr::mutate(gdMeans,
                     offset = gdMeans[gdMeans[[variableName]]==centerVal,
                     ]$Mean-Mean)
   dat <- merge(dat, gdMeans)
@@ -151,28 +151,28 @@ regularizeScore <- function(dat, variableName, centerVal){
 showcaseRegularizeScore <- function(){
   dat <- merge(getStudentRanking(),
                getMostRecentAssessments())
-  
+
   #Force -3 to be min difference considered
   dat[which(dat$gradeDif<(-3)),]$gradeDif <- -3
-  
+
   p1 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = LB)) +
     ggplot2::ylab("Score") +
     ggplot2::geom_point() + ggplot2::geom_smooth() + ggplot2::ggtitle("No Regularization")
-  
-  
+
+
   dat <- regularizeScore(dat,"Level", 4)#  "gradeDif", 0)
-  
+
   p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Score)) +
     ggplot2::geom_point() + ggplot2::geom_smooth() + ggplot2::ggtitle("Regularized on gradeDif")
-  
-  
+
+
   dat <- regularizeScore(dat,  "gradeDif", 0)#"Level", 4)
-  
+
   p3 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Score)) +
-    ggplot2::geom_point() + ggplot2::geom_smooth() + 
+    ggplot2::geom_point() + ggplot2::geom_smooth() +
     ggplot2::ggtitle("Regularized on gradeDif & assessmentLevel")
-  
-  
-  gridExtra::grid.dplyr::arrange(p1,p2,p3,ncol=1)
+
+
+  gridExtra::grid.arrange(p1,p2,p3,ncol=1)
   #return(dat)
 }
