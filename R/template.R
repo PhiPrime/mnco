@@ -5,18 +5,18 @@ saveTemplates <- function(date = Sys.Date()) {
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
-        Last_Modified_Date, "America/Los_Angeles"),
+        .data$Last_Modified_Date, "America/Los_Angeles"),
       Created_Date = lubridate::force_tz(
-        Created_Date, "America/Los_Angeles"),
+        .data$Created_Date, "America/Los_Angeles"),
       template = NA_character_)
 
   if(file.exists(cacheFile)){
     #If cache exists, pull it in and look for what's new
     cache <- readRDS(cacheFile)
     #tmp contains ID & cache's Modified Date
-    tmp <- dplyr::mutate(cache, Old_Date = Last_Modified_Date,
-                  cachedTemplate = template) %>%
-      dplyr::select(Created_Date, Old_Date, cachedTemplate)
+    tmp <- dplyr::mutate(cache, Old_Date = .data$Last_Modified_Date,
+                  cachedTemplate = .data$template) %>%
+      dplyr::select("Created_Date", "Old_Date", "cachedTemplate")
 
     #Updated is a boolean that is TRUE for positions in newFile that
     # need to be updated
@@ -26,7 +26,7 @@ saveTemplates <- function(date = Sys.Date()) {
 
     #newLines are rows that need filled
     newLines <- newFile[updated,]
-    newFile[!updated,] <- merge(dplyr::select(newFile[!updated,], -template),
+    newFile[!updated,] <- merge(dplyr::select(newFile[!updated,], -"template"),
                                 #If not updated use data in cache
                                 cache)
   } else {#If no cache file everything will need updated
@@ -68,14 +68,14 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
-        Last_Modified_Date, "America/Los_Angeles"),
+        .data$Last_Modified_Date, "America/Los_Angeles"),
       Created_Date = lubridate::force_tz(
-        Created_Date, "America/Los_Angeles"),
+        .data$Created_Date, "America/Los_Angeles"),
       template = NA_character_)
 
   #Tmp contains ID & Current modified Date
-  tmp <- dplyr::mutate(newFile, Current_Date = Last_Modified_Date) %>%
-    dplyr::select(Created_Date, Current_Date)
+  tmp <- dplyr::mutate(newFile, Current_Date = .data$Last_Modified_Date) %>%
+    dplyr::select("Created_Date", "Current_Date")
   #If any dates are different from cache return TRUE
   rtn <- any(with(merge(readRDS(cacheFile), tmp),
                   Last_Modified_Date!=Current_Date))
