@@ -44,9 +44,9 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
 
   # Standard plot to produce
   stdplot <- function(whatOnX, whatOnY){
-    ggplot(numdata, aes(x=.data[[whatOnX]], y=.data[[whatOnY]])) +
-      geom_point() +
-      geom_smooth(method = "loess", formula = y~x) +
+    ggplot2::ggplot(numdata, ggplot2::aes(x=.data[[whatOnX]], y=.data[[whatOnY]])) +
+      ggplot2::geom_point() +
+      ggplot2::geom_smooth(method = "loess", formula = y~x) +
       labs(x = whatOnX, y = whatOnY)
   }
 

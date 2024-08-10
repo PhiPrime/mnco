@@ -44,9 +44,9 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   
   # Standard plot to produce
   stdplot <- function(whatOnX, whatOnY){
-    ggplot(numdata, aes(x=.data[[whatOnX]], y=.data[[whatOnY]])) + 
-      geom_point() + 
-      geom_smooth(method = "loess", formula = y~x) + 
+    ggplot2::ggplot(numdata, ggplot2::aes(x=.data[[whatOnX]], y=.data[[whatOnY]])) + 
+      ggplot2::geom_point() + 
+      ggplot2::geom_smooth(method = "loess", formula = y~x) + 
       labs(x = whatOnX, y = whatOnY)
   }
   
@@ -61,8 +61,8 @@ expGradedifPest <- function() {
                       Pest = Skills_Mastered/Attendances),
                getMostRecentAssessments()) %>%
     dplyr::filter(Pest <2, gradeDif >= -2)
-  p2 <- ggplot(dat, aes(x=gradeDif, y = Pest)) +
-    xlab("Grade Difference") + ylab("P Skills per session") + 
-    geom_point() + geom_smooth()
+  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Pest)) +
+    ggplot2::xlab("Grade Difference") + ggplot2::ylab("P Skills per session") + 
+    ggplot2::geom_point() + ggplot2::geom_smooth()
   return(p2)
 }

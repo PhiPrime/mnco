@@ -155,22 +155,22 @@ showcaseRegularizeScore <- function(){
   #Force -3 to be min difference considered
   dat[which(dat$gradeDif<(-3)),]$gradeDif <- -3
   
-  p1 <- ggplot(dat, aes(x=gradeDif, y = LB)) +
-    ylab("Score") +
-    geom_point() + geom_smooth() + ggtitle("No Regularization")
+  p1 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = LB)) +
+    ggplot2::ylab("Score") +
+    ggplot2::geom_point() + ggplot2::geom_smooth() + ggplot2::ggtitle("No Regularization")
   
   
   dat <- regularizeScore(dat,"Level", 4)#  "gradeDif", 0)
   
-  p2 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
-    geom_point() + geom_smooth() + ggtitle("Regularized on gradeDif")
+  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Score)) +
+    ggplot2::geom_point() + ggplot2::geom_smooth() + ggplot2::ggtitle("Regularized on gradeDif")
   
   
   dat <- regularizeScore(dat,  "gradeDif", 0)#"Level", 4)
   
-  p3 <- ggplot(dat, aes(x=gradeDif, y = Score)) +
-    geom_point() + geom_smooth() + 
-    ggtitle("Regularized on gradeDif & assessmentLevel")
+  p3 <- ggplot2::ggplot(dat, ggplot2::aes(x=gradeDif, y = Score)) +
+    ggplot2::geom_point() + ggplot2::geom_smooth() + 
+    ggplot2::ggtitle("Regularized on gradeDif & assessmentLevel")
   
   
   gridExtra::grid.dplyr::arrange(p1,p2,p3,ncol=1)

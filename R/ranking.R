@@ -7,7 +7,7 @@ getStudentRanking <- function(date = Sys.Date()) {
     dplyr::select(Student, Monthly_Sessions, Delivery)
 
   differentDurationStudents <-
-    read.csv("Cache/differentDurationStudents.csv")
+    read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
 
   # Merge and filter the data
   dat <- progress %>%
@@ -15,7 +15,7 @@ getStudentRanking <- function(date = Sys.Date()) {
     merge(deliveryKey, all.x = T) %>%
 
     # Scale attendances based on session length
-    dplyr::mutate(Duration = coalesce(Duration, 60),
+    dplyr::mutate(Duration = dplyr::coalesce(Duration, 60),
            Attendances = Attendances * Duration / 60) %>%
 
     # Subset valid contestants
@@ -73,16 +73,16 @@ getStudentRanking <- function(date = Sys.Date()) {
 
 addDifferentDurationStudent <- function(student, duration) {
   # need to add file check
-  filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
+  filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
   dat <- read.csv(filePath)
 
-  dat <- rbind(dat, data.frame(Student = student, Duration = duration))
+  dat <- rbind(dat[dat$Student != student,], data.frame(Student = student, Duration = duration))
   write.csv(dat, filePath, row.names = F)
 }
 
 removeDifferentDurationStudent <- function(student) {
   # need to add file check
-  filePath <- file.path(getwd(), "Cache/differentDurationStudents.csv")
+  filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
   dat <- read.csv(filePath)
 
   dat <- dat[dat$Student != student,]
