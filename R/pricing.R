@@ -60,7 +60,7 @@ getPricingGrid <- function(verbose = FALSE,
     }
   }
   if(verbose){
-    df <- dplyr::mutate(df, Price.per.Session = round(Monthly.Rate/Sessions.Per.Month,2))
+    df <- dplyr::mutate(df, Price.per.Session = round(.data$Monthly.Rate/.data$Sessions.Per.Month,2))
   }
   return(df)
 } #eof
