@@ -132,7 +132,7 @@ CO_UI <- function() {
     # Sends input students on vacation
     observeEvent(input$v_input_button, {
       #Gather the input
-      str_list <- str_split_1(input$v_input_field, "\n")
+      str_list <- stringr::str_split_1(input$v_input_field, "\n")
       for (x in str_list) {
         sendOnVacation(x)
         message("Sent ", x, " on vacation")
@@ -142,7 +142,7 @@ CO_UI <- function() {
     # Returns input students from vacation
     observeEvent(input$v_return_button, {
       #Gather the input
-      str_list <- str_split_1(input$v_input_field, "\n")
+      str_list <- stringr::str_split_1(input$v_input_field, "\n")
       for (x in str_list) {
         returnStudentFromVacation(x)
         message("Returned ", x, " from vacation")

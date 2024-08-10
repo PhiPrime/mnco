@@ -162,7 +162,7 @@ getStudentRanking <- function(date = Sys.Date()) {
     merge(deliveryKey, all.x = T) %>%
     
     # Scale attendances based on session length
-    dplyr::mutate(Duration = coalesce(Duration, 60),
+    dplyr::mutate(Duration = dplyr::coalesce(Duration, 60),
            Attendances = Attendances * Duration / 60) %>% 
     
     # Subset valid contestants
@@ -434,7 +434,7 @@ mergeWithFill <- function(df1, df2, .by) {
     colName.y <- paste0(colName, ".y")
     
     # Fill value for common column to col.x and rename to col
-    df[[colName.x]] <- coalesce(df[[colName.x]], df[[colName.y]])
+    df[[colName.x]] <- dplyr::coalesce(df[[colName.x]], df[[colName.y]])
     names(df)[names(df) == colName.x] <- colName
     # CHANGE TO THIS? MAYBE DOESN'T WORK
     #df <- rename(df, col = col.x)
@@ -462,7 +462,7 @@ mergeWithoutFill <- function(df1, df2, .by) {
     if (identical(df[[col.x]], df[[col.y]])) {
     
       # Fill value for common column to col.x and rename to col
-      df[[col.x]] <- coalesce(df[[col.x]], df[[col.y]])
+      df[[col.x]] <- dplyr::coalesce(df[[col.x]], df[[col.y]])
       names(df)[names(df) == col.x] <- col
       # CHANGE TO THIS? MAYBE DOESN'T WORK
       #df <- rename(df, col = col.x)
