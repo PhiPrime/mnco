@@ -23,3 +23,11 @@ test_that("as.radiusDate() works for double digit month and day", {
   date <- as.Date("2022-10-14")
   expect_equal(as.radiusDate(date), "10_14_2022")
 })
+
+test_that("get_raw_na_cols() runs", {
+  expect_no_error(get_raw_na_cols(as.Date("2024-08-05")))
+})
+
+test_that("print_raw_na_cols() runs", {
+  expect_no_error(suppressMessages(print_raw_na_cols(as.Date("2024-08-05"))))
+})

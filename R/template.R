@@ -1,7 +1,7 @@
 saveTemplates <- function(date = Sys.Date()) {
 
-  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
-  newFile <- readRawData("Template Export", date) %>%
+  cacheFile <- file.path(cacheDir(), "Templates.rds")
+  newFile <- readRawData.old("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
@@ -55,7 +55,7 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
   regexEx <- gsub(" [AP]M", "",
                   gsub(" [0-9]+:", " [0-9]+:", idDate))
 
-  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
+  cacheFile <- file.path(cacheDir(), "Templates.rds")
 
   dat <- readRDS(cacheFile)
   rtn <- dat[grepl(regexEx, dat$Created_Date),]$template
@@ -63,8 +63,8 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
 }
 
 templatesNeedUpdated <- function(date = Sys.Date()) {
-  cacheFile <- file.path(getwd(), "/Cache/Templates.rds")
-  newFile <- readRawData("Template Export", date) %>%
+  cacheFile <- file.path(cacheDir(), "Templates.rds")
+  newFile <- readRawData.old("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(

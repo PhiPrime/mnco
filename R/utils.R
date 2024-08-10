@@ -25,7 +25,7 @@ get_raw_na_cols <- function(date = Sys.Date()) {
   # Iterate through each raw data file for given date
   na_col_list <- list()
   for (i in 1:4) {
-    dat <- readRawData(fileRoots[i], date = date)
+    dat <- readRawData.old(fileRoots[i], date = date)
 
     # Get and append names of NA columns to list
     na_col <- sapply(dat, function(x) all(is.na(x)))
@@ -44,8 +44,6 @@ print_raw_na_cols <- function(date = Sys.Date()) {
   na_col_list = get_raw_na_cols(date)
 
   for (col_name in names(na_col_list)) {
-    cat(col_name, ": \"", sep="")
-    cat(na_col_list[[col_name]], sep = "\", \"")
-    cat("\"\n")
+    message(col_name, ": \"", paste0(na_col_list[[col_name]], collapse = "\", \""), "\"")
   }
 }
