@@ -1,3 +1,11 @@
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 saveTemplates <- function(date = Sys.Date()) {
 
   cacheFile <- file.path(cacheDir(), "Templates.rds")
@@ -50,6 +58,14 @@ saveTemplates <- function(date = Sys.Date()) {
 
 ##getTemplate
 ## Uses Template cache to return template based on creation date
+#' Title
+#'
+#' @param createdDate
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
   idDate <- strptime(createdDate, "%m/%d/%Y %I:%M:%S %p")
   regexEx <- gsub(" [AP]M", "",
@@ -62,6 +78,14 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
 
 }
 
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 templatesNeedUpdated <- function(date = Sys.Date()) {
   cacheFile <- file.path(cacheDir(), "Templates.rds")
   newFile <- readRawData.old("Template Export", date) %>%
@@ -83,6 +107,15 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
 }#eof
 
 #For creating format of text files using an id & student name
+#' Title
+#'
+#' @param id
+#' @param student
+#'
+#' @return
+#' @export
+#'
+#' @examples
 asMessageTxtFile <- function(id, student){
   return(paste0(gsub("[ -]", "_",
                      paste(id,student, sep = "__")),".txt"))

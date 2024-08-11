@@ -25,6 +25,12 @@ kablize <- function(todisplay){
 }
 
 #######     FUNCTION TO GENERATE "MOST PRODUCTIVE STUDENT" KABLE     ########
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 displayMostProductiveStudents <- function(){
 
 }

@@ -26,6 +26,14 @@ setCacheDir <- function(path) {
   invisible(old)
 }
 
+#' Title
+#'
+#' @param path
+#'
+#' @return
+#' @export
+#'
+#' @examples
 setDownloadsDir <- function(path) {
   old <- the$DOWNLOADS_DIR
   the$DOWNLOADS_DIR <- path

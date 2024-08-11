@@ -2,7 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
-^data-raw$
 
 ^Cache$
 ^Output$
@@ -16,6 +15,3 @@
 ^centerOverview\.Rproj$
 ^git-cheatsheet\.txt$
 ^rankings\.html$
-
-^/mnco-raw-data$
-^/mnco-cache$

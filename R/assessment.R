@@ -1,5 +1,12 @@
-#######################     ASSESSMENT FUNCTIONS     ########################
-
+#' Title
+#'
+#' @param date
+#' @param ignoreMissing
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
   #Get using regex since filename depends on range of dates in report
   dat <- readRawData.old(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
@@ -10,8 +17,16 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
   tdat <- tdat[order(tdat$Date, decreasing = TRUE),]
 
   return(tdat)
-}#eof
+}
 
+#' Title
+#'
+#' @param Assessments_Prior_to_
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
   relPath <- paste0(rawDataDir(), "/Assessments_Prior_to_",
                     Assessments_Prior_to_,
@@ -31,38 +46,14 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
   return(tdat)
 }
 
-tidyAssessments <- function(dat){
-  #Arbitrarily Tidy up
-  tdat <- dplyr::transmute(dat,
-                    Lead_Id = as.character(.data$Lead_Id),
-                    Account_Id = .data$Account_Id,
-                    Student= paste(.data$Student_First_Name, .data$Student_Last_Name),
-                    Enrollment_Status = as.factor(.data$Enrollment_Status),
-                    Grade = dplyr::case_when(
-                      .data$Grade == "Pre K" ~ "-1",
-                      .data$Grade == "K" ~ "0",
-                      .data$Grade == "College" ~ "13",
-                      grepl("[0-9]", .data$Grade) ~ .data$Grade,
-                      .default = "NaN"),
-                    Assessment = .data$Assessment_Title,
-                    Level = dplyr::case_when(
-                      !(grepl("[A-Z]", toupper(.data$Assessment_Level))&
-                          !is.na(Assessment_Level)) ~ .data$Assessment_Level,
-                      grepl("Readiness|Middle",.data$Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
-                      grepl("Algebra I A|ACT",.data$Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
-                      grepl("SAT Advanced|HMM", .data$Assessment_Level) ~ "12",
-                      .default = "NaN"),
-                    Percent = .data$Score*100,
-                    Date = strptime(.data$Date_Taken, format = "%m/%e/%Y"),
-                    Pre = .data$`Pre/Post`=="Pre",
-                    Group = .data$Group=="Yes",
-                    Center = as.factor(.data$Center)) %>%
-    #Avoid NA warning when none is needed
-    dplyr::mutate(Grade = as.numeric(.data$Grade),
-           Level = as.numeric(.data$Level))
-  return(tdat)
-}
-
+#' Title
+#'
+#' @param Assessments_Prior_to_
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   dat <- getHistoricAssessments(Assessments_Prior_to_)
   dat <- dplyr::filter(dat, !is.na(.data$Level))
@@ -78,6 +69,14 @@ getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
 }
 
 ## Returns vector of names of students need a new deck due to an assessment
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   ## Ways to tell if a deck needs made based on assessments:

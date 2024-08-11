@@ -35,13 +35,31 @@ getCenterData <- function(type = c("all", radiusFileRoots("types")),
   invisible(tdat)
 }
 
+#' Title
+#'
+#' @param date
+#' @param ignoreMissing
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData.old("Payments.xlsx", date)
 
   return(dat)
-}#eof
+}
 
 ### getCurriculumData
+#' Title
+#'
+#' @param date
+#' @param ignoreMissing
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData.old("Curriculum Library Export", date)
 
@@ -49,11 +67,26 @@ getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
 }
 
 ### getAttendanceHistory
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getAttendanceTrainingSet <- function() {
   readRDS(file.path(cacheDir(), "prior2024.rds"))
-}#eof
+}
 
 ### getAttendanceData
+#' Title
+#'
+#' @param get
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   dat <- readRawData.old("Student Attendance Report Export", date)
 
@@ -119,4 +152,4 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   # }
 
 
-}#eof
+}

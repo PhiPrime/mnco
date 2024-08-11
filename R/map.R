@@ -1,6 +1,12 @@
-###########################     MAP FUNCTIONS     ###########################
-
 ### generateMap
+#' Title
+#'
+#' @param useCache
+#'
+#' @return
+#' @export
+#'
+#' @examples
 generateMap <- function(useCache = TRUE){
   # Data Retrieval
 
@@ -58,7 +64,7 @@ generateMap <- function(useCache = TRUE){
       message(paste0("No file found named: ",
                      fileLoc,". One will now be created."))
     }
-    ret <- tidygeocoder::geocode(tidydat, .data$address, method = 'arcgis')
+    ret <- tidygeocoder::geocode(tidydat, "address", method = 'arcgis')
   }
 
   utils::write.csv(ret, fileLoc)
@@ -67,4 +73,4 @@ generateMap <- function(useCache = TRUE){
   as.data.frame(tidydat) %>% leaflet::leaflet() %>% leaflet::addTiles() %>%
     leaflet::addMarkers(clusterOptions = leaflet::markerClusterOptions(),
                popup = .data$info)
-}#eof
+}

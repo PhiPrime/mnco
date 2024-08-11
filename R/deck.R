@@ -1,4 +1,3 @@
-##########################     DECK FUNCTION    ###########################
 ### needsNewDeck
 #' Title
 #'
@@ -34,10 +33,18 @@ needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
   ret <- ret[!ret$Student %in% dat$Student,]
   ret <- ret[order(ret$Student),]
   return(ret)
-}#eof
+}
 
-#######################     SUPPRESSION FUNCTIONS     #######################
 ### suppressDeckWarning
+#' Title
+#'
+#' @param studentRows
+#' @param durationDays
+#'
+#' @return
+#' @export
+#'
+#' @examples
 suppressDeckWarning <- function(studentRows = data.frame(
   matrix(ncol=5, nrow = 0,
          dimnames = list(NULL,
@@ -80,9 +87,15 @@ suppressDeckWarning <- function(studentRows = data.frame(
   setSuppressedStudents(dat)
 
   return()
-}#eof
+}
 
 ### getSuppressedStudents
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getSuppressedStudents <- function(){
   fileLoc <- file.path(cacheDir(), "suppressedStudent.rds")
   if(!file.exists(fileLoc)){
@@ -96,6 +109,14 @@ getSuppressedStudents <- function(){
   return(ret)
 }
 
+#' Title
+#'
+#' @param dat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 setSuppressedStudents <- function(dat = data.frame(
   matrix(ncol=7, nrow = 0,
          dimnames = list(NULL,
@@ -110,6 +131,14 @@ setSuppressedStudents <- function(dat = data.frame(
 }
 
 ### removeDeckSuppression
+#' Title
+#'
+#' @param studentRows
+#'
+#' @return
+#' @export
+#'
+#' @examples
 removeDeckSuppression <- function(studentRows = data.frame(
   matrix(ncol=7, nrow = 0,
          dimnames = list(NULL,
@@ -131,9 +160,19 @@ removeDeckSuppression <- function(studentRows = data.frame(
   dat <- getSuppressedStudents()
   dat <- dat[!dat$Student %in% studentRows$Student,]
   setSuppressedStudents(dat)
-}#eof
+}
 
 #Used with ranking to adjust score based on variableName
+#' Title
+#'
+#' @param dat
+#' @param variableName
+#' @param centerVal
+#'
+#' @return
+#' @export
+#'
+#' @examples
 regularizeScore <- function(dat, variableName, centerVal){
   #if no Score present in data frame, assume it should be LB
   if(!("Score" %in% names(dat))){
@@ -157,6 +196,12 @@ regularizeScore <- function(dat, variableName, centerVal){
   return(dat)
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 showcaseRegularizeScore <- function(){
   dat <- merge(getStudentRanking(),
                getMostRecentAssessments())

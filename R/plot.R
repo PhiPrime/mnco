@@ -1,6 +1,13 @@
-####################     GRAPH GENERATING FUNCTIONS     #####################
-
-####################     EXPLORATORY PLOT FUNCTIONS     #####################
+#' Title
+#'
+#' @param dataset
+#' @param removeOutliers
+#' @param oCI
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   #Filter out col with numeric datatypes, any uncertainty is made 0 by default
   numdata <- dplyr::select_if(dataset, is.numeric)
@@ -58,6 +65,12 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   # p1+p2
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 expGradedifPest <- function() {
   dat <- merge(dplyr::mutate(getCenterData("progress"),
                              Pest = .data$Skills_Mastered/.data$Attendances),

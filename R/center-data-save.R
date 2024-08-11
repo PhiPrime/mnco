@@ -1,7 +1,15 @@
-##########################     SAVE FUNCTIONS     ###########################
-
 # Appends the output of getCenterData() to centerHistory.rds
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL saveAllCenterData() - USE ALL.EQUAL?
+#' Title
+#'
+#' @param date
+#' @param ignoreMissing
+#' @param silent
+#'
+#' @return
+#' @export
+#'
+#' @examples
 saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   filePath <- file.path(cacheDir(), "centerHistory.rds")
 
@@ -30,6 +38,16 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
 }
 
 # FIGURE OUT IF SHOULD SAVE DATES WITH MISSING FILES
+#' Title
+#'
+#' @param startDate
+#' @param endDate
+#' @param promptDelete
+#'
+#' @return
+#' @export
+#'
+#' @examples
 saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.Date(),
                               promptDelete = T) {
   filePath <- file.path(cacheDir(), "centerHistory.rds")

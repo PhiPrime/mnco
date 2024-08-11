@@ -1,5 +1,3 @@
-#######################     ATTENDANCE FUNCTIONS     ########################
-
 #' Title
 #'
 #' @param allowedBdays
@@ -8,8 +6,7 @@
 #' @export
 #'
 #' @examples
-attendanceCheck <- function(allowedBdays = 5)
-{
+attendanceCheck <- function(allowedBdays = 5) {
   #Get list of dates any student attended
   uniDates <- unique(getCenterData("student")$Last_Attendance_Date)
 
@@ -51,9 +48,7 @@ attendanceCheck <- function(allowedBdays = 5)
       flaggedStudents$Name %in% getStudentsOnVacation()$Student),]
 
   return(flaggedStudents)
-}#eof
-
-########################     VACATION FUNCTIONS     #########################
+}
 
 ## sendOnVacation
 # Sets a student to not appear in attendanceCheck(),
@@ -69,10 +64,17 @@ attendanceCheck <- function(allowedBdays = 5)
 # }
 
 ##sendOnVacation standard
-sendOnVacation <- function(who,
-
-                           #Default end of current month
-                           returnDate = lubridate::rollforward(Sys.Date())){
+#Default end of current month
+#' Title
+#'
+#' @param who
+#' @param returnDate
+#'
+#' @return
+#' @export
+#'
+#' @examples
+sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date())) {
 
   #If returnDate is not in Date format
   if(!lubridate::is.Date(returnDate)){
@@ -120,9 +122,15 @@ sendOnVacation <- function(who,
 
   setStudentsOnVacation(dat)
 
-}#eof
+}
 
 ### getStudentsOnVacation
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getStudentsOnVacation <- function(){
   fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
   if(!file.exists(fileLoc)){
@@ -138,6 +146,14 @@ getStudentsOnVacation <- function(){
 }
 
 ## setStudentsOnVacation
+#' Title
+#'
+#' @param dat
+#'
+#' @return
+#' @export
+#'
+#' @examples
 setStudentsOnVacation <- function(dat = data.frame(
   matrix(ncol=2, nrow = 0,
          dimnames = list(NULL,
@@ -177,6 +193,14 @@ setStudentsOnVacation <- function(dat = data.frame(
 }
 
 ### returnStudentFromVacation
+#' Title
+#'
+#' @param who
+#'
+#' @return
+#' @export
+#'
+#' @examples
 returnStudentFromVacation <- function(who){
   fileLoc <- paste0(cacheDir(), "StudentsOnVacation", ".rds")
 

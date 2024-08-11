@@ -1,11 +1,38 @@
+#' Title
+#'
+#' @param dir
+#' @param root
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 as.rawFilePath <- function(dir, root, date) {
   file.path(dir, as.rawFileName(root, date))
 }
 
+#' Title
+#'
+#' @param root
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 as.rawFileName <- function(root, date) {
   paste0(root, "  ", as.radiusDate(date), ".xlsx")
 }
 
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 as.radiusDate <- function(date) {
   paste(lubridate::month(date),
         lubridate::day(date),
@@ -16,6 +43,14 @@ as.radiusDate <- function(date) {
 ### get_raw_na_cols
 # Returns a named list of vectors for names of columns containing only NAs in raw data files
 # MODIFY TO ALLOW ITERATION THROUGH MULTIPLE DATES?
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_raw_na_cols <- function(date = Sys.Date()) {
   fileRoots <- c("Students Export",
                  "Account Export",
@@ -40,6 +75,14 @@ get_raw_na_cols <- function(date = Sys.Date()) {
 ### print_raw_na_cols
 # Prints names of NA columns in raw data files
 # Formatted for copy/paste into a vector in code
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 print_raw_na_cols <- function(date = Sys.Date()) {
   na_col_list = get_raw_na_cols(date)
 

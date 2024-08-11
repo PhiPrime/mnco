@@ -1,6 +1,15 @@
-#########################     PRICING FUNCTIONS     #########################
-
 ### getPricing
+#' Title
+#'
+#' @param gradeRange
+#' @param contractLength
+#' @param sessionCount
+#' @param nstu
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
                        contractLength = 7,
                        sessionCount = 10,
@@ -42,9 +51,18 @@ getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
     contractLengthMod + 50*gradeBin
 
   return(round(monthlyAmount))
-}#eof
+}
 
 ### getPricingGrid
+#' Title
+#'
+#' @param verbose
+#' @param nstu
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getPricingGrid <- function(verbose = FALSE,
                            nstu = dim(getCenterData("student")[which(getCenterData("student")$Enrollment_Status=="Enrolled"),])[1]){
   df <- data.frame()
@@ -63,4 +81,4 @@ getPricingGrid <- function(verbose = FALSE,
     df <- dplyr::mutate(df, Price.per.Session = round(.data$Monthly.Rate/.data$Sessions.Per.Month,2))
   }
   return(df)
-} #eof
+}

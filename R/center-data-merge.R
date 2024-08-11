@@ -1,3 +1,13 @@
+#' Title
+#'
+#' @param df1
+#' @param df2
+#' @param .by
+#'
+#' @return
+#' @export
+#'
+#' @examples
 mergeWithFill <- function(df1, df2, .by) {
   # Merge df1 and df2. Common columns are suffixed with .x and .y
   df <- merge(df1, df2, all.x = T, by = .by)

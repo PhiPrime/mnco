@@ -1,3 +1,12 @@
+#' Title
+#'
+#' @param data
+#' @param type
+#'
+#' @return
+#' @export
+#'
+#' @examples
 tidyRawData <- function(data, type) {
   switch (type,
     "student" = tidyRawData.student(data),
@@ -8,6 +17,14 @@ tidyRawData <- function(data, type) {
   )
 }
 
+#' Title
+#'
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
 tidyRawData.student <- function(data) {
   # Rename columns
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
@@ -40,6 +57,14 @@ tidyRawData.student <- function(data) {
   return (data)
 }
 
+#' Title
+#'
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
 tidyRawData.account <- function(data) {
   # Create new columns
   data <- dplyr::mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
@@ -59,6 +84,14 @@ tidyRawData.account <- function(data) {
   return(data)
 }
 
+#' Title
+#'
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
 tidyRawData.progress <- function(data) {
   # PROCESS COLUMNS HERE
   rm_cols <- c("Guardian")
@@ -73,6 +106,14 @@ tidyRawData.progress <- function(data) {
   return(data)
 }
 
+#' Title
+#'
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
 tidyRawData.enrollment <- function (data) {
   # Rename columns
   names(data)[names(data) == "Account_Name"] <- "Account"
@@ -112,6 +153,56 @@ tidyRawData.enrollment <- function (data) {
   return(data)
 }
 
+#' Title
+#'
+#' @param dat
+#'
+#' @return
+#' @export
+#'
+#' @examples
+tidyAssessments <- function(dat){
+  #Arbitrarily Tidy up
+  tdat <- dplyr::transmute(dat,
+                           Lead_Id = as.character(.data$Lead_Id),
+                           Account_Id = .data$Account_Id,
+                           Student= paste(.data$Student_First_Name, .data$Student_Last_Name),
+                           Enrollment_Status = as.factor(.data$Enrollment_Status),
+                           Grade = dplyr::case_when(
+                             .data$Grade == "Pre K" ~ "-1",
+                             .data$Grade == "K" ~ "0",
+                             .data$Grade == "College" ~ "13",
+                             grepl("[0-9]", .data$Grade) ~ .data$Grade,
+                             .default = "NaN"),
+                           Assessment = .data$Assessment_Title,
+                           Level = dplyr::case_when(
+                             !(grepl("[A-Z]", toupper(.data$Assessment_Level))&
+                                 !is.na(Assessment_Level)) ~ .data$Assessment_Level,
+                             grepl("Readiness|Middle",.data$Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
+                             grepl("Algebra I A|ACT",.data$Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
+                             grepl("SAT Advanced|HMM", .data$Assessment_Level) ~ "12",
+                             .default = "NaN"),
+                           Percent = .data$Score*100,
+                           Date = strptime(.data$Date_Taken, format = "%m/%e/%Y"),
+                           Pre = .data$`Pre/Post`=="Pre",
+                           Group = .data$Group=="Yes",
+                           Center = as.factor(.data$Center)) %>%
+    #Avoid NA warning when none is needed
+    dplyr::mutate(Grade = as.numeric(.data$Grade),
+                  Level = as.numeric(.data$Level))
+  return(tdat)
+}
+
+#' Title
+#'
+#' @param df
+#' @param ...
+#' @param test_na
+#'
+#' @return
+#' @export
+#'
+#' @examples
 removeRawCols <- function(df, ..., test_na = F) {
   # Iterate through column names
   for (col_name in unlist(list(...))) {

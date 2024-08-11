@@ -1,3 +1,9 @@
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 rawDataDir <- function() {
   path <- the$RAW_DATA_DIR
   if (!file.exists(path)) {
@@ -7,6 +13,12 @@ rawDataDir <- function() {
   path
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 cacheDir <- function() {
   path <- the$CACHE_DIR
   if (!file.exists(path)) {
@@ -16,6 +28,12 @@ cacheDir <- function() {
   path
 }
 
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
 downloadsDir <- function() {
   path <- the$DOWNLOADS_DIR
   if (is.na(path)) {
@@ -28,6 +46,14 @@ downloadsDir <- function() {
   path
 }
 
+#' Title
+#'
+#' @param type
+#'
+#' @return
+#' @export
+#'
+#' @examples
 radiusFileRoots <- function(
     type = c("all", "types", names(the$RADIUS_FILE_ROOTS))) {
   type <- match.arg(type)

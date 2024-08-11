@@ -1,3 +1,11 @@
+#' Title
+#'
+#' @param date
+#'
+#' @return
+#' @export
+#'
+#' @examples
 getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
@@ -71,6 +79,15 @@ getStudentRanking <- function(date = Sys.Date()) {
   return(dat)
 }
 
+#' Title
+#'
+#' @param student
+#' @param duration
+#'
+#' @return
+#' @export
+#'
+#' @examples
 addDifferentDurationStudent <- function(student, duration) {
   # need to add file check
   filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
@@ -80,6 +97,14 @@ addDifferentDurationStudent <- function(student, duration) {
   utils::write.csv(dat, filePath, row.names = F)
 }
 
+#' Title
+#'
+#' @param student
+#'
+#' @return
+#' @export
+#'
+#' @examples
 removeDifferentDurationStudent <- function(student) {
   # need to add file check
   filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
