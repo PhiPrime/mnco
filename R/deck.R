@@ -97,7 +97,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
 #'
 #' @examples
 getSuppressedStudents <- function(){
-  fileLoc <- file.path(cacheDir(), "suppressedStudent.rds")
+  fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
   if(!file.exists(fileLoc)){
     #Run null constructor
     setSuppressedStudents()
