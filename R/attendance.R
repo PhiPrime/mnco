@@ -132,7 +132,7 @@ sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date()))
 #'
 #' @examples
 getStudentsOnVacation <- function(){
-  fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
+  fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
   if(!file.exists(fileLoc)){
     #Run null constructor
     setStudentsOnVacation()
@@ -158,7 +158,7 @@ setStudentsOnVacation <- function(dat = data.frame(
   matrix(ncol=2, nrow = 0,
          dimnames = list(NULL,
                          c("Student", "returnDate"))))){
-  fileLoc <- paste0(cacheDir(), "/StudentsOnVacation", ".rds")
+  fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
 
   #Query last attendance date
   dat <- merge(dat,
@@ -202,7 +202,7 @@ setStudentsOnVacation <- function(dat = data.frame(
 #'
 #' @examples
 returnStudentFromVacation <- function(who){
-  fileLoc <- paste0(cacheDir(), "StudentsOnVacation", ".rds")
+  fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
 
   #Check for correct format
   dat <- getStudentsOnVacation()

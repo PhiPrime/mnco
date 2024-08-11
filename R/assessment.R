@@ -28,9 +28,9 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
 #'
 #' @examples
 getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
-  relPath <- paste0(rawDataDir(), "/Assessments_Prior_to_",
+  relPath <- file.path(rawDataDir(), paste0("Assessments_Prior_to_",
                     Assessments_Prior_to_,
-                    ".xlsx")
+                    ".xlsx"))
 
   #Checks for file and throws descriptive error
   if(!file.exists(relPath)){
