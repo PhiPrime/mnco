@@ -3,6 +3,7 @@
 export("%>%")
 export(attendanceCheck)
 export(getCenterData)
+export(kablize)
 export(moveDataDownloads)
 export(needsNewDeck)
 export(readRawData)

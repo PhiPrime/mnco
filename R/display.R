@@ -1,4 +1,12 @@
 #################     MAKE INTO UNIFIED KABLE FUNCTION     ##################
+#' Title
+#'
+#' @param todisplay
+#'
+#' @return
+#' @export
+#'
+#' @examples
 kablize <- function(todisplay){
 
   rm <- gsub("(^.{1,8})", "", names(todisplay))
