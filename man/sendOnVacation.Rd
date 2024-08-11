@@ -2,13 +2,18 @@
 % Please edit documentation in R/attendance.R
 \name{sendOnVacation}
 \alias{sendOnVacation}
-\title{Title}
+\title{Send student on vacation}
 \usage{
 sendOnVacation(who, returnDate = lubridate::rollforward(Sys.Date()))
 }
 \arguments{
-\item{returnDate}{}
+\item{who}{Student name}
+
+\item{returnDate}{Date of return}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+Send student on vacation
 }

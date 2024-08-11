@@ -2,10 +2,16 @@
 % Please edit documentation in R/attendance.R
 \name{getStudentsOnVacation}
 \alias{getStudentsOnVacation}
-\title{Title}
+\title{Get students on vacation}
 \usage{
 getStudentsOnVacation()
 }
+\value{
+A data frame
+}
 \description{
-Title
+Get students on vacation
+}
+\examples{
+getStudentsOnVacation()
 }

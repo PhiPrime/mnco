@@ -2,13 +2,19 @@
 % Please edit documentation in R/attendance.R
 \name{returnStudentFromVacation}
 \alias{returnStudentFromVacation}
-\title{Title}
+\title{Remove student from vacation file}
 \usage{
 returnStudentFromVacation(who)
 }
 \arguments{
-\item{who}{}
+\item{who}{Student to remove}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+Remove student from vacation file
+}
+\examples{
+returnStudentFromVacation("John Doe")
 }
