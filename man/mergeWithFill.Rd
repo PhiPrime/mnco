@@ -2,13 +2,24 @@
 % Please edit documentation in R/center-data-merge.R
 \name{mergeWithFill}
 \alias{mergeWithFill}
-\title{Title}
+\title{Combine data frames and coalesce shared columns}
 \usage{
 mergeWithFill(df1, df2, .by)
 }
 \arguments{
-\item{.by}{}
+\item{df1, df2}{Data frames to merge. Elements in \code{df1} have priority for
+coalescing}
+
+\item{.by}{Column name to use for merging through \code{\link[=merge]{merge()}}}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Combine data frames and coalesce shared columns
+}
+\examples{
+stu <- getCenterData("student")
+acc <- getCenterData("account")
+mergeWithFill(stu, acc, .by = "Account_Id")
 }

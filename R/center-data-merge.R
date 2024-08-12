@@ -1,13 +1,16 @@
-#' Title
+#' Combine data frames and coalesce shared columns
 #'
-#' @param df1
-#' @param df2
-#' @param .by
+#' @param df1,df2 Data frames to merge. Elements in `df1` have priority for
+#'  coalescing
+#' @param .by Column name to use for merging through [merge()]
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' stu <- getCenterData("student")
+#' acc <- getCenterData("account")
+#' mergeWithFill(stu, acc, .by = "Account_Id")
 mergeWithFill <- function(df1, df2, .by) {
   # Merge df1 and df2. Common columns are suffixed with .x and .y
   df <- merge(df1, df2, all.x = T, by = .by)

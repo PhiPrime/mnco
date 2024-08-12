@@ -17,3 +17,6 @@ None (invisible \code{NULL})
 \description{
 Send student on vacation
 }
+\examples{
+sendOnVacation("John Doe", returnDate = "2024-07-31")
+}
