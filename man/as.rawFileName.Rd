@@ -7,7 +7,9 @@
 as.rawFileName(root, date)
 }
 \arguments{
-\item{date}{}
+\item{root}{Raw data file root}
+
+\item{date}{A date}
 }
 \description{
 Title

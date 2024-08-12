@@ -1,8 +1,8 @@
 #' Title
 #'
-#' @param dir
-#' @param root
-#' @param date
+#' @param dir Raw data directory path
+#' @param root Raw data file root
+#' @param date A date
 #'
 #' @return
 #' @export
@@ -14,8 +14,7 @@ as.rawFilePath <- function(dir, root, date) {
 
 #' Title
 #'
-#' @param root
-#' @param date
+#' @inheritParams as.rawFilePath
 #'
 #' @return
 #' @export
@@ -27,7 +26,7 @@ as.rawFileName <- function(root, date) {
 
 #' Title
 #'
-#' @param date
+#' @inheritParams as.rawFilePath
 #'
 #' @return
 #' @export

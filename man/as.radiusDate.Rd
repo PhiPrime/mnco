@@ -7,7 +7,7 @@
 as.radiusDate(date)
 }
 \arguments{
-\item{date}{}
+\item{date}{A date}
 }
 \description{
 Title

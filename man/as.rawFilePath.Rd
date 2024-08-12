@@ -7,7 +7,11 @@
 as.rawFilePath(dir, root, date)
 }
 \arguments{
-\item{date}{}
+\item{dir}{Raw data directory path}
+
+\item{root}{Raw data file root}
+
+\item{date}{A date}
 }
 \description{
 Title
