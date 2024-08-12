@@ -1,9 +1,9 @@
-#' Title
+#' Tidy Radius data
 #'
-#' @param data
-#' @param type
+#' @param data Data frame to tidy
+#' @param type Radius data file type
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
@@ -17,12 +17,11 @@ tidyRawData <- function(data, type) {
   )
 }
 
-#' Title
+#' Tidy Radius student data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
 tidyRawData.student <- function(data) {
@@ -57,12 +56,11 @@ tidyRawData.student <- function(data) {
   return (data)
 }
 
-#' Title
+#' Tidy Radius account data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
 tidyRawData.account <- function(data) {
@@ -84,12 +82,11 @@ tidyRawData.account <- function(data) {
   return(data)
 }
 
-#' Title
+#' Tidy Radius progress data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
 tidyRawData.progress <- function(data) {
@@ -106,12 +103,11 @@ tidyRawData.progress <- function(data) {
   return(data)
 }
 
-#' Title
+#' Tidy Radius enrollment data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
 tidyRawData.enrollment <- function (data) {
@@ -153,12 +149,11 @@ tidyRawData.enrollment <- function (data) {
   return(data)
 }
 
-#' Title
+#' Tidy Radius assessment data
 #'
-#' @param dat
+#' @param dat Data frame to tidy
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
 tidyAssessments <- function(dat){
@@ -193,14 +188,14 @@ tidyAssessments <- function(dat){
   return(tdat)
 }
 
-#' Title
+#' Delete columns from data frame
 #'
-#' @param df
-#' @param ...
-#' @param test_na
+#' @param df A data frame
+#' @param ... Character strings or vectors of columns to remove
+#' @param test_na If `TRUE`, signal error if column to remove in `df` does
+#'  not contain only `NA` values.
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
 removeRawCols <- function(df, ..., test_na = F) {

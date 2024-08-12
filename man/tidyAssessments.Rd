@@ -2,13 +2,16 @@
 % Please edit documentation in R/center-data-tidy.R
 \name{tidyAssessments}
 \alias{tidyAssessments}
-\title{Title}
+\title{Tidy Radius assessment data}
 \usage{
 tidyAssessments(dat)
 }
 \arguments{
-\item{dat}{}
+\item{dat}{Data frame to tidy}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Tidy Radius assessment data
 }

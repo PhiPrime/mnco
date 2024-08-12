@@ -2,13 +2,21 @@
 % Please edit documentation in R/center-data-tidy.R
 \name{removeRawCols}
 \alias{removeRawCols}
-\title{Title}
+\title{Delete columns from data frame}
 \usage{
 removeRawCols(df, ..., test_na = F)
 }
 \arguments{
-\item{test_na}{}
+\item{df}{A data frame}
+
+\item{...}{Character strings or vectors of columns to remove}
+
+\item{test_na}{If \code{TRUE}, signal error if column to remove in \code{df} does
+not contain only \code{NA} values.}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Delete columns from data frame
 }
