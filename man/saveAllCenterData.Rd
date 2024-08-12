@@ -2,7 +2,7 @@
 % Please edit documentation in R/center-data-save.R
 \name{saveAllCenterData}
 \alias{saveAllCenterData}
-\title{Title}
+\title{Save center data for range of dates}
 \usage{
 saveAllCenterData(
   startDate = as.Date("2020-01-01"),
@@ -11,8 +11,19 @@ saveAllCenterData(
 )
 }
 \arguments{
-\item{promptDelete}{}
+\item{startDate}{A date. The default is \code{"2020-01-01"}.}
+
+\item{endDate}{A date. The default is the current date.}
+
+\item{promptDelete}{\code{logical} indicating if the user should confirm the
+recreation of the file}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+Save center data for range of dates
+}
+\examples{
+saveAllCenterData()
 }

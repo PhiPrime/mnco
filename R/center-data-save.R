@@ -1,15 +1,16 @@
-# Appends the output of getCenterData() to centerHistory.rds
 # MAYBE CHECK IF STRUCTURE DIFFERENT THEN CALL saveAllCenterData() - USE ALL.EQUAL?
-#' Title
+#' Store center data in .csv file
 #'
-#' @param date
-#' @param ignoreMissing
-#' @param silent
+#' @param date Date to save data for
+#' @param ignoreMissing `logical` indicating if data should be saved if there
+#'  is missing data
+#' @param silent `logical`. Determines if messages should be printed.
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' saveCenterData()
 saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   filePath <- file.path(cacheDir(), "centerHistory.rds")
 
@@ -35,19 +36,23 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
 
   if(!silent) message("SUCCESS: Center history saved for ", as.character(date),
                   "!\n", sep="")
+
+  invisible(NULL)
 }
 
 # FIGURE OUT IF SHOULD SAVE DATES WITH MISSING FILES
-#' Title
+#' Save center data for range of dates
 #'
-#' @param startDate
-#' @param endDate
-#' @param promptDelete
+#' @param startDate A date. The default is `"2020-01-01"`.
+#' @param endDate A date. The default is the current date.
+#' @param promptDelete `logical` indicating if the user should confirm the
+#'  recreation of the file
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' saveAllCenterData()
 saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.Date(),
                               promptDelete = T) {
   filePath <- file.path(cacheDir(), "centerHistory.rds")
@@ -94,4 +99,6 @@ saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.D
               " dates, ", sep="")
 
   message(failCount, " dates skipped (incomplete set)\n", sep="")
+
+  invisible(NULL)
 }
