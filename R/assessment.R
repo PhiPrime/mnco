@@ -1,7 +1,7 @@
 #' Read Radius assessment data
 #'
 #' @param date Date to read data for
-#' @param ignoreMissing [`logical`] indicating to return empty data frame
+#' @param ignoreMissing `logical` indicating to return empty data frame
 #' (instead of signaling an error) if data file not found
 #'
 #' @return A data frame

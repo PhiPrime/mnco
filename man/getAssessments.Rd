@@ -9,7 +9,7 @@ getAssessments(date = Sys.Date(), ignoreMissing = FALSE)
 \arguments{
 \item{date}{Date to read data for}
 
-\item{ignoreMissing}{\code{\link{logical}} indicating to return empty data frame
+\item{ignoreMissing}{\code{logical} indicating to return empty data frame
 (instead of signaling an error) if data file not found}
 }
 \value{

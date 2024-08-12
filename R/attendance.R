@@ -74,7 +74,7 @@ attendanceCheck <- function(allowedBdays = 5) {
 #' @export
 #'
 #' @examples
-#' sendOnVacation("John Doe", returnDate = "2024-07-31)
+#' sendOnVacation("John Doe", returnDate = "2024-07-31")
 sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date())) {
 
   #If returnDate is not in Date format
