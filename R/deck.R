@@ -126,7 +126,7 @@ setSuppressedStudents <- function(dat = data.frame(
   #Check for expired stints
   dat <- dat[which((Sys.Date()<dat$expDate)),]
 
-  fileLoc <- file.path(cacheDir(), "suppressedStudent.rds")
+  fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
   saveRDS(dat, fileLoc)
 }
 
