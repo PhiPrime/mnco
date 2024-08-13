@@ -2,6 +2,11 @@
 
 settings_file <- "centerOverviewSettings.dat"
 
+#Get file name
+get_file_name <- function() {
+  return(settings_file)
+}
+
 #Function to initialize the settings file if it needs to be reset or created
 initialize_settings_file <- function() {
   

@@ -18,6 +18,11 @@ library(stringi)
 
 CO_UI <- function() {
   
+  #checks if centerOverviewSettings.dat exists
+  #creates file if not
+  if (!file.exists(get_file_name()))
+    initialize_settings_file()
+  
   #Generate the UI
   #Args are contained as though they are braces
   ui <- fluidPage(
@@ -91,7 +96,8 @@ CO_UI <- function() {
                   ),
                   splitLayout(
                     actionButton("pricing_settings", "Pricing"),
-                    actionButton("contract_settings", "Contracts")
+                    actionButton("contract_settings", "Contracts"),
+                    actionButton("settings_reset", "Reset Settings")
                   ),
                   hidden(
                     div(id = "assessment_settings_panel",
@@ -316,14 +322,19 @@ CO_UI <- function() {
       toggle("display_settings")
       toggle("contract_settings_panel")
     })
+    
     #
     # Settings Inputs
     #
     
+    observeEvent(input$settings_reset, {
+      #Resets the settings file
+      initialize_settings_file()
+    })
+    
     observeEvent(input$assessment_day_submission, {
       #Gather the date, FORMAT ISSUE UNRESOLVED
       edit_variable("Recent_Assessments_Date", input$assessment_date_input)
-      message(retrieve_variable("Recent_Assessments_Date", FALSE))
     })
     
     observeEvent(input$attendance_allowed_days_submission, {
