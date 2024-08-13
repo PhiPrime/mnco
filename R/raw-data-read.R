@@ -1,13 +1,13 @@
-#' Read Radius raw data excel file
+#' Read Radius data excel file
 #'
-#' @param x File path or directory.
-#' @param type Which radius data to use.
-#' @param date What date to use.
+#' @param type Radius data file type
+#' @param date Date to read data for
 #'
 #' @return A data frame
 #' @export
 #'
 #' @examples
+#' readRawData("student")
 readRawData <- function(type, date = Sys.Date()) {
   # MAYBE CHANGE TO OVERLOADING
   dir <- rawDataDir()

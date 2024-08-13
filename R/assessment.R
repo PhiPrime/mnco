@@ -1,13 +1,16 @@
-#' Title
+#' Read Radius assessment data
 #'
-#' @param date
-#' @param ignoreMissing
+#' @param date Date to read data for
+#' @param ignoreMissing `logical` indicating to return empty data frame
+#' (instead of signaling an error) if data file not found
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
-getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
+#' getAssessments()
+#' getAssessments(date = "2024-07-31")
+getAssessments <- function(date = Sys.Date(), ignoreMissing = FALSE) {
   #Get using regex since filename depends on range of dates in report
   dat <- readRawData.old(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
                             "to [0-9]+_[0-9]+_[0-9]+"),
@@ -19,14 +22,16 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
   return(tdat)
 }
 
-#' Title
+#' Read historic assessment data
 #'
-#' @param Assessments_Prior_to_
+#' @param Assessments_Prior_to_ Radius style date
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getHistoricAssessments()
+#' getHistoricAssessments(Assessments_Prior_to_ = "7_31_2024")
 getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
   relPath <- file.path(rawDataDir(), paste0("Assessments_Prior_to_",
                     Assessments_Prior_to_,
@@ -46,14 +51,16 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
   return(tdat)
 }
 
-#' Title
+#' Get most recent assessment
 #'
-#' @param Assessments_Prior_to_
+#' @param Assessments_Prior_to_ Radius style date
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getMostRecentAssessments()
+#' getMostRecentAssessments(Assessments_Prior_to_ = "8_5_2024")
 getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   dat <- getHistoricAssessments(Assessments_Prior_to_)
   dat <- dplyr::filter(dat, !is.na(.data$Level))
@@ -68,15 +75,15 @@ getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   return(ret)
 }
 
-## Returns vector of names of students need a new deck due to an assessment
-#' Title
+#' Needs deck based on assessment
 #'
-#' @param date
+#' @param date Date to look at data for
 #'
-#' @return
+#' @return A [`character`] vector of students
 #' @export
 #'
 #' @examples
+#' needsDeckBasedOnAssessment()
 needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   ## Ways to tell if a deck needs made based on assessments:
@@ -109,4 +116,4 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   return(ret)
 
-}#eof
+}

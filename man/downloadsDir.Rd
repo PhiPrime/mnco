@@ -2,10 +2,18 @@
 % Please edit documentation in R/mnco-env-get.R
 \name{downloadsDir}
 \alias{downloadsDir}
-\title{Title}
+\title{Get downloads directory}
 \usage{
 downloadsDir()
 }
+\value{
+A character string
+}
 \description{
-Title
+By default, if the user is on Windows this is set to the Downloads directory
+under their user directory in \verb{C:/Users/} found through \code{getwd()}. It can be
+changed using \code{\link[=setDownloadsDir]{setDownloadsDir()}}.
+}
+\examples{
+downloadsDir()
 }

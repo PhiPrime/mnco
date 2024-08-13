@@ -2,13 +2,24 @@
 % Please edit documentation in R/center-data-save.R
 \name{saveCenterData}
 \alias{saveCenterData}
-\title{Title}
+\title{Store center data in .csv file}
 \usage{
 saveCenterData(date = Sys.Date(), ignoreMissing = F, silent = F)
 }
 \arguments{
-\item{silent}{}
+\item{date}{Date to save data for}
+
+\item{ignoreMissing}{\code{logical} indicating if data should be saved if there
+is missing data}
+
+\item{silent}{\code{logical}. Determines if messages should be printed.}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+Store center data in .csv file
+}
+\examples{
+saveCenterData()
 }

@@ -2,13 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{get_raw_na_cols}
 \alias{get_raw_na_cols}
-\title{Title}
+\title{Get NA column names}
 \usage{
 get_raw_na_cols(date = Sys.Date())
 }
 \arguments{
-\item{date}{}
+\item{date}{Date to read data for}
+}
+\value{
+A vector of column names
 }
 \description{
-Title
+Get NA column names
+}
+\examples{
+get_raw_na_cols()
 }

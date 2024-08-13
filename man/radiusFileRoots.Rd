@@ -2,13 +2,21 @@
 % Please edit documentation in R/mnco-env-get.R
 \name{radiusFileRoots}
 \alias{radiusFileRoots}
-\title{Title}
+\title{Retrieve Radius file roots}
 \usage{
 radiusFileRoots(type = c("all", "types", names(the$RADIUS_FILE_ROOTS)))
 }
 \arguments{
-\item{type}{}
+\item{type}{\code{"all"} returns a named vector of file roots named by their
+Radius data type. \code{"types"} returns a}
+}
+\value{
+A named/unnamed character vector or character string.
+See parameter \code{type}.
 }
 \description{
-Title
+Retrieve Radius file roots
+}
+\examples{
+radiusFileRoots()
 }

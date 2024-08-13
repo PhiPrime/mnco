@@ -1,9 +1,13 @@
-#' Title
+#' Get raw data directory
 #'
-#' @return
+#' By default, this directory is set to `"mnco-raw-data"`. It can be changed
+#' using [setRawDataDir()].
+#'
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' rawDataDir()
 rawDataDir <- function() {
   path <- the$RAW_DATA_DIR
   if (!file.exists(path)) {
@@ -13,12 +17,16 @@ rawDataDir <- function() {
   path
 }
 
-#' Title
+#' Get cache directory
 #'
-#' @return
+#' By default, this directory is set to `"mnco-cache"`. It can be changed
+#' using [setCacheDir()].
+#'
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' cacheDir()
 cacheDir <- function() {
   path <- the$CACHE_DIR
   if (!file.exists(path)) {
@@ -28,12 +36,17 @@ cacheDir <- function() {
   path
 }
 
-#' Title
+#' Get downloads directory
 #'
-#' @return
+#' By default, if the user is on Windows this is set to the Downloads directory
+#' under their user directory in `C:/Users/` found through `getwd()`. It can be
+#' changed using [setDownloadsDir()].
+#'
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' downloadsDir()
 downloadsDir <- function() {
   path <- the$DOWNLOADS_DIR
   if (is.na(path)) {
@@ -46,14 +59,17 @@ downloadsDir <- function() {
   path
 }
 
-#' Title
+#' Retrieve Radius file roots
 #'
-#' @param type
+#' @param type `"all"` returns a named vector of file roots named by their
+#'  Radius data type. `"types"` returns a
 #'
-#' @return
+#' @return A named/unnamed character vector or character string.
+#'  See parameter `type`.
 #' @export
 #'
 #' @examples
+#' radiusFileRoots()
 radiusFileRoots <- function(
     type = c("all", "types", names(the$RADIUS_FILE_ROOTS))) {
   type <- match.arg(type)

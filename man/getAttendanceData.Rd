@@ -7,8 +7,16 @@
 getAttendanceData(get = FALSE, date = Sys.Date())
 }
 \arguments{
+\item{get}{\code{logical} indicating to return attendance log file}
+
 \item{date}{}
+}
+\value{
+A data frame if \code{get} is \code{TRUE}, otherwise none (invisible \code{NULL})
 }
 \description{
 Title
+}
+\examples{
+getAttendanceData()
 }

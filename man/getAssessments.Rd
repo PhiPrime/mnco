@@ -2,13 +2,23 @@
 % Please edit documentation in R/assessment.R
 \name{getAssessments}
 \alias{getAssessments}
-\title{Title}
+\title{Read Radius assessment data}
 \usage{
-getAssessments(date = Sys.Date(), ignoreMissing = F)
+getAssessments(date = Sys.Date(), ignoreMissing = FALSE)
 }
 \arguments{
-\item{ignoreMissing}{}
+\item{date}{Date to read data for}
+
+\item{ignoreMissing}{\code{logical} indicating to return empty data frame
+(instead of signaling an error) if data file not found}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Read Radius assessment data
+}
+\examples{
+getAssessments()
+getAssessments(date = "2024-07-31")
 }

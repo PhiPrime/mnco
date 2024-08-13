@@ -2,7 +2,7 @@
 % Please edit documentation in R/attendance.R
 \name{setStudentsOnVacation}
 \alias{setStudentsOnVacation}
-\title{Title}
+\title{Add student to vacation file}
 \usage{
 setStudentsOnVacation(
   dat = data.frame(matrix(ncol = 2, nrow = 0, dimnames = list(NULL, c("Student",
@@ -10,8 +10,14 @@ setStudentsOnVacation(
 )
 }
 \arguments{
-\item{dat}{}
+\item{dat}{Data frame of students to add}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+Add student to vacation file
+}
+\examples{
+setStudentsOnVacation()
 }

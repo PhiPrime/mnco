@@ -2,13 +2,20 @@
 % Please edit documentation in R/assessment.R
 \name{getMostRecentAssessments}
 \alias{getMostRecentAssessments}
-\title{Title}
+\title{Get most recent assessment}
 \usage{
 getMostRecentAssessments(Assessments_Prior_to_ = "8_5_2024")
 }
 \arguments{
-\item{Assessments_Prior_to_}{}
+\item{Assessments_Prior_to_}{Radius style date}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Get most recent assessment
+}
+\examples{
+getMostRecentAssessments()
+getMostRecentAssessments(Assessments_Prior_to_ = "8_5_2024")
 }

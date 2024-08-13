@@ -1,11 +1,13 @@
-#' Title
+#' Check which students have not attended
 #'
-#' @param allowedBdays
+#' @param allowedBdays Minimum number of days not attended to flag
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' attendanceCheck()
+#' attendanceCheck(allowedBdays = 10)
 attendanceCheck <- function(allowedBdays = 5) {
   #Get list of dates any student attended
   uniDates <- unique(getCenterData("student")$Last_Attendance_Date)
@@ -63,17 +65,16 @@ attendanceCheck <- function(allowedBdays = 5) {
 #   sendOnVacation(attendanceRows$Name, returnDate)
 # }
 
-##sendOnVacation standard
-#Default end of current month
-#' Title
+#' Send student on vacation
 #'
-#' @param who
-#' @param returnDate
+#' @param who Student name
+#' @param returnDate Date of return
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' sendOnVacation("John Doe", returnDate = "2024-07-31")
 sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date())) {
 
   #If returnDate is not in Date format
@@ -121,16 +122,17 @@ sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date()))
   }
 
   setStudentsOnVacation(dat)
+  invisible(NULL)
 
 }
 
-### getStudentsOnVacation
-#' Title
+#' Get students on vacation
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getStudentsOnVacation()
 getStudentsOnVacation <- function(){
   fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
   if(!file.exists(fileLoc)){
@@ -145,15 +147,15 @@ getStudentsOnVacation <- function(){
   return(ret)
 }
 
-## setStudentsOnVacation
-#' Title
+#' Add student to vacation file
 #'
-#' @param dat
+#' @param dat Data frame of students to add
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' setStudentsOnVacation()
 setStudentsOnVacation <- function(dat = data.frame(
   matrix(ncol=2, nrow = 0,
          dimnames = list(NULL,
@@ -190,17 +192,18 @@ setStudentsOnVacation <- function(dat = data.frame(
   }
 
   saveRDS(dat, fileLoc)
+  invisible(NULL)
 }
 
-### returnStudentFromVacation
-#' Title
+#' Remove student from vacation file
 #'
-#' @param who
+#' @param who Student to remove
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' returnStudentFromVacation("John Doe")
 returnStudentFromVacation <- function(who){
   fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
 

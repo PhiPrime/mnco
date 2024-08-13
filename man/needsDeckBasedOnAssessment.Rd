@@ -2,13 +2,19 @@
 % Please edit documentation in R/assessment.R
 \name{needsDeckBasedOnAssessment}
 \alias{needsDeckBasedOnAssessment}
-\title{Title}
+\title{Needs deck based on assessment}
 \usage{
 needsDeckBasedOnAssessment(date = Sys.time())
 }
 \arguments{
-\item{date}{}
+\item{date}{Date to look at data for}
+}
+\value{
+A \code{\link{character}} vector of students
 }
 \description{
-Title
+Needs deck based on assessment
+}
+\examples{
+needsDeckBasedOnAssessment()
 }

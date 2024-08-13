@@ -2,10 +2,16 @@
 % Please edit documentation in R/center-data-get.R
 \name{getAttendanceTrainingSet}
 \alias{getAttendanceTrainingSet}
-\title{Title}
+\title{Read training data for attendance}
 \usage{
 getAttendanceTrainingSet()
 }
+\value{
+A data frame
+}
 \description{
-Title
+Read training data for attendance
+}
+\examples{
+getAttendanceTrainingSet()
 }

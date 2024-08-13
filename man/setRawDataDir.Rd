@@ -2,13 +2,19 @@
 % Please edit documentation in R/mnco-env-set.R
 \name{setRawDataDir}
 \alias{setRawDataDir}
-\title{Title}
+\title{Set Radius data directory}
 \usage{
 setRawDataDir(path)
 }
 \arguments{
-\item{path}{}
+\item{path}{A directory path}
+}
+\value{
+The previous raw data directory path, invisibly.
 }
 \description{
-Title
+Set Radius data directory
+}
+\examples{
+setRawDataDir("./Raw_Data")
 }

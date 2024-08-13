@@ -2,13 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{print_raw_na_cols}
 \alias{print_raw_na_cols}
-\title{Title}
+\title{Prints names of NA columns in raw data files}
 \usage{
 print_raw_na_cols(date = Sys.Date())
 }
 \arguments{
-\item{date}{}
+\item{date}{Date to read data for}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+The column names are formatted for copy/paste into a vector in code
+}
+\examples{
+print_raw_na_cols
 }

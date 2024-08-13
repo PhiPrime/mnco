@@ -2,13 +2,20 @@
 % Please edit documentation in R/attendance.R
 \name{attendanceCheck}
 \alias{attendanceCheck}
-\title{Title}
+\title{Check which students have not attended}
 \usage{
 attendanceCheck(allowedBdays = 5)
 }
 \arguments{
-\item{allowedBdays}{}
+\item{allowedBdays}{Minimum number of days not attended to flag}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Check which students have not attended
+}
+\examples{
+attendanceCheck()
+attendanceCheck(allowedBdays = 10)
 }
