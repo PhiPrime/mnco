@@ -2,13 +2,24 @@
 % Please edit documentation in R/ranking.R
 \name{addDifferentDurationStudent}
 \alias{addDifferentDurationStudent}
-\title{Title}
+\title{Assign session length to student}
 \usage{
 addDifferentDurationStudent(student, duration)
 }
 \arguments{
-\item{duration}{}
+\item{student}{Name of student to add}
+
+\item{duration}{Number of minutes}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+This function is used for assigning a session length other than the default
+60 minutes to a student. The student and their session length is stored in
+\code{differentDurationStudents.rds} in the cache directory specified by
+\code{\link[=cacheDir]{cacheDir()}}.
+}
+\examples{
+addDifferentDurationStudent("John Doe", 90)
 }

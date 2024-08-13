@@ -2,13 +2,22 @@
 % Please edit documentation in R/center-data-get.R
 \name{getPaymentData}
 \alias{getPaymentData}
-\title{Title}
+\title{Read and tidy Radius payment data}
 \usage{
 getPaymentData(date = Sys.Date(), ignoreMissing = F)
 }
 \arguments{
-\item{ignoreMissing}{}
+\item{date}{Date to read data for}
+
+\item{ignoreMissing}{\code{logical} indicating to return empty data frame
+(instead of signaling an error) if data file not found}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Read and tidy Radius payment data
+}
+\examples{
+getPaymentData()
 }

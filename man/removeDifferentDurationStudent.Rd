@@ -2,13 +2,19 @@
 % Please edit documentation in R/ranking.R
 \name{removeDifferentDurationStudent}
 \alias{removeDifferentDurationStudent}
-\title{Title}
+\title{Unassign non-default session length from student}
 \usage{
 removeDifferentDurationStudent(student)
 }
 \arguments{
-\item{student}{}
+\item{student}{Name of student to remove}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+See \code{\link[=addDifferentDurationStudent]{addDifferentDurationStudent()}} for more details.
+}
+\examples{
+removeDifferentDurationStudent("John Doe")
 }

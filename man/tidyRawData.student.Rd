@@ -2,13 +2,16 @@
 % Please edit documentation in R/center-data-tidy.R
 \name{tidyRawData.student}
 \alias{tidyRawData.student}
-\title{Title}
+\title{Tidy Radius student data}
 \usage{
 tidyRawData.student(data)
 }
 \arguments{
-\item{data}{}
+\item{data}{Data frame to tidy}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Tidy Radius student data
 }

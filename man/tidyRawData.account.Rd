@@ -2,13 +2,16 @@
 % Please edit documentation in R/center-data-tidy.R
 \name{tidyRawData.account}
 \alias{tidyRawData.account}
-\title{Title}
+\title{Tidy Radius account data}
 \usage{
 tidyRawData.account(data)
 }
 \arguments{
-\item{data}{}
+\item{data}{Data frame to tidy}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Tidy Radius account data
 }

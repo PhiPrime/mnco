@@ -2,13 +2,16 @@
 % Please edit documentation in R/center-data-tidy.R
 \name{tidyRawData.progress}
 \alias{tidyRawData.progress}
-\title{Title}
+\title{Tidy Radius progress data}
 \usage{
 tidyRawData.progress(data)
 }
 \arguments{
-\item{data}{}
+\item{data}{Data frame to tidy}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Tidy Radius progress data
 }

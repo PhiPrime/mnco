@@ -1,11 +1,12 @@
-#' Title
+#' Get student ranking data
 #'
-#' @param date
+#' @param date Date to calculate rankings for
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getStudentRanking()
 getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
@@ -79,15 +80,21 @@ getStudentRanking <- function(date = Sys.Date()) {
   return(dat)
 }
 
-#' Title
+#' Assign session length to student
 #'
-#' @param student
-#' @param duration
+#' This function is used for assigning a session length other than the default
+#' 60 minutes to a student. The student and their session length is stored in
+#' `differentDurationStudents.rds` in the cache directory specified by
+#' [cacheDir()].
 #'
-#' @return
+#' @param student Name of student to add
+#' @param duration Number of minutes
+#'
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' addDifferentDurationStudent("John Doe", 90)
 addDifferentDurationStudent <- function(student, duration) {
   # need to add file check
   filePath <- file.path(cacheDir(), "differentDurationStudents.csv")
@@ -97,14 +104,17 @@ addDifferentDurationStudent <- function(student, duration) {
   utils::write.csv(dat, filePath, row.names = F)
 }
 
-#' Title
+#' Unassign non-default session length from student
 #'
-#' @param student
+#' See [addDifferentDurationStudent()] for more details.
 #'
-#' @return
+#' @param student Name of student to remove
+#'
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' removeDifferentDurationStudent("John Doe")
 removeDifferentDurationStudent <- function(student) {
   # need to add file check
   filePath <- file.path(cacheDir(), "differentDurationStudents.csv")

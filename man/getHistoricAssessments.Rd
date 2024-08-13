@@ -2,13 +2,20 @@
 % Please edit documentation in R/assessment.R
 \name{getHistoricAssessments}
 \alias{getHistoricAssessments}
-\title{Title}
+\title{Read historic assessment data}
 \usage{
 getHistoricAssessments(Assessments_Prior_to_ = "8_5_2024")
 }
 \arguments{
-\item{Assessments_Prior_to_}{}
+\item{Assessments_Prior_to_}{Radius style date}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Read historic assessment data
+}
+\examples{
+getHistoricAssessments()
+getHistoricAssessments(Assessments_Prior_to_ = "7_31_2024")
 }

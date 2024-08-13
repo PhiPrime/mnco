@@ -2,13 +2,22 @@
 % Please edit documentation in R/center-data-tidy.R
 \name{tidyRawData}
 \alias{tidyRawData}
-\title{Title}
+\title{Tidy Radius data}
 \usage{
 tidyRawData(data, type)
 }
 \arguments{
-\item{type}{}
+\item{data}{Data frame to tidy}
+
+\item{type}{Radius data file type}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Tidy Radius data
+}
+\examples{
+stu <- readRawData("student")
+tidyRawData(stu, "student")
 }

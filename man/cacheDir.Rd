@@ -2,10 +2,17 @@
 % Please edit documentation in R/mnco-env-get.R
 \name{cacheDir}
 \alias{cacheDir}
-\title{Title}
+\title{Get cache directory}
 \usage{
 cacheDir()
 }
+\value{
+A character string
+}
 \description{
-Title
+By default, this directory is set to \code{"mnco-cache"}. It can be changed
+using \code{\link[=setCacheDir]{setCacheDir()}}.
+}
+\examples{
+cacheDir()
 }

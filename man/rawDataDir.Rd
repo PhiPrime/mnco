@@ -2,10 +2,17 @@
 % Please edit documentation in R/mnco-env-get.R
 \name{rawDataDir}
 \alias{rawDataDir}
-\title{Title}
+\title{Get raw data directory}
 \usage{
 rawDataDir()
 }
+\value{
+A character string
+}
 \description{
-Title
+By default, this directory is set to \code{"mnco-raw-data"}. It can be changed
+using \code{\link[=setRawDataDir]{setRawDataDir()}}.
+}
+\examples{
+rawDataDir()
 }

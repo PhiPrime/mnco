@@ -1,13 +1,16 @@
-#' Get tidied data from Radius files
+#' Read and tidy Radius data
 #'
-#' @param date What date to get data for.
-#' @param ignoreMissing Whether to throw an error if file is not found
-#' @param type Which kind of Radius data to get
+#' @param date Date to read data for
+#' @param ignoreMissing `logical` indicating to return empty data frame
+#'  (instead of signaling an error) if data file not found
+#' @param type String of which Radius data to read
 #'
 #' @return A data frame
 #' @export
 #'
 #' @examples
+#' getCenterData()
+#' getCenterData("student")
 getCenterData <- function(type = c("all", radiusFileRoots("types")),
                           date = Sys.Date(), ignoreMissing = F) {
   type <- match.arg(type)
@@ -35,44 +38,43 @@ getCenterData <- function(type = c("all", radiusFileRoots("types")),
   invisible(tdat)
 }
 
-#' Title
+#' Read and tidy Radius payment data
 #'
-#' @param date
-#' @param ignoreMissing
+#' @inheritParams getCenterData
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getPaymentData()
 getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData.old("Payments.xlsx", date)
 
   return(dat)
 }
 
-### getCurriculumData
-#' Title
+#' Read and tidy Radius curriculum data
 #'
-#' @param date
-#' @param ignoreMissing
+#' @inheritParams getCenterData
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getCurriculumData()
 getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   dat <- readRawData.old("Curriculum Library Export", date)
 
   return(dat)
 }
 
-### getAttendanceHistory
-#' Title
+#' Read training data for attendance
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' getAttendanceTrainingSet()
 getAttendanceTrainingSet <- function() {
   readRDS(file.path(cacheDir(), "prior2024.rds"))
 }
@@ -80,13 +82,14 @@ getAttendanceTrainingSet <- function() {
 ### getAttendanceData
 #' Title
 #'
-#' @param get
+#' @param get `logical` indicating to return attendance log file
 #' @param date
 #'
-#' @return
+#' @return A data frame if `get` is `TRUE`, otherwise none (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' getAttendanceData()
 getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   dat <- readRawData.old("Student Attendance Report Export", date)
 
@@ -151,5 +154,5 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   #               "was not able to be read."))
   # }
 
-
+  invisible(NULL)
 }

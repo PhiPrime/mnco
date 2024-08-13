@@ -2,7 +2,7 @@
 % Please edit documentation in R/center-data-get.R
 \name{getCenterData}
 \alias{getCenterData}
-\title{Get tidied data from Radius files}
+\title{Read and tidy Radius data}
 \usage{
 getCenterData(
   type = c("all", radiusFileRoots("types")),
@@ -11,15 +11,20 @@ getCenterData(
 )
 }
 \arguments{
-\item{type}{Which kind of Radius data to get}
+\item{type}{String of which Radius data to read}
 
-\item{date}{What date to get data for.}
+\item{date}{Date to read data for}
 
-\item{ignoreMissing}{Whether to throw an error if file is not found}
+\item{ignoreMissing}{\code{logical} indicating to return empty data frame
+(instead of signaling an error) if data file not found}
 }
 \value{
 A data frame
 }
 \description{
-Get tidied data from Radius files
+Read and tidy Radius data
+}
+\examples{
+getCenterData()
+getCenterData("student")
 }

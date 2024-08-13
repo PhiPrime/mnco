@@ -1,12 +1,14 @@
-#' Title
+#' Tidy Radius data
 #'
-#' @param data
-#' @param type
+#' @param data Data frame to tidy
+#' @param type Radius data file type
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' stu <- readRawData("student")
+#' tidyRawData(stu, "student")
 tidyRawData <- function(data, type) {
   switch (type,
     "student" = tidyRawData.student(data),
@@ -17,14 +19,11 @@ tidyRawData <- function(data, type) {
   )
 }
 
-#' Title
+#' Tidy Radius student data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A data frame
 tidyRawData.student <- function(data) {
   # Rename columns
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
@@ -57,14 +56,11 @@ tidyRawData.student <- function(data) {
   return (data)
 }
 
-#' Title
+#' Tidy Radius account data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A data frame
 tidyRawData.account <- function(data) {
   # Create new columns
   data <- dplyr::mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
@@ -84,14 +80,11 @@ tidyRawData.account <- function(data) {
   return(data)
 }
 
-#' Title
+#' Tidy Radius progress data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A data frame
 tidyRawData.progress <- function(data) {
   # PROCESS COLUMNS HERE
   rm_cols <- c("Guardian")
@@ -106,14 +99,11 @@ tidyRawData.progress <- function(data) {
   return(data)
 }
 
-#' Title
+#' Tidy Radius enrollment data
 #'
-#' @param data
+#' @inheritParams tidyRawData
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A data frame
 tidyRawData.enrollment <- function (data) {
   # Rename columns
   names(data)[names(data) == "Account_Name"] <- "Account"
@@ -153,14 +143,11 @@ tidyRawData.enrollment <- function (data) {
   return(data)
 }
 
-#' Title
+#' Tidy Radius assessment data
 #'
-#' @param dat
+#' @param dat Data frame to tidy
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A data frame
 tidyAssessments <- function(dat){
   #Arbitrarily Tidy up
   tdat <- dplyr::transmute(dat,
@@ -193,16 +180,18 @@ tidyAssessments <- function(dat){
   return(tdat)
 }
 
-#' Title
+#' Delete columns from data frame
 #'
-#' @param df
-#' @param ...
-#' @param test_na
+#' @param df A data frame
+#' @param ... Character strings or vectors of columns to remove
+#' @param test_na If `TRUE`, signal error if column to remove in `df` does
+#'  not contain only `NA` values.
 #'
-#' @return
-#' @export
+#' @return A data frame
 #'
 #' @examples
+#' stu <- readRawData("student")
+#' stu <- stu %>% removeRawCols("Scholarship", "Center")
 removeRawCols <- function(df, ..., test_na = F) {
   # Iterate through column names
   for (col_name in unlist(list(...))) {
