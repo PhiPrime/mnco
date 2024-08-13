@@ -35,7 +35,8 @@ CO_UI <- function() {
           actionButton("r_display_toggle", "Report"),
           actionButton("v_display_toggle", "Vacation"),
           actionButton("m_display_toggle", "Map"),
-          actionButton("s_display_toggle", "Save")
+          actionButton("s_display_toggle", "Save"),
+          actionButton("settings_display_toggle", "Settings")
         ),
         
         #Layout for the function buttons
@@ -78,6 +79,147 @@ CO_UI <- function() {
                   actionButton("save_button", "Save All Data"),
                 )
             )
+          ),
+          #Settings Section
+          hidden(
+            div(id = "display_settings",
+                verticalLayout(
+                  splitLayout(
+                    actionButton("assessment_settings", "Assessments"),
+                    actionButton("attendance_settings", "Attendance"),
+                    actionButton("deck_settings", "Deck"),
+                  ),
+                  splitLayout(
+                    actionButton("pricing_settings", "Pricing"),
+                    actionButton("contract_settings", "Contracts")
+                  ),
+                  hidden(
+                    div(id = "assessment_settings_panel",
+                    dateInput(
+                      "assessment_date_input",
+                      "Recent Assessments Date:",
+                      value = retrieve_variable("Recent_Assessments_Date", FALSE),
+                      format = "m_d_yyyy"
+                    ),
+                    actionButton("assessment_day_submission", "Submit")
+                    )
+                  ),
+                  hidden(
+                    div(id = "attendance_settings_panel",
+                      numericInput("attendance_allowed_days_input",
+                                   "Allowable Days For Attendance: ",
+                                   value = retrieve_variable("Attendance_Allowed_Days", TRUE),
+                                   min = 0,
+                                   step = 1
+                                   ),
+                      actionButton("attendance_allowed_days_submission", "Submit")
+                    )
+                  ),
+                  hidden(
+                    div(id = "deck_settings_panel",
+                          verticalLayout(
+                            numericInput("deck_minimum_input",
+                                         "Deck Minimum: ",
+                                         value = retrieve_variable("Deck_Minimum_Threshold", TRUE),
+                                         min = 0,
+                                         step = 1
+                            ),
+                            numericInput("deck_warning_input",
+                                         "Deck Warning Duration: ",
+                                         value = retrieve_variable("Deck_Warning_Duration", TRUE),
+                                         min = 0,
+                                         step = 1
+                            ),
+                            numericInput("deck_suppression_max_input",
+                                         "Deck Suppression Maximum Time: ",
+                                         value = retrieve_variable("Deck_Suppression_Maximum_Time", TRUE),
+                                         min = 0,
+                                         step = 1
+                            ),
+                            actionButton("deck_submission", "Submit")
+                          )
+                        )
+                  ),
+                  hidden(
+                    div(id = "price_settings_panel",
+                      verticalLayout(
+                        numericInput("price_upper_bound_input",
+                                     "Price Upper Bound: ",
+                                     value = retrieve_variable("Price_Upper_Bound", TRUE),
+                                     min = 0,
+                                     step = 1
+                        ),
+                        numericInput("price_lower_bound_input",
+                                     "Price Lower Bound: ",
+                                     value = retrieve_variable("Price_Lower_Bound", TRUE),
+                                     min = 0,
+                                     step = 1
+                        ),
+                        numericInput("student_no_upper_bound_input",
+                                     "Students Upper Bound: ",
+                                     value = retrieve_variable("Student_Upper_Bound", TRUE),
+                                     min = 0,
+                                     step = 1
+                        ),
+                        numericInput("student_no_lower_bound_input",
+                                     "Students Lower Bound: ",
+                                     value = retrieve_variable("Student_Lower_Bound", TRUE),
+                                     min = 0,
+                                     step = 1
+                        ),
+                        actionButton("price_submission", "Submit")
+                      )    
+                    )
+                  ),
+                  hidden(
+                    div(id = "contract_settings_panel",
+                        verticalLayout(
+                          numericInput("contract_length_input",
+                                       "Standard Contract Length: ",
+                                       value = retrieve_variable("Standard_Contract_Length", TRUE),
+                                       min = 0,
+                                       step = 1
+                          ),
+                          numericInput("no_sessions_input",
+                                       "Standard Number of Sessions: ",
+                                       value = retrieve_variable("Standard_Number_Sessions", TRUE),
+                                       min = 0,
+                                       step = 1
+                          ),
+                          numericInput("length_modifer_input",
+                                       "Length Modifier: ",
+                                       value = retrieve_variable("Length_Modifier", TRUE),
+                                       min = 0,
+                                       step = 1
+                          ),
+                          numericInput("contract_lower_bound_input",
+                                       "Contract Adjustment Lower Bound: ",
+                                       value = retrieve_variable("Contract_Adjustment_Lower_Bound", TRUE),
+                                       step = 1
+                          ),
+                          numericInput("contract_upper_bound_input",
+                                       "Contract Adjustment Upper Bound: ",
+                                       value = retrieve_variable("Contract_Adjustment_Upper_Bound", TRUE),
+                                       step = 1
+                          ),
+                          numericInput("contract_length_upper_bound_input",
+                                       "Standard Contract Upper Bound: ",
+                                       value = retrieve_variable("Contract_Length_Upper_Bound", TRUE),
+                                       min = 0,
+                                       step = 1
+                          ),
+                          numericInput("contract_length_lower_bound_input",
+                                       "Standard Contract Lower Bound: ",
+                                       value = retrieve_variable("Contract_Length_Lower_Bound", TRUE),
+                                       min = 0,
+                                       step = 1
+                          ),
+                          actionButton("contract_submission", "Submit")
+                        )    
+                    )
+                  )
+                )
+            )
           )
         ),
         #Close the program
@@ -103,6 +245,12 @@ CO_UI <- function() {
       hide("display_vacation")
       hide("display_map")
       hide("display_save")
+      hide("display_settings")
+      hide("assessment_settings_panel")
+      hide("attendance_settings_panel")
+      hide("deck_settings_panel")
+      hide("price_settings_panel")
+      hide("contract_settings_panel")
     }
     
     # Toggles vacation display
@@ -128,6 +276,88 @@ CO_UI <- function() {
       hideAll()
       toggle("display_save")
     })
+    
+    # Toggles the save display
+    observeEvent(input$settings_display_toggle, {
+      hideAll()
+      toggle("display_settings")
+    })
+    
+    #
+    # Secondary Display Settings
+    #
+    
+    observeEvent(input$assessment_settings, {
+      hideAll()
+      toggle("display_settings")
+      toggle("assessment_settings_panel")
+    })
+    
+    observeEvent(input$attendance_settings, {
+      hideAll()
+      toggle("display_settings")
+      toggle("attendance_settings_panel")
+    })
+    
+    observeEvent(input$deck_settings, {
+      hideAll()
+      toggle("display_settings")
+      toggle("deck_settings_panel")
+    })
+    
+    observeEvent(input$pricing_settings, {
+      hideAll()
+      toggle("display_settings")
+      toggle("price_settings_panel")
+    })
+    
+    observeEvent(input$contract_settings, {
+      hideAll()
+      toggle("display_settings")
+      toggle("contract_settings_panel")
+    })
+    #
+    # Settings Inputs
+    #
+    
+    observeEvent(input$assessment_day_submission, {
+      #Gather the date, FORMAT ISSUE UNRESOLVED
+      edit_variable("Recent_Assessments_Date", input$assessment_date_input)
+      message(retrieve_variable("Recent_Assessments_Date", FALSE))
+    })
+    
+    observeEvent(input$attendance_allowed_days_submission, {
+      #Gather the input data
+      edit_variable("Attendance_Allowed_Days", input$attendance_allowed_days_input)
+    })
+    
+    observeEvent(input$deck_submission, {
+      #Gather the input data
+      edit_variable("Deck_Minimum_Threshold", input$deck_minimum_input)
+      edit_variable("Deck_Warning_Duration", input$deck_warning_input)
+      edit_variable("Deck_Suppression_Maximum_Time", input$deck_suppression_max_input)
+    })
+    
+    observeEvent(input$price_submission, {
+      #Gather the input data
+      edit_variable("Price_Upper_Bound", input$price_upper_bound_input)
+      edit_variable("Price_Lower_Bound", input$price_lower_bound_input)
+      edit_variable("Student_Upper_Bound", input$student_no_upper_bound_input)
+      edit_variable("Student_Lower_Bound", input$student_no_lower_bound_input)
+    })
+    
+    observeEvent(input$contract_submission, {
+      edit_variable("Standard_Contract_Length", input$contract_length_input)
+      edit_variable("Standard_Number_Sessions", input$no_sessions_input)
+      edit_variable("Length_Modifier", input$length_modifer_input)
+      edit_variable("Contract_Adjustment_Lower_Bound", input$contract_lower_bound_input)
+      edit_variable("Contract_Adjustment_Upper_Bound", input$contract_upper_bound_input)
+      edit_variable("Contract_Length_Upper_Bound", input$contract_length_upper_bound_input)
+      edit_variable("Contract_Length_Lower_Bound", input$contract_length_lower_bound_input)
+    })
+    #
+    # Main Inputs
+    #
     
     # Sends input students on vacation
     observeEvent(input$v_input_button, {
@@ -165,6 +395,7 @@ CO_UI <- function() {
     observeEvent(input$r_button, {
       rmarkdown::render("centerOverview.Rmd")
     })
+    
     
     #Generate the rankings
     #utilize sink function
