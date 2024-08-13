@@ -18,26 +18,34 @@ You can install the development version of mnco from
 pak::pak("PhiPrime/centerOverview")
 ```
 
-## Example
+## Required Data Collection
 
-This is a basic example which shows you how to solve a common problem:
+mnco relies on exported files from Radius, Mathnasium’s internal
+operations website. You can use the below links (and applicable
+instuctions) to retrive all the data you’ll need.
 
-``` r
-# library(mnco)
-## basic example code
-```
+### Daily:
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+[Students](https://radius.mathnasium.com/Student)  
+[Accounts](https://radius.mathnasium.com/CustomerAccount)  
+[Progress
+Report](https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail)  
+[Assessments](https://radius.mathnasium.com/AssessmentReport)  
+\* Select **All** in *Pre/Post* dropdown box  
+[Enrollments](https://radius.mathnasium.com/Enrollment/EnrollmentReport)
 
-``` r
-#summary(cars)
-```
+### Other (used for updates)
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+[Assessment History](https://radius.mathnasium.com/AssessmentReport)  
+\* Select **All** in *Pre/Post* dropdown box  
+\* Select a date with the year **from 1970 to 2002** in *From:* dropdown
+box  
+\* Export and rename file to “Assessments_Prior_to_M_D_YYYY.xlsx”  
+\* Move file to data directory manually or with provided code  
+[Payments](https://radius.mathnasium.com/Payment)  
+\* Not in regular routine  
+[Curriculum](https://radius.mathnasium.com/CurriculumManager/CurriculumSearch)  
+\* Used to update curriculum database  
+[Email Templates](https://radius.mathnasium.com/EmailTemplate)  
+[Attendance](https://radius.mathnasium.com/StudentAttendanceMonthlyReport)  
+\* Not in regular routine
