@@ -20,3 +20,7 @@ A data frame
 \description{
 Delete columns from data frame
 }
+\examples{
+stu <- readRawData("student")
+stu <- stu \%>\% removeRawCols("Scholarship", "Center")
+}

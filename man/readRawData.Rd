@@ -2,20 +2,21 @@
 % Please edit documentation in R/raw-data-read.R
 \name{readRawData}
 \alias{readRawData}
-\title{Read Radius raw data excel file}
+\title{Read Radius data excel file}
 \usage{
 readRawData(type, date = Sys.Date())
 }
 \arguments{
-\item{type}{Which radius data to use.}
+\item{type}{Radius data file type}
 
-\item{date}{What date to use.}
-
-\item{x}{File path or directory.}
+\item{date}{Date to read data for}
 }
 \value{
 A data frame
 }
 \description{
-Read Radius raw data excel file
+Read Radius data excel file
+}
+\examples{
+readRawData("student")
 }

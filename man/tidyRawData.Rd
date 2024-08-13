@@ -17,3 +17,7 @@ A data frame
 \description{
 Tidy Radius data
 }
+\examples{
+stu <- readRawData("student")
+tidyRawData(stu, "student")
+}

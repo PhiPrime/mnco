@@ -7,6 +7,8 @@
 #' @export
 #'
 #' @examples
+#' stu <- readRawData("student")
+#' tidyRawData(stu, "student")
 tidyRawData <- function(data, type) {
   switch (type,
     "student" = tidyRawData.student(data),
@@ -22,8 +24,6 @@ tidyRawData <- function(data, type) {
 #' @inheritParams tidyRawData
 #'
 #' @return A data frame
-#'
-#' @examples
 tidyRawData.student <- function(data) {
   # Rename columns
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
@@ -61,8 +61,6 @@ tidyRawData.student <- function(data) {
 #' @inheritParams tidyRawData
 #'
 #' @return A data frame
-#'
-#' @examples
 tidyRawData.account <- function(data) {
   # Create new columns
   data <- dplyr::mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
@@ -87,8 +85,6 @@ tidyRawData.account <- function(data) {
 #' @inheritParams tidyRawData
 #'
 #' @return A data frame
-#'
-#' @examples
 tidyRawData.progress <- function(data) {
   # PROCESS COLUMNS HERE
   rm_cols <- c("Guardian")
@@ -108,8 +104,6 @@ tidyRawData.progress <- function(data) {
 #' @inheritParams tidyRawData
 #'
 #' @return A data frame
-#'
-#' @examples
 tidyRawData.enrollment <- function (data) {
   # Rename columns
   names(data)[names(data) == "Account_Name"] <- "Account"
@@ -154,8 +148,6 @@ tidyRawData.enrollment <- function (data) {
 #' @param dat Data frame to tidy
 #'
 #' @return A data frame
-#'
-#' @examples
 tidyAssessments <- function(dat){
   #Arbitrarily Tidy up
   tdat <- dplyr::transmute(dat,
@@ -198,6 +190,8 @@ tidyAssessments <- function(dat){
 #' @return A data frame
 #'
 #' @examples
+#' stu <- readRawData("student")
+#' stu <- stu %>% removeRawCols("Scholarship", "Center")
 removeRawCols <- function(df, ..., test_na = F) {
   # Iterate through column names
   for (col_name in unlist(list(...))) {
