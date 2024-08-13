@@ -14,7 +14,7 @@ the$DOWNLOADS_DIR <- ifelse(
   NA
 )
 
-the$RADIUS_FILE_ROOTS <- list(
+the$RADIUS_FILE_ROOTS <- c(
   student = "Students Export",
   account = "Account Export",
   progress = "Current Batch Detail Export",

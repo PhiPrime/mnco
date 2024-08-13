@@ -2,10 +2,20 @@
 % Please edit documentation in R/raw-data-move.R
 \name{moveDataDownloads}
 \alias{moveDataDownloads}
-\title{Title}
+\title{Move Radius data files}
 \usage{
 moveDataDownloads()
 }
+\value{
+Invisible \code{logical} indicating whether data files were moved
+}
 \description{
-Title
+The source directory is the downloads directory set by
+\code{\link[=setDownloadsDir]{setDownloadsDir()}}. On windows, this is defaulted to the user's
+Downloads folder found through \code{\link[=getwd]{getwd()}}. The target directory is by default
+\code{./mnco-raw-data} in the working directory and can be set using
+\code{\link[=setRawDataDir]{setRawDataDir()}}.
+}
+\examples{
+moveDataDownloads()
 }

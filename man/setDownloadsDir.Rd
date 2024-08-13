@@ -2,13 +2,19 @@
 % Please edit documentation in R/mnco-env-set.R
 \name{setDownloadsDir}
 \alias{setDownloadsDir}
-\title{Title}
+\title{Set downloads directory}
 \usage{
 setDownloadsDir(path)
 }
 \arguments{
-\item{path}{}
+\item{path}{A directory path}
+}
+\value{
+The previous downloads directory path, invisibly.
 }
 \description{
-Title
+Set downloads directory
+}
+\examples{
+setDownloadsDir("./Downloads")
 }
