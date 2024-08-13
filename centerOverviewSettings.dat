@@ -1,0 +1,17 @@
+Recent_Assessments_Date=8_5_2024
+Attendance_Allowed_Days=5
+Deck_Minimum_Threshold=5
+Deck_Warning_Duration=2
+Deck_Suppression_Maximum_Time=30
+Standard_Contract_Length=7
+Standard_Number_Sessions=10
+Price_Upper_Bound=368
+Price_Lower_Bound=275
+Student_Upper_Bound=100
+Student_Lower_Bound=50
+Length_Modifier=20
+Contract_Adjustment_Lower_Bound=60
+Contract_Adjustment_Upper_Bound=-10
+Contract_Length_Upper_Bound=12
+Contract_Length_Lower_Bound=1
+Sample_File_Path=~Holder/File/Path
