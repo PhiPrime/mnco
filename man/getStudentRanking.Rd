@@ -2,13 +2,19 @@
 % Please edit documentation in R/ranking.R
 \name{getStudentRanking}
 \alias{getStudentRanking}
-\title{Title}
+\title{Get student ranking data}
 \usage{
 getStudentRanking(date = Sys.Date())
 }
 \arguments{
-\item{date}{}
+\item{date}{Date to calculate rankings for}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Get student ranking data
+}
+\examples{
+getStudentRanking()
 }
