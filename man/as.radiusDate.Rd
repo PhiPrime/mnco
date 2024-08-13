@@ -2,13 +2,19 @@
 % Please edit documentation in R/utils.R
 \name{as.radiusDate}
 \alias{as.radiusDate}
-\title{Title}
+\title{Format Radius style date}
 \usage{
 as.radiusDate(date)
 }
 \arguments{
 \item{date}{A date}
 }
+\value{
+A character string
+}
 \description{
-Title
+Format Radius style date
+}
+\examples{
+as.radiusDate("2024-07-31")
 }

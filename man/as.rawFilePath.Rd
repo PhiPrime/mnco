@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{as.rawFilePath}
 \alias{as.rawFilePath}
-\title{Title}
+\title{Format Radius data file path}
 \usage{
 as.rawFilePath(dir, root, date)
 }
@@ -13,6 +13,12 @@ as.rawFilePath(dir, root, date)
 
 \item{date}{A date}
 }
+\value{
+A character string
+}
 \description{
-Title
+Format Radius data file path
+}
+\examples{
+as.rawFilePath(rawDataDir(), "Student Export", "2024-07-31")
 }

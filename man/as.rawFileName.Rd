@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{as.rawFileName}
 \alias{as.rawFileName}
-\title{Title}
+\title{Format Radius style file name}
 \usage{
 as.rawFileName(root, date)
 }
@@ -11,6 +11,12 @@ as.rawFileName(root, date)
 
 \item{date}{A date}
 }
+\value{
+A character string
+}
 \description{
-Title
+Format Radius style file name
+}
+\examples{
+as.rawFileName("Students Export", "2024-07-31")
 }

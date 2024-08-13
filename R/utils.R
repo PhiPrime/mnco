@@ -1,55 +1,56 @@
-#' Title
+#' Format Radius data file path
 #'
 #' @param dir Raw data directory path
 #' @param root Raw data file root
 #' @param date A date
 #'
-#' @return
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' as.rawFilePath(rawDataDir(), "Student Export", "2024-07-31")
 as.rawFilePath <- function(dir, root, date) {
   file.path(dir, as.rawFileName(root, date))
 }
 
-#' Title
+#' Format Radius style file name
 #'
 #' @inheritParams as.rawFilePath
 #'
-#' @return
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' as.rawFileName("Students Export", "2024-07-31")
 as.rawFileName <- function(root, date) {
   paste0(root, "  ", as.radiusDate(date), ".xlsx")
 }
 
-#' Title
+#' Format Radius style date
 #'
 #' @inheritParams as.rawFilePath
 #'
-#' @return
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' as.radiusDate("2024-07-31")
 as.radiusDate <- function(date) {
   paste(lubridate::month(date),
         lubridate::day(date),
         lubridate::year(date), sep = "_")
 }
 
-########################     NA COLUMN FUNCTIONS     ########################
-### get_raw_na_cols
-# Returns a named list of vectors for names of columns containing only NAs in raw data files
 # MODIFY TO ALLOW ITERATION THROUGH MULTIPLE DATES?
-#' Title
+#' Get NA column names
 #'
-#' @param date
+#' @param date Date to read data for
 #'
-#' @return
+#' @return A vector of column names
 #' @export
 #'
 #' @examples
+#' get_raw_na_cols()
 get_raw_na_cols <- function(date = Sys.Date()) {
   fileRoots <- c("Students Export",
                  "Account Export",
@@ -71,21 +72,23 @@ get_raw_na_cols <- function(date = Sys.Date()) {
   return(na_col_list)
 }
 
-### print_raw_na_cols
-# Prints names of NA columns in raw data files
-# Formatted for copy/paste into a vector in code
-#' Title
+#' Prints names of NA columns in raw data files
 #'
-#' @param date
+#' The column names are formatted for copy/paste into a vector in code
 #'
-#' @return
+#' @param date Date to read data for
+#'
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' print_raw_na_cols
 print_raw_na_cols <- function(date = Sys.Date()) {
   na_col_list = get_raw_na_cols(date)
 
   for (col_name in names(na_col_list)) {
     message(col_name, ": \"", paste0(na_col_list[[col_name]], collapse = "\", \""), "\"")
   }
+
+  invisible(NULL)
 }
