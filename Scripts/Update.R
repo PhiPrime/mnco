@@ -546,7 +546,7 @@ readRawData <- function(fileRoot, date,
                     "be more specific and try again."))
       } else if (length(fileOptions)==0){
         #If no matches stop and error
-        stop(paste0("After searching both \"./Raw_Data\",",
+        stop(paste0("After searching both \"./mnco-raw-data\",",
                     "and \"./Downloads\" \"", fileName, "\" yielded no matches.",
                     " Please try again."))
       }}

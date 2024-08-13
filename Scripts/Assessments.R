@@ -13,7 +13,7 @@ getAssessments <- function(date = Sys.Date(), ignoreMissing = F) {
 }#eof
 
 getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
-  relPath <- paste0("./Raw_Data/Assessments_Prior_to_", 
+  relPath <- paste0("./mnco-raw-data/Assessments_Prior_to_", 
                      Assessments_Prior_to_,
                      ".xlsx")
   
