@@ -1,6 +1,6 @@
 #
 # UI Skeleton
-# 
+#
 #####################################
 #             TO DO:                #
 # Add css stylesheet to format      #
@@ -12,29 +12,30 @@
 library(knitr)
 library(shiny)
 library(miniUI)
+library(mnco)
 library(shinyjs)
 library(stringi)
 ########################     FULL SHINY FUNCTION     ########################
 
 CO_UI <- function() {
-  
+
   #checks if centerOverviewSettings.dat exists
   #creates file if not
   if (!file.exists(get_file_name()))
     initialize_settings_file()
-  
+
   #Generate the UI
   #Args are contained as though they are braces
   ui <- fluidPage(
     mainPanel (
       verticalLayout(
-        
+
         #Allow for shinyjs
         useShinyjs(),
-        
+
         #Title Bar
         gadgetTitleBar("Center\nOverview", NULL, NULL),
-        
+
         #Display buttons
         splitLayout(
           actionButton("r_display_toggle", "Report"),
@@ -43,11 +44,11 @@ CO_UI <- function() {
           actionButton("s_display_toggle", "Save"),
           actionButton("settings_display_toggle", "Settings")
         ),
-        
+
         #Layout for the function buttons
         span(
           id = "App_Ctrl_Display",
-          
+
           # Vacation section
           hidden(
             div(id = "display_vacation",
@@ -58,7 +59,7 @@ CO_UI <- function() {
                 )
             )
           ),
-          
+
           # Map Section
           hidden(
             div(id = "display_map",
@@ -67,7 +68,7 @@ CO_UI <- function() {
                 )
             )
           ),
-          
+
           # Report section
           hidden(
             div(id = "display_report",
@@ -174,7 +175,7 @@ CO_UI <- function() {
                                      step = 1
                         ),
                         actionButton("price_submission", "Submit")
-                      )    
+                      )
                     )
                   ),
                   hidden(
@@ -221,7 +222,7 @@ CO_UI <- function() {
                                        step = 1
                           ),
                           actionButton("contract_submission", "Submit")
-                        )    
+                        )
                     )
                   )
                 )
@@ -233,18 +234,18 @@ CO_UI <- function() {
       ),
     )
   )
-  
+
   #Generate the server for the UI
   server <- function(input, output, session) {
     # Closes the application
     observeEvent(input$close_button, {
       stopApp()
     })
-    
+
     # Display Functions
     # When adding new section, add it to the
     #-"hideAll" list so it can be flushed
-    
+
     # Hide All display
     hideAll <- function() {
       hide("display_report")
@@ -258,97 +259,97 @@ CO_UI <- function() {
       hide("price_settings_panel")
       hide("contract_settings_panel")
     }
-    
+
     # Toggles vacation display
     observeEvent(input$r_display_toggle, {
       hideAll()
       toggle("display_report")
     })
-    
+
     # Toggles vacation display
     observeEvent(input$v_display_toggle, {
       hideAll()
       toggle("display_vacation")
     })
-    
+
     # Toggles the map display
     observeEvent(input$m_display_toggle, {
       hideAll()
       toggle("display_map")
     })
-    
+
     # Toggles the save display
     observeEvent(input$s_display_toggle, {
       hideAll()
       toggle("display_save")
     })
-    
+
     # Toggles the save display
     observeEvent(input$settings_display_toggle, {
       hideAll()
       toggle("display_settings")
     })
-    
+
     #
     # Secondary Display Settings
     #
-    
+
     observeEvent(input$assessment_settings, {
       hideAll()
       toggle("display_settings")
       toggle("assessment_settings_panel")
     })
-    
+
     observeEvent(input$attendance_settings, {
       hideAll()
       toggle("display_settings")
       toggle("attendance_settings_panel")
     })
-    
+
     observeEvent(input$deck_settings, {
       hideAll()
       toggle("display_settings")
       toggle("deck_settings_panel")
     })
-    
+
     observeEvent(input$pricing_settings, {
       hideAll()
       toggle("display_settings")
       toggle("price_settings_panel")
     })
-    
+
     observeEvent(input$contract_settings, {
       hideAll()
       toggle("display_settings")
       toggle("contract_settings_panel")
     })
-    
+
     #
     # Settings Inputs
     #
-    
+
     observeEvent(input$settings_reset, {
       #Resets the settings file
       initialize_settings_file()
     })
-    
+
     observeEvent(input$assessment_day_submission, {
       #Gather the date, FORMAT ISSUE UNRESOLVED
       edit_variable("Recent_Assessments_Date", input$assessment_date_input)
     })
-    
+
     observeEvent(input$attendance_allowed_days_submission, {
       #Gather the input data
       edit_variable("Attendance_Allowed_Days", input$attendance_allowed_days_input)
     })
-    
+
     observeEvent(input$deck_submission, {
       #Gather the input data
       edit_variable("Deck_Minimum_Threshold", input$deck_minimum_input)
       edit_variable("Deck_Warning_Duration", input$deck_warning_input)
       edit_variable("Deck_Suppression_Maximum_Time", input$deck_suppression_max_input)
     })
-    
+
     observeEvent(input$price_submission, {
       #Gather the input data
       edit_variable("Price_Upper_Bound", input$price_upper_bound_input)
@@ -356,7 +357,7 @@ CO_UI <- function() {
       edit_variable("Student_Upper_Bound", input$student_no_upper_bound_input)
       edit_variable("Student_Lower_Bound", input$student_no_lower_bound_input)
     })
-    
+
     observeEvent(input$contract_submission, {
       edit_variable("Standard_Contract_Length", input$contract_length_input)
       edit_variable("Standard_Number_Sessions", input$no_sessions_input)
@@ -369,7 +370,7 @@ CO_UI <- function() {
     #
     # Main Inputs
     #
-    
+
     # Sends input students on vacation
     observeEvent(input$v_input_button, {
       #Gather the input
@@ -379,7 +380,7 @@ CO_UI <- function() {
         message("Sent ", x, " on vacation")
       }
     })
-    
+
     # Returns input students from vacation
     observeEvent(input$v_return_button, {
       #Gather the input
@@ -389,38 +390,38 @@ CO_UI <- function() {
         message("Returned ", x, " from vacation")
       }
     })
-    
+
     # Generate the map
     ## BROKEN: NOT CONNECTED TO MAP FUNCTION
     observeEvent(input$map_button, {
       generateMap(TRUE)
     })
-    
+
     # Save center data
     # BROKEN: NOT CONNECTED TO SAVE FUNCTION
     observeEvent(input$save_button, {
       saveAllCenterData()
     })
-    
+
     # Generate the report
     observeEvent(input$r_button, {
-      rmarkdown::render("centerOverview.Rmd")
+      rmarkdown::render("centerOverview.rmd")
     })
-    
-    
+
+
     #Generate the rankings
     #utilize sink function
     observeEvent(input$rank_button, {
       #Get the ranking
       rank_data <- getStudentRanking()
-      
+
       #initialize parameter
       no_included <- dim(rank_data)[1]
-      
+
       o_file <- "rankings.html"
-      
+
       fileConn <- file(o_file)
-      
+
       #Generate the output here
       writeLines(
         c("<html style=\"display:table;margin:auto\"><body>
@@ -437,7 +438,7 @@ CO_UI <- function() {
         ),
         o_file
       )
-      
+
       for (x in 1:no_included) {
         write(c("<tr style=\"border-style:solid;border-color:black\">
                 <td style=\"font-size:",
@@ -452,10 +453,10 @@ CO_UI <- function() {
                 "<//td><//tr>"
         ), o_file, append = TRUE)
       }
-      
+
       #end output
       write(c("<//table>","<//body>","<//html>"), o_file, append = TRUE)
-      
+
       close(fileConn)
       message("Rankings produced")
     })
