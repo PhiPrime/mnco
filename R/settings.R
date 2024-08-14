@@ -49,7 +49,7 @@ initialize_settings_file <- function() {
 
 #Function for retrieving a value
 #is_numeric is a boolean, FALSE for string return
-retrieve_variable <- function(variable_name, is_numeric) {
+retrieve_variable <- function(variable_name, is_numeric = TRUE) {
 
   #Create default if no settings file exists
   if (!file.exists(get_file_name()))

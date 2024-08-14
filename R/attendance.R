@@ -8,7 +8,7 @@
 #' @examples
 #' attendanceCheck()
 #' attendanceCheck(allowedBdays = 10)
-attendanceCheck <- function(allowedBdays = 5) {
+attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed_Days")) {
   #Get list of dates any student attended
   uniDates <- unique(getCenterData("student")$Last_Attendance_Date)
 

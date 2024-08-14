@@ -11,17 +11,17 @@
 #'
 #' @examples
 getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
-                       contractLength = 7,
-                       sessionCount = 10,
+                       contractLength = retrieve_variable("Standard_Contract_Length"),
+                       sessionCount = retrieve_variable("Standard_Number_Sessions"),
                        nstu = dim(getCenterData("student")[which(getCenterData("student")$Enrollment_Status=="Enrolled"),])[1]){
 
   ######### Adjustable #########
 
-  priceUB <- 368 #280-287
-  priceLB <- 275
-  stuLB   <- 50
-  stuUB   <- 100
-  lenModifier <- 20
+  priceUB <- retrieve_variable("Price_Upper_Bound") #280-287
+  priceLB <- retrieve_variable("Price_Lower_Bound")
+  stuLB   <- retrieve_variable("Student_Lower_Bound")
+  stuUB   <- retrieve_variable("Student_Upper_Bound")
+  lenModifier <- retrieve_variable("Length_Modifier")
 
   ##############################
 
@@ -36,11 +36,11 @@ getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
     (1+exp(1)^-(xsc*(nstu-med)))+priceLB
 
   #Adjustment for contract length
-  adjLB <- 60
-  adjUB <- -10
+  adjLB <- retrieve_variable("Contract_Adjustment_Lower_Bound")
+  adjUB <- retrieve_variable("Contract_Adjustment_Upper_Bound")
 
-  lenUB <- 12
-  lenLB <- 1
+  lenUB <- retrieve_variable("Contract_Length_Lower_Bound")
+  lenLB <- retrieve_variable("Contract_Length_Upper_Bound")
 
   logBase <- 10
   lenxsc <- ((logBase^-(adjUB/adjLB-1))-1)/lenUB

@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-needsNewDeck <- function(minAllowed = 5, date=Sys.Date()){
+needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"), date=Sys.Date()){
   studentProgress <- getCenterData("progress", date)
   #Set any NAs to 0
   studentProgress[
@@ -50,13 +50,13 @@ suppressDeckWarning <- function(studentRows = data.frame(
          dimnames = list(NULL,
                          c("Student", "Skills_Currently_Assigned", "Pest",
                            "Skills_Mastered", "Attendances")))),
-  durationDays = 2){
+  durationDays = retrieve_variable("Deck_Warning_Duration")){
   ###
   # Add readline() commands and a while loop to make friendly UI to quickly
   # suppress students
 
   #Don't allow suppression longer than `maxTime` days
-  maxTime <- 30
+  maxTime <- retrieve_variable("Deck_Suppression_Maximum_Time")
 
   if(durationDays > maxTime){ durationDays <- maxTime}
   expDate <- Sys.Date()+lubridate::days(durationDays)
