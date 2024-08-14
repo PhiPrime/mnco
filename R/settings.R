@@ -12,12 +12,14 @@
 
 settings_file <- "centerOverviewSettings.dat"
 
+#' @export
 #Get file name
 get_file_name <- function() {
   return(settings_file)
 }
 
 #Function to initialize the settings file if it needs to be reset or created
+#' @export
 initialize_settings_file <- function() {
 
   #Establish a connection
@@ -49,6 +51,7 @@ initialize_settings_file <- function() {
 
 #Function for retrieving a value
 #is_numeric is a boolean, FALSE for string return
+#' @export
 retrieve_variable <- function(variable_name, is_numeric = TRUE) {
 
   #Create default if no settings file exists
@@ -80,6 +83,7 @@ retrieve_variable <- function(variable_name, is_numeric = TRUE) {
 
 #Function to edit a variable
 #Arguments are a string and numeric value
+#' @export
 edit_variable <- function(variable_name, value) {
 
   #Establish connection and read lines
