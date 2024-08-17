@@ -8,15 +8,16 @@ utils::globalVariables(".data")
 the <- new.env(parent = emptyenv())
 
 the$RAW_DATA_DIR <- ifelse(
-  file.exists("../mcp-data/.git", "../mcp-data/mnco-raw-data"),
+  all(file.exists("../mcp-data/.git", "../mcp-data/mnco-raw-data")),
   file.path("..", "mcp-data", "mnco-raw-data"),
   file.path(".", "mnco-raw-data")
 )
 the$CACHE_DIR <- ifelse(
-  file.exists("../mcp-data/.git", "../mcp-data/mnco-cache"),
-  file.path("..", "mcp-data", "mnco-cache"),
-  file.path(".", "mnco-cache")
+    all(file.exists("../mcp-data/.git", "../mcp-data/mnco-cache")),
+    file.path("..", "mcp-data", "mnco-cache"),
+    file.path(".", "mnco-cache")
 )
+
 the$DOWNLOADS_DIR <- ifelse(
   Sys.info()[["sysname"]] == "Windows" &&
     file.exists(file.path(
