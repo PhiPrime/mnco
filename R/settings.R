@@ -1,24 +1,16 @@
-#' Create Settings File
-#'
-#' @param variable_name Variable name for writing/retrieval
-#' @param value Value of variable_name
-#' @param isNumeric Boolean to set return type
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' retrieve_variable("Price_Upper_Bound", TRUE)
-
 settings_file <- "centerOverviewSettings.dat"
 
+#' Create Settings File
+#'
+#'
+#' @return name of file
 #' @export
-#Get file name
 get_file_name <- function() {
   return(settings_file)
 }
 
-#Function to initialize the settings file if it needs to be reset or created
+#' Initializes Settings File
+#'
 #' @export
 initialize_settings_file <- function() {
 
@@ -49,8 +41,12 @@ initialize_settings_file <- function() {
   close(file_connection)
 }
 
-#Function for retrieving a value
-#is_numeric is a boolean, FALSE for string return
+#' Retrieve a variable from the settings file
+#'
+#' @param variable_name Name of the variable
+#' @param is_numeric Boolean to determine how the variable is interpreted
+#'
+#' @return Value from the file
 #' @export
 retrieve_variable <- function(variable_name, is_numeric = TRUE) {
 
@@ -81,8 +77,11 @@ retrieve_variable <- function(variable_name, is_numeric = TRUE) {
     return(strtoi(value))
 }
 
-#Function to edit a variable
-#Arguments are a string and numeric value
+#' Edit a variable in the settings file
+#'
+#' @param variable_name Name of the variable
+#' @param value Value being written to the variable
+#'
 #' @export
 edit_variable <- function(variable_name, value) {
 

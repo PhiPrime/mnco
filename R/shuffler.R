@@ -1,13 +1,3 @@
-#' Takes in and shuffles demo pdfs
-#'
-#' @param visual_pdf Variable for Visual Demo Pdf
-#' @param mental_pdf Variable for Mental Demo Pdf
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' shuffle_blue_cards("1.pdf","2.pdf")
 
 #returns a vector of the names of the pngs
 open_pdf <- function(file_name, png_names = c(),
@@ -88,8 +78,16 @@ create_new_pdf <- function(vector) {
     file.remove(vector[i])
 }
 
-#master function, only one to be exported
+#' Takes in and shuffles demo pdfs
+#'
+#' @param visual_pdf Variable for Visual Demo Pdf
+#' @param mental_pdf Variable for Mental Demo Pdf
+#'
+#' @return
 #' @export
+#'
+#' @examples
+#' shuffle_blue_cards("1.pdf","2.pdf")
 shuffle_blue_cards <- function(visual_pdf, mental_pdf) {
   #open and move into one vector
   full_png_vector <- c(open_pdf(visual_pdf), open_pdf(mental_pdf))
