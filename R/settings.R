@@ -34,7 +34,9 @@ initialize_settings_file <- function() {
           "Contract_Adjustment_Upper_Bound=-10",
           "Contract_Length_Upper_Bound=12",
           "Contract_Length_Lower_Bound=1",
-          "Sample_File_Path=~Holder/File/Path"),
+          "Raw_Data_Directory=UNINITIALIZED",
+          "Cache_Directory=UNINITIALIZED"
+          ),
         settings_file, append = FALSE)
 
   #close the connection
