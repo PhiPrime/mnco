@@ -31,15 +31,15 @@ instuctions) to retrive all the data you’ll need.
 [Progress
 Report](https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail)  
 [Assessments](https://radius.mathnasium.com/AssessmentReport)  
-\* Select **All** in *Pre/Post* dropdown box  
+\* Select **All** in “*Pre/Post*” dropdown box  
 [Enrollments](https://radius.mathnasium.com/Enrollment/EnrollmentReport)
 
 ### Other (used for updates)
 
 [Assessment History](https://radius.mathnasium.com/AssessmentReport)  
-\* Select **All** in *Pre/Post* dropdown box  
-\* Select a date with the year **from 1970 to 2002** in *From:* dropdown
-box  
+\* Select **All** in “*Pre/Post*” dropdown box  
+\* Select a date with the year **from 1970 to 2002** in “*From:*”
+dropdown box  
 \* Export and rename file to “Assessments_Prior_to_M_D_YYYY.xlsx”  
 \* Move file to data directory manually or with provided code  
 [Payments](https://radius.mathnasium.com/Payment)  
@@ -49,3 +49,18 @@ box
 [Email Templates](https://radius.mathnasium.com/EmailTemplate)  
 [Attendance](https://radius.mathnasium.com/StudentAttendanceMonthlyReport)  
 \* Not in regular routine
+
+## Package develoment notes
+
+1)  Make: `use_r("newFunctionName")`  
+2)  Interactive Test: `load_all()` (`Ctrl`+`Shift`+`L`)  
+
+- @export is included in user-facing functions  
+
+3)  Create Unit Test: `use_test()`  
+4)  Run Unit Test: `test()` (`Ctrl`+`Shift`+`T`) for all, or
+    `test_active_file()` for only current.  
+5)  Insert Documentation Skelly: (`Ctrl`+`Shift`+`Alt`+`R`)  
+6)  Document with document function (`Ctrl`+`Shift`+`D`)  
+7)  Check with check function (`Ctrl`+`Shift`+`E`)  
+8)  Build with `install()` (`Ctrl`+`Shift`+`B`)

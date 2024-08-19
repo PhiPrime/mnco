@@ -54,3 +54,15 @@ mnco relies on exported files from Radius, Mathnasium's internal operations webs
 [Email Templates](https://radius.mathnasium.com/EmailTemplate)  
 [Attendance](https://radius.mathnasium.com/StudentAttendanceMonthlyReport)  
 * Not in regular routine  
+
+
+## Package develoment notes  
+1) Make: `use_r("newFunctionName")`  
+2) Interactive Test: `load_all()` (`Ctrl`+`Shift`+`L`)  
+* @export is included in user-facing functions  
+3) Create Unit Test: `use_test()`  
+4) Run Unit Test: `test()` (`Ctrl`+`Shift`+`T`) for all, or `test_active_file()` for only current.  
+5) Insert Documentation Skelly: (`Ctrl`+`Shift`+`Alt`+`R`)  
+6) Document with document function (`Ctrl`+`Shift`+`D`)  
+7) Check with check function (`Ctrl`+`Shift`+`E`)  
+8) Build with `install()` (`Ctrl`+`Shift`+`B`)  
