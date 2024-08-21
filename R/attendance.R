@@ -33,12 +33,22 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
               #Select phone in this order: Mobile, Home, Other
               Phone = ifelse(is.na(.data$Mobile_Phone),
                              ifelse(is.na(.data$Home_Phone),
-                                    .data$Other_Phone, .data$Home_Phone),.data$ Mobile_Phone),
-              Link = kableExtra::cell_spec("Message", format = "latex",
-                               link = paste0(cacheDir(),"/Messages/",
-                                             asMessageTxtFile(.data$Last_Attendance_Date,
+                                    .data$Other_Phone, .data$Home_Phone),
+                             .data$ Mobile_Phone))
+  #Create & Populate text files with completed templates
+  tmpLink <- function(date, name) {
+    paste0(cacheDir(),"/Messages/",
+           asMessageTxtFile(.data$Last_Attendance_Date,
+                            .data$Name))
+  }
+
+  #sapply(flaggedStudents)
+
+  flaggedStudents <- mutate(flaggedStudents,
+                            Link = kableExtra::cell_spec("Message", format = "latex",
+                               link = tmpLink(.data$Last_Attendance_Date,
                                                               .data$Name)))
-              )
+
 
 
 
