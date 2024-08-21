@@ -35,9 +35,10 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
                              ifelse(is.na(.data$Home_Phone),
                                     .data$Other_Phone, .data$Home_Phone),.data$ Mobile_Phone),
               Link = kableExtra::cell_spec("Message", format = "latex",
-                               link = paste0("./Cache/",
+                               link = paste0(cacheDir(),"/Messages/",
                                              asMessageTxtFile(.data$Last_Attendance_Date,
-                                                              .data$Name))))
+                                                              .data$Name)))
+              )
 
 
 
