@@ -6,7 +6,7 @@
 #' @export
 #'
 #' @examples
-#' attendanceCheck()
+#'  )
 #' attendanceCheck(allowedBdays = 10)
 attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed_Days")) {
   #Get list of dates any student attended
@@ -23,7 +23,6 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
                             !dplyr::between(.data$Last_Attendance_Date,
                                      acceptableDates[2],
                                      acceptableDates[1]) &
-                              .data$Delivery=="In-Center" &
                               .data$Enrollment_Status == "Enrolled") %>%
 
     dplyr::transmute(Last_Attendance_Date = .data$Last_Attendance_Date,
