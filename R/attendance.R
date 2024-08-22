@@ -44,11 +44,14 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 
   #sapply(flaggedStudents)
 
-  flaggedStudents <- mutate(flaggedStudents,
-                            Link = kableExtra::cell_spec("Message", format = "latex",
+  flaggedStudents <- dplyr::mutate(flaggedStudents,
+                            d = kableExtra::cell_spec("Message", format = "latex",
                                link = tmpLink(.data$Last_Attendance_Date,
                                                               .data$Name)))
-
+  # JUSTIN'S TEST
+  flaggedStudents <- dplyr::mutate(flaggedStudents,
+                            Link = kableExtra::cell_spec("Message", format = "latex",
+                                                         link = "../mcp-data/daily-report.pdf"))
 
 
 
