@@ -1,0 +1,84 @@
+---
+title: "Mathnasium of Colonial Park Overview"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    keep_md: true
+---
+<!----------------------------     ↑ YAML ↑     ---------------------------->
+<!-------------------------------------------------------------------------->
+
+
+
+<!-----------------------------     SETUP     ------------------------------>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+# In tables, displays blank instead of NA for missing values
+options(knitr.kable.NA = '') 
+```
+
+
+
+<!---------------------------     LIBRARIES     ---------------------------->
+
+```{r libraries}
+library(mnco)
+```
+
+
+
+<!----------------------------     Setup     ----------------------------->
+
+```{r Setup2}
+moveDataDownloads()
+```
+
+
+
+<!-------------------------     UPDATE & SAVE     -------------------------->
+
+```{r Update}
+all <- getCenterData()
+```
+
+```{r Save}
+saveCenterData(silent = T)
+```
+
+
+
+<!-------------------------     NEW DECK CHECK    ------------------------->
+
+```{r displayDeckConditional}
+displayDeck <- dim(needsNewDeck())[1]!=0
+```
+
+```{asis displayDeck, echo=displayDeck}
+The following students likely need a new deck made.  
+```
+
+`r if(displayDeck) kablize(needsNewDeck())`
+
+
+<!------------------------     ATTENDANCE CHECK     ------------------------>
+
+```{r attendanceCheckConditional}
+allowableBusinessDaysOneCanNotAttend <- 5
+stus <- attendanceCheck(allowableBusinessDaysOneCanNotAttend)
+displayAttendance <- dim(stus)[1]!=0
+```
+
+```{asis displayAttendance1, echo=displayAttendance}
+The following students have not been here in the past 
+```
+`r if(displayAttendance)allowableBusinessDaysOneCanNotAttend`
+```{asis displayAttendance2, echo=displayAttendance}
+days:
+```
+`r if(displayAttendance)kablize(stus)`
+
+
+
+<!-------------------------------------------------------------------------->
