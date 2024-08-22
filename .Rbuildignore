@@ -6,4 +6,5 @@
 ^\.Rhistory$
 ^\.RData$
 ^\.Rprofile$
-^mcp-data$
+
+^sandbox\..*$
