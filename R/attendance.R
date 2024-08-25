@@ -155,8 +155,13 @@ getStudentsOnVacation <- function(){
 
   ret <- readRDS(fileLoc)
 
+  #Order the values
+  ret <- ret[order(ret$returnDate, decreasing = FALSE),]
+
   #Update before returning (to check for exp)
   setStudentsOnVacation(ret)
+
+
   return(ret)
 }
 

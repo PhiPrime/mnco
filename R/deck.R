@@ -104,8 +104,14 @@ getSuppressedStudents <- function(){
   }
 
   ret <- readRDS(fileLoc)
+
+  #Order the values
+  ret <- ret[order(ret$expDate, decreasing = FALSE),]
+
   #Update before returning
   setSuppressedStudents(ret)
+
+
   return(ret)
 }
 
