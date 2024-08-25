@@ -161,6 +161,14 @@ edit_variable <- function(variable_name, value) {
   refresh_settings()
 }
 
+#' Print all variable names in terminal
+#'
+#' @export
+print_all_variables <- function() {
+  for (i in 1:dim(global_settings)[2])
+    message(colnames(global_settings)[i])
+}
+
 refresh_settings <- function() {
   file_connection <- file(settings_file)
   text_output  <- readLines(settings_file)
