@@ -4,7 +4,10 @@
 \alias{needsNewDeck}
 \title{Title}
 \usage{
-needsNewDeck(minAllowed = 5, date = Sys.Date())
+needsNewDeck(
+  minAllowed = retrieve_variable("Deck_Minimum_Threshold"),
+  date = Sys.Date()
+)
 }
 \arguments{
 \item{date}{}

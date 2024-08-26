@@ -2,7 +2,7 @@
 % Please edit documentation in R/template.R
 \name{saveTemplates}
 \alias{saveTemplates}
-\title{Title}
+\title{Save template}
 \usage{
 saveTemplates(date = Sys.Date())
 }
@@ -10,5 +10,5 @@ saveTemplates(date = Sys.Date())
 \item{date}{}
 }
 \description{
-Title
+Save template
 }

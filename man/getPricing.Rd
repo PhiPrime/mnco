@@ -6,8 +6,8 @@
 \usage{
 getPricing(
   gradeRange = "Kindergarten to Pre-Algebra",
-  contractLength = 7,
-  sessionCount = 10,
+  contractLength = retrieve_variable("Standard_Contract_Length"),
+  sessionCount = retrieve_variable("Standard_Number_Sessions"),
   nstu = dim(getCenterData("student")[which(getCenterData("student")$Enrollment_Status ==
     "Enrolled"), ])[1]
 )

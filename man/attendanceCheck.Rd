@@ -4,7 +4,7 @@
 \alias{attendanceCheck}
 \title{Check which students have not attended}
 \usage{
-attendanceCheck(allowedBdays = 5)
+attendanceCheck(allowedBdays = retrieve_variable("Attendance_Allowed_Days"))
 }
 \arguments{
 \item{allowedBdays}{Minimum number of days not attended to flag}
@@ -16,6 +16,5 @@ A data frame
 Check which students have not attended
 }
 \examples{
-attendanceCheck()
 attendanceCheck(allowedBdays = 10)
 }

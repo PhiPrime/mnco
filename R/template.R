@@ -1,4 +1,4 @@
-#' Title
+#' Save template
 #'
 #' @param date
 #'
@@ -7,16 +7,18 @@
 #'
 #' @examples
 saveTemplates <- function(date = Sys.Date()) {
-
   cacheFile <- file.path(cacheDir(), "Templates.rds")
   newFile <- readRawData.old("Template Export", date) %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
-        .data$Last_Modified_Date, "America/Los_Angeles"),
+        .data$Last_Modified_Date, "America/Los_Angeles"
+      ),
       Created_Date = lubridate::force_tz(
-        .data$Created_Date, "America/Los_Angeles"),
-      template = NA_character_)
+        .data$Created_Date, "America/Los_Angeles"
+      ),
+      template = NA_character_
+    )
 
   if(file.exists(cacheFile)){
     #If cache exists, pull it in and look for what's new
@@ -66,16 +68,16 @@ saveTemplates <- function(date = Sys.Date()) {
 #' @export
 #'
 #' @examples
-getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM") {
+getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM", name = NULL) {
+  cacheFile <- file.path(cacheDir(), "Templates.rds")
+  dat <- readRDS(cacheFile)
+
+  if (!is.null(name)) return(dat[dat$Template_Name == name,]$template)
+
   idDate <- strptime(createdDate, "%m/%d/%Y %I:%M:%S %p")
   regexEx <- gsub(" [AP]M", "",
                   gsub(" [0-9]+:", " [0-9]+:", idDate))
-
-  cacheFile <- file.path(cacheDir(), "Templates.rds")
-
-  dat <- readRDS(cacheFile)
   rtn <- dat[grepl(regexEx, dat$Created_Date),]$template
-
 }
 
 #' Title
@@ -104,19 +106,4 @@ templatesNeedUpdated <- function(date = Sys.Date()) {
   rtn <- any(with(merge(readRDS(cacheFile), tmp),
                   Last_Modified_Date!=Current_Date))
   return(rtn)
-}#eof
-
-#For creating format of text files using an id & student name
-#' Title
-#'
-#' @param id
-#' @param student
-#'
-#' @return
-#' @export
-#'
-#' @examples
-asMessageTxtFile <- function(id, student){
-  return(paste0(gsub("[ -]", "_",
-                     paste(id,student, sep = "__")),".txt"))
 }

@@ -7,7 +7,7 @@
 suppressDeckWarning(
   studentRows = data.frame(matrix(ncol = 5, nrow = 0, dimnames = list(NULL, c("Student",
     "Skills_Currently_Assigned", "Pest", "Skills_Mastered", "Attendances")))),
-  durationDays = 2
+  durationDays = retrieve_variable("Deck_Warning_Duration")
 )
 }
 \arguments{

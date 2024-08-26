@@ -16,11 +16,22 @@ kablize <- function(todisplay){
       names(todisplay)[i] <- paste0(names(todisplay)[i], "...")
     }
   }
-  todisplay <- kableExtra::kbl(todisplay, booktabs = TRUE,
-                   "latex", escapse = FALSE) %>%
-    kableExtra::kable_styling(latex_options = "striped",
-                  position = "left",
-                  bootstrap_options = c("hover", "condensed"))
+  # Remove underscores in headers
+  names(todisplay) <- names(todisplay) %>%
+    stringr::str_replace("_", " ")
+
+  todisplay <- todisplay %>%
+    kableExtra::kbl(
+      format = "latex",
+      row.names = F,
+      escape = F,
+      booktabs = TRUE
+    ) %>%
+    kableExtra::kable_styling(
+      latex_options = "striped",
+      position = "left",
+      bootstrap_options = c("hover", "condensed")
+    )
   return(todisplay)
 }
 
