@@ -4,7 +4,7 @@
 \alias{getTemplate}
 \title{Title}
 \usage{
-getTemplate(createdDate = "10/19/2021 6:55:40 PM")
+getTemplate(createdDate = "10/19/2021 6:55:40 PM", name = NULL)
 }
 \arguments{
 \item{createdDate}{}

@@ -10,7 +10,11 @@
 attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed_Days")) {
   stu <- getCenterData("student")
   acc <- getCenterData("account")
+
+  # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
+  returnFromVacation()
+
 
   # Get list of dates any student attended
   acceptableDates <- stu %>%
@@ -18,7 +22,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
     dplyr::pull("Last_Attendance_Date") %>%
     unique() %>%
     sort() %>%
-    tail(5)
+    tail(5) %>%
+    c(Sys.Date())
 
   flaggedStudents <-
     mergeWithFill(stu, acc, .by = "Account_Id") %>%
@@ -182,19 +187,6 @@ pluralizeNames <- function(...) {
   return(names)
 }
 
-## sendOnVacation
-# Sets a student to not appear in attendanceCheck(),
-# should reappear if returnDate is reached or a new attendance occurs
-
-## Overloaded form for attendanceCheck() param
-# sendOnVacation <- function(attendanceRows = data.frame(
-#   matrix(ncol=dim(attendanceCheck()), nrow = 0,
-#          dimnames = list(NULL,
-#                          names(attendanceCheck())))),
-#   returnDate = Sys.Date()+lubridate::days(7)){
-#   sendOnVacation(attendanceRows$Name, returnDate)
-# }
-
 #' Send student on vacation
 #'
 #' @param who Student name
@@ -306,7 +298,8 @@ setStudentsOnVacation <- function(dat = data.frame(
 
   #Requirements for vacation
   ## They were not claimed to have returned,
-  req1 <- which((Sys.Date()<dat$returnDate))
+
+
 
   ### Note: The following code is insufficient to see if a student
   ###        has attended since they were sent on Vacation. A restructure
@@ -314,11 +307,10 @@ setStudentsOnVacation <- function(dat = data.frame(
   ###        be a tautology
 
   ## They did not attend
-  req2 <- which(dat$Last_Attendance<Sys.Date())
 
 
   #Only save those that meet requirements
-  dat <- dat[req1&req2,]
+  # dat <- dat[Sys.Date()<dat$returnDate & dat$Last_Attendance<Sys.Date(),]
 
 
   if(dim(dat)[1]==0){
@@ -338,13 +330,39 @@ setStudentsOnVacation <- function(dat = data.frame(
 #' @export
 #'
 #' @examples
-#' returnStudentFromVacation("John Doe")
-returnStudentFromVacation <- function(who){
-  fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
+#' returnFromVacation("John Doe")
+returnFromVacation <- function(studentName = NULL) {
+  vacFilePath <- file.path(cacheDir(), "StudentsOnVacation.rds")
+  vac <- readRDS(vacFilePath)
 
-  #Check for correct format
-  dat <- getStudentsOnVacation()
+  studentReturned <- FALSE
 
-  dat <- dat[!grepl(who, dat$Student),]
-  setStudentsOnVacation(dat)
-}#eof
+  if (is.null(studentName)) {
+    # Default behavior: remove students whose return dates have passed OR
+    #   if they've attended a session since going on vacation
+    stu <- getCenterData("student") %>%
+      dplyr::transmute(
+        Student = .data$Student,
+        stu_last_attendance = .data$Last_Attendance_Date
+      )
+    newVac <- vac %>%
+      dplyr::left_join(stu, by = "Student") %>%
+      dplyr::filter(Sys.Date() <= .data$returnDate) %>%
+      #dplyr::filter(.data$stu_last_attendance <= .data$Last_Attendance) %>%
+      dplyr::select(-"stu_last_attendance")
+
+    if (!identical(newVac, vac)) {
+      saveRDS(newVac, vacFilePath)
+      studentReturned <- TRUE
+    }
+  } else if (studentName %in% vac$Student) {
+    # Remove only student if name passed into function
+    vac %>%
+      filter(.data$Student != studentName) %>%
+      saveRDS(vacFilePath)
+
+    studentReturned <- TRUE
+  }
+
+  return(studentReturned)
+}

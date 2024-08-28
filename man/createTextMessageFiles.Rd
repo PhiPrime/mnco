@@ -17,6 +17,3 @@ The text messages is stored in .txt files and named using the date and
 account name. All students under a single account are put into the
 same text message.
 }
-\examples{
-createTextMessageFile(c("John Doe", "Jane Doe"), "Jeremy Doe")
-}
