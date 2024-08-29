@@ -155,9 +155,9 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
 
     # Add links to students to return back to attendanceCheck()
     # Only the first student alphabetically for each account is given links
-    links <- messages %>% dplyr::select("Student_Id", "Link_1", "Link_2")
-    flaggedStudents <- flaggedStudents %>%
-      dplyr::rows_patch(links, by = "Student_Id")
+    flaggedStudents <- messages %>%
+      dplyr::select("Student_Id", "Link_1", "Link_2") %>%
+      dplyr::rows_patch(flaggedStudents, ., by = "Student_Id")
   }
 
   return(flaggedStudents)
