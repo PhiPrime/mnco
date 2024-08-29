@@ -12,6 +12,3 @@ A data frame
 \description{
 Read training data for attendance
 }
-\examples{
-getAttendanceTrainingSet()
-}

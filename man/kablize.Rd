@@ -4,7 +4,7 @@
 \alias{kablize}
 \title{Title}
 \usage{
-kablize(todisplay)
+kablize(todisplay, headerWidth = 12)
 }
 \arguments{
 \item{todisplay}{}

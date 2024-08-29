@@ -2,13 +2,21 @@
 % Please edit documentation in R/attendance.R
 \name{pluralizeNames}
 \alias{pluralizeNames}
-\title{Title}
+\title{Format character strings in sentence list form}
 \usage{
 pluralizeNames(...)
 }
 \arguments{
-\item{...}{}
+\item{...}{Character strings or vectors}
+}
+\value{
+A character string
 }
 \description{
-Title
+Format character strings in sentence list form
+}
+\examples{
+pluralizeNames("Justin")
+pluralizeNames("Justin", "Luke")
+pluralizeNames("Justin", "Luke", "Pat")
 }

@@ -2,10 +2,16 @@
 % Please edit documentation in R/deck.R
 \name{getSuppressedStudents}
 \alias{getSuppressedStudents}
-\title{Title}
+\title{Retrieve list of suppressed students}
 \usage{
 getSuppressedStudents()
 }
+\value{
+A data frame
+}
 \description{
-Title
+Retrieve list of suppressed students
+}
+\examples{
+# write later
 }

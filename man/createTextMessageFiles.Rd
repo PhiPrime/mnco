@@ -7,7 +7,9 @@
 createTextMessageFiles(flaggedStudents, date = Sys.Date())
 }
 \arguments{
-\item{date}{}
+\item{flaggedStudents}{Data frame of students}
+
+\item{date}{Date for file name}
 }
 \value{
 Character string containing the name of the file

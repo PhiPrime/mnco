@@ -2,7 +2,7 @@
 % Please edit documentation in R/deck.R
 \name{removeDeckSuppression}
 \alias{removeDeckSuppression}
-\title{Title}
+\title{Remove deck warning suppression from student}
 \usage{
 removeDeckSuppression(
   studentRows = data.frame(matrix(ncol = 7, nrow = 0, dimnames = list(NULL, c("Student",
@@ -11,8 +11,14 @@ removeDeckSuppression(
 )
 }
 \arguments{
-\item{studentRows}{}
+\item{studentRows}{Data frame of students}
+}
+\value{
+None (invisible(\code{NULL}))
 }
 \description{
-Title
+Remove deck warning suppression from student
+}
+\examples{
+# write later
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/deck.R
 \name{setSuppressedStudents}
 \alias{setSuppressedStudents}
-\title{Title}
+\title{(to be deprecated) Save students to suppression file}
 \usage{
 setSuppressedStudents(
   dat = data.frame(matrix(ncol = 7, nrow = 0, dimnames = list(NULL, c("Student",
@@ -11,8 +11,11 @@ setSuppressedStudents(
 )
 }
 \arguments{
-\item{dat}{}
+\item{dat}{Data frame of students}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+(to be deprecated) Save students to suppression file
 }

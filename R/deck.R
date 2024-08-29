@@ -1,13 +1,14 @@
-### needsNewDeck
-#' Title
+#' Check which students need skills assigned
 #'
-#' @param minAllowed
-#' @param date
+#' @param minAllowed Threshold for number of assigned skills. Students under
+#'  this threshold are returned.
+#' @param date Date to use for data
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' # write later
 needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"), date=Sys.Date()){
   studentProgress <- getCenterData("progress", date)
   #Set any NAs to 0
@@ -16,10 +17,12 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
     Skills_Currently_Assigned <- 0
 
   #Select students under minAllowed
-  ret <- dplyr::filter(studentProgress,
-                       .data$Student %in% needsDeckBasedOnAssessment(date)|
-                         (.data$Skills_Currently_Assigned < minAllowed &
-                            .data$Enrollment_Status == "Enrolled"))
+  ret <- dplyr::filter(
+    studentProgress,
+    .data$Student %in% needsDeckBasedOnAssessment(date) |
+      (.data$Skills_Currently_Assigned < minAllowed &
+         .data$Enrollment_Status == "Enrolled")
+  )
 
   ret <- ret[order(ret$Skills_Currently_Assigned),]
 
@@ -36,15 +39,16 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
 }
 
 ### suppressDeckWarning
-#' Title
+#' Exclude student from deck warnings
 #'
-#' @param studentRows
-#' @param durationDays
+#' @param studentRows Data frame of students
+#' @param durationDays Number of days
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
+#' # write later
 suppressDeckWarning <- function(studentRows = data.frame(
   matrix(ncol=5, nrow = 0,
          dimnames = list(NULL,
@@ -86,16 +90,17 @@ suppressDeckWarning <- function(studentRows = data.frame(
   }
   setSuppressedStudents(dat)
 
-  return()
+  invisible(NULL)
 }
 
 ### getSuppressedStudents
-#' Title
+#' Retrieve list of suppressed students
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' # write later
 getSuppressedStudents <- function(){
   fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
   if(!file.exists(fileLoc)){
@@ -115,14 +120,12 @@ getSuppressedStudents <- function(){
   return(ret)
 }
 
-#' Title
+#' (to be deprecated) Save students to suppression file
 #'
-#' @param dat
+#' @param dat Data frame of students
 #'
-#' @return
-#' @export
+#' @return None (invisible `NULL`)
 #'
-#' @examples
 setSuppressedStudents <- function(dat = data.frame(
   matrix(ncol=7, nrow = 0,
          dimnames = list(NULL,
@@ -134,17 +137,20 @@ setSuppressedStudents <- function(dat = data.frame(
 
   fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
   saveRDS(dat, fileLoc)
+
+  invisible(NULL)
 }
 
 ### removeDeckSuppression
-#' Title
+#' Remove deck warning suppression from student
 #'
-#' @param studentRows
+#' @param studentRows Data frame of students
 #'
-#' @return
+#' @return None (invisible(`NULL`))
 #' @export
 #'
 #' @examples
+#' # write later
 removeDeckSuppression <- function(studentRows = data.frame(
   matrix(ncol=7, nrow = 0,
          dimnames = list(NULL,
@@ -166,4 +172,6 @@ removeDeckSuppression <- function(studentRows = data.frame(
   dat <- getSuppressedStudents()
   dat <- dat[!dat$Student %in% studentRows$Student,]
   setSuppressedStudents(dat)
+
+  invisible(NULL)
 }

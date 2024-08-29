@@ -64,12 +64,10 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 #'  account name. All students under a single account are put into the
 #'  same text message.
 #'
-#' @param flaggedStudents
-#' @param date
+#' @param flaggedStudents Data frame of students
+#' @param date Date for file name
 #'
 #' @return Character string containing the name of the file
-#'
-#' @examples
 createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
   # Get a copy of flaggedStudents with first names
   studentRawData <-
@@ -163,13 +161,16 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
   return(flaggedStudents)
 }
 
-#' Title
+#' Format character strings in sentence list form
 #'
-#' @param ...
+#' @param ... Character strings or vectors
 #'
-#' @return
+#' @return A character string
 #'
 #' @examples
+#' pluralizeNames("Justin")
+#' pluralizeNames("Justin", "Luke")
+#' pluralizeNames("Justin", "Luke", "Pat")
 pluralizeNames <- function(...) {
   names <- unlist(list(...)) %>%
     sort()
@@ -191,9 +192,6 @@ pluralizeNames <- function(...) {
 #'
 #' @return A data frame
 #' @export
-#'
-#' @examples
-#' getAttendanceTrainingSet()
 getAttendanceTrainingSet <- function() {
   readRDS(file.path(cacheDir(), "prior2024.rds"))
 }

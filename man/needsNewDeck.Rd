@@ -2,7 +2,7 @@
 % Please edit documentation in R/deck.R
 \name{needsNewDeck}
 \alias{needsNewDeck}
-\title{Title}
+\title{Check which students need skills assigned}
 \usage{
 needsNewDeck(
   minAllowed = retrieve_variable("Deck_Minimum_Threshold"),
@@ -10,8 +10,17 @@ needsNewDeck(
 )
 }
 \arguments{
-\item{date}{}
+\item{minAllowed}{Threshold for number of assigned skills. Students under
+this threshold are returned.}
+
+\item{date}{Date to use for data}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Check which students need skills assigned
+}
+\examples{
+# write later
 }

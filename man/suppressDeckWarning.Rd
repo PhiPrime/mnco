@@ -2,7 +2,7 @@
 % Please edit documentation in R/deck.R
 \name{suppressDeckWarning}
 \alias{suppressDeckWarning}
-\title{Title}
+\title{Exclude student from deck warnings}
 \usage{
 suppressDeckWarning(
   studentRows = data.frame(matrix(ncol = 5, nrow = 0, dimnames = list(NULL, c("Student",
@@ -11,8 +11,16 @@ suppressDeckWarning(
 )
 }
 \arguments{
-\item{durationDays}{}
+\item{studentRows}{Data frame of students}
+
+\item{durationDays}{Number of days}
+}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Title
+Exclude student from deck warnings
+}
+\examples{
+# write later
 }
