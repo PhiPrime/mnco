@@ -11,10 +11,14 @@
 #' tidyRawData(stu, "student")
 tidyRawData <- function(data, type) {
   switch (type,
-    "student" = tidyRawData.student(data),
-    "account" = tidyRawData.account(data),
-    "progress" = tidyRawData.progress(data),
+    "student"    = tidyRawData.student(data),
+    "account"    = tidyRawData.account(data),
+    "progress"   = tidyRawData.progress(data),
     "enrollment" = tidyRawData.enrollment(data),
+    "assessment" = tidyRawData.assessment(data),
+    "payment"    = tidyRawData.payment(data),
+    "curriculum" = tidyRawData.curriculum(data),
+    "attendance" = tidyRawData.attendance(data),
     stop("`type` is not a valid argument: \'", type, "\'")
   )
 }
@@ -53,7 +57,7 @@ tidyRawData.student <- function(data) {
   data <- removeRawCols(data, rm_cols)
   data <- removeRawCols(data, na_cols, test_na = T)
 
-  return (data)
+  invisible(data)
 }
 
 #' Tidy Radius account data
@@ -77,7 +81,7 @@ tidyRawData.account <- function(data) {
   # data <- removeRawCols(data, rm_cols)
   data <- removeRawCols(data, na_cols, test_na = T)
 
-  return(data)
+  invisible(data)
 }
 
 #' Tidy Radius progress data
@@ -96,7 +100,7 @@ tidyRawData.progress <- function(data) {
   data <- removeRawCols(data, rm_cols)
   data <- removeRawCols(data, na_cols, test_na = T)
 
-  return(data)
+  invisible(data)
 }
 
 #' Tidy Radius enrollment data
@@ -140,44 +144,61 @@ tidyRawData.enrollment <- function (data) {
     removeRawCols(rm_cols)
   removeRawCols(na_cols, test_na = T)
 
-  return(data)
+  invisible(data)
 }
 
-#' Tidy Radius assessment data
-#'
-#' @param dat Data frame to tidy
-#'
-#' @return A data frame
-tidyAssessments <- function(dat){
-  #Arbitrarily Tidy up
-  tdat <- dplyr::transmute(dat,
-                           Lead_Id = as.character(.data$Lead_Id),
-                           Account_Id = .data$Account_Id,
-                           Student= paste(.data$Student_First_Name, .data$Student_Last_Name),
-                           Enrollment_Status = as.factor(.data$Enrollment_Status),
-                           Grade = dplyr::case_when(
-                             .data$Grade == "Pre K" ~ "-1",
-                             .data$Grade == "K" ~ "0",
-                             .data$Grade == "College" ~ "13",
-                             grepl("[0-9]", .data$Grade) ~ .data$Grade,
-                             .default = "NaN"),
-                           Assessment = .data$Assessment_Title,
-                           Level = dplyr::case_when(
-                             !(grepl("[A-Z]", toupper(.data$Assessment_Level))&
-                                 !is.na(Assessment_Level)) ~ .data$Assessment_Level,
-                             grepl("Readiness|Middle",.data$Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
-                             grepl("Algebra I A|ACT",.data$Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
-                             grepl("SAT Advanced|HMM", .data$Assessment_Level) ~ "12",
-                             .default = "NaN"),
-                           Percent = .data$Score*100,
-                           Date = strptime(.data$Date_Taken, format = "%m/%e/%Y"),
-                           Pre = .data$`Pre/Post`=="Pre",
-                           Group = .data$Group=="Yes",
-                           Center = as.factor(.data$Center)) %>%
+tidyRawData.assessment <- function(data) {
+  data <-  data %>%
+    dplyr::transmute(
+      Lead_Id    = as.character(.data$Lead_Id),
+      Account_Id = .data$Account_Id,
+      Student    = paste(.data$Student_First_Name, .data$Student_Last_Name),
+      Enrollment_Status = as.factor(.data$Enrollment_Status),
+      Grade      = dplyr::case_when(
+       .data$Grade == "Pre K" ~ "-1",
+       .data$Grade == "K" ~ "0",
+       .data$Grade == "College" ~ "13",
+       grepl("[0-9]", .data$Grade) ~ .data$Grade,
+       .default = "NaN"
+      ),
+      Assessment = .data$Assessment_Title,
+      Level      = dplyr::case_when(
+        !(grepl("[A-Z]", toupper(.data$Assessment_Level)) &
+            !is.na(Assessment_Level)) ~ .data$Assessment_Level,
+        grepl("Readiness|Middle",.data$Assessment_Level) ~ "8", #Alg or Geo Readiness is considered 8th
+        grepl("Algebra I A|ACT",.data$Assessment_Level) ~ "9",#Algebra 1 is 9th, 10 & 11 are coded in
+        grepl("SAT Advanced|HMM", .data$Assessment_Level) ~ "12",
+        .default = "NaN"),
+      Percent    = .data$Score * 100,
+      # RENAME THIS LATER - WILL CONFLICT WITH SAVE FUNCTIONS
+      Date       = strptime(.data$Date_Taken, format = "%m/%e/%Y"),
+      Pre        = .data$`Pre/Post` == "Pre",
+      Group      = .data$Group == "Yes",
+      Center     = as.factor(.data$Center)) %>%
     #Avoid NA warning when none is needed
-    dplyr::mutate(Grade = as.numeric(.data$Grade),
-                  Level = as.numeric(.data$Level))
-  return(tdat)
+    dplyr::mutate(
+      Grade = as.numeric(.data$Grade),
+      Level = as.numeric(.data$Level)
+    )
+  invisible(data)
+}
+
+tidyRawData.payment <- function(data) {
+  # TIDYING GOES HERE
+
+  invisible(data)
+}
+
+tidyRawData.curriculum <- function(data) {
+  # TIDYING GOES HERE
+
+  invisible(data)
+}
+
+tidyRawData.attendance <- function(data) {
+  # TIDYING GOES HERE
+
+  invisible(data)
 }
 
 #' Delete columns from data frame
