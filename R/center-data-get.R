@@ -68,17 +68,6 @@ getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
   return(dat)
 }
 
-#' Read training data for attendance
-#'
-#' @return A data frame
-#' @export
-#'
-#' @examples
-#' getAttendanceTrainingSet()
-getAttendanceTrainingSet <- function() {
-  readRDS(file.path(cacheDir(), "prior2024.rds"))
-}
-
 ### getAttendanceData
 #' Title
 #'
