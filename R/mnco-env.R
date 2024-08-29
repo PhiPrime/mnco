@@ -29,8 +29,14 @@ the$DOWNLOADS_DIR <- ifelse(
 )
 
 the$RADIUS_FILE_ROOTS <- c(
-  student = "Students Export",
-  account = "Account Export",
-  progress = "Current Batch Detail Export",
-  enrollment = "Enrolled Report"
+  student    = "Students Export",
+  account    = "Account Export",
+  progress   = "Current Batch Detail Export",
+  enrollment = "Enrolled Report",
+  assessment =
+    "Assessment Report from [0-9]+_[0-9]+_[0-9]+ to [0-9]+_[0-9]+_[0-9]+",
+  payment = "Payments.xlsx",
+  curriculum = "Curriculum Library Export",
+  attendance = "Student Attendance Report Export",
+  template   = "Template Export"
 )

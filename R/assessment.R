@@ -1,27 +1,3 @@
-#' Read Radius assessment data
-#'
-#' @param date Date to read data for
-#' @param ignoreMissing `logical` indicating to return empty data frame
-#' (instead of signaling an error) if data file not found
-#'
-#' @return A data frame
-#' @export
-#'
-#' @examples
-#' getAssessments()
-#' getAssessments(date = "2024-07-31")
-getAssessments <- function(date = Sys.Date(), ignoreMissing = FALSE) {
-  #Get using regex since filename depends on range of dates in report
-  dat <- readRawData.old(paste0("Assessment Report from [0-9]+_[0-9]+_[0-9]+ ",
-                            "to [0-9]+_[0-9]+_[0-9]+"),
-                     date, ignoreMissing, regExFile = TRUE)
-  tdat <- tidyAssessments(dat)
-
-  tdat <- tdat[order(tdat$Date, decreasing = TRUE),]
-
-  return(tdat)
-}
-
 #' Read historic assessment data
 #'
 #' @param Assessments_Prior_to_ Radius style date
@@ -93,7 +69,7 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
 
   ## We will use options 1&2
   ret <- NA_character_
-  assessments <- getAssessments(date)
+  assessments <- getCenterData("assessment", date)
 
   #Option 1
   stus <- dplyr::select(getCenterData("student", date),

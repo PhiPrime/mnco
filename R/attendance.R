@@ -54,6 +54,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
     dplyr::arrange(
       lubridate::mdy(.data$Last_Attendance_Date), .data$Account, .data$Student
     )
+
+  return(flaggedStudents)
 }
 
 #' Format and store attendance text messages

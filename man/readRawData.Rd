@@ -4,7 +4,7 @@
 \alias{readRawData}
 \title{Read Radius data excel file}
 \usage{
-readRawData(type, date = Sys.Date())
+readRawData(type = radiusFileRoots("types"), date = Sys.Date())
 }
 \arguments{
 \item{type}{Radius data file type}

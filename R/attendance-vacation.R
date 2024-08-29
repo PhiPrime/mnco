@@ -18,7 +18,7 @@ getStudentsOnVacation <- function(){
 
   # Order the values
   vac <- readRDS(fileLoc) %>%
-    arrange(.data$returnDate, .data$Last_Attendance)
+    dplyr::arrange(.data$returnDate, .data$Last_Attendance)
 
   # Update before returning (to check for exp)
   returnFromVacation()

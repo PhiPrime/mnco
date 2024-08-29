@@ -47,20 +47,16 @@ as.radiusDate <- function(date) {
 #' @param date Date to read data for
 #'
 #' @return A vector of column names
-#' @export
 #'
 #' @examples
 #' get_raw_na_cols()
 get_raw_na_cols <- function(date = Sys.Date()) {
-  fileRoots <- c("Students Export",
-                 "Account Export",
-                 "Current Batch Detail Export",
-                 "Enrolled Report")
+  rootType <- c("student", "account", "progress", "enrollment")
 
   # Iterate through each raw data file for given date
   na_col_list <- list()
   for (i in 1:4) {
-    dat <- readRawData.old(fileRoots[i], date = date)
+    dat <- readRawData(rootType[i], date)
 
     # Get and append names of NA columns to list
     na_col <- sapply(dat, function(x) all(is.na(x)))
@@ -79,7 +75,6 @@ get_raw_na_cols <- function(date = Sys.Date()) {
 #' @param date Date to read data for
 #'
 #' @return None (invisible `NULL`)
-#' @export
 #'
 #' @examples
 #' print_raw_na_cols

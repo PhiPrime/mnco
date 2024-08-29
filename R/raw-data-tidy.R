@@ -19,6 +19,7 @@ tidyRawData <- function(data, type) {
     "payment"    = tidyRawData.payment(data),
     "curriculum" = tidyRawData.curriculum(data),
     "attendance" = tidyRawData.attendance(data),
+    "template"   = tidyRawData.template(data),
     stop("`type` is not a valid argument: \'", type, "\'")
   )
 }
@@ -179,7 +180,8 @@ tidyRawData.assessment <- function(data) {
     dplyr::mutate(
       Grade = as.numeric(.data$Grade),
       Level = as.numeric(.data$Level)
-    )
+    ) %>%
+    dplyr::arrange(desc(.data$Date))
   invisible(data)
 }
 
@@ -196,6 +198,12 @@ tidyRawData.curriculum <- function(data) {
 }
 
 tidyRawData.attendance <- function(data) {
+  # TIDYING GOES HERE
+
+  invisible(data)
+}
+
+tidyRawData.template <- function(data) {
   # TIDYING GOES HERE
 
   invisible(data)

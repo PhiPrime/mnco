@@ -8,79 +8,43 @@
 #'
 #' @examples
 #' readRawData("student")
-readRawData <- function(type, date = Sys.Date()) {
-  # MAYBE CHANGE TO OVERLOADING
-  dir <- rawDataDir()
-  root <- radiusFileRoots(type)
-  path <- as.rawFilePath(dir, root, date)
+readRawData <- function(type = radiusFileRoots("types"), date = Sys.Date()) {
+  # Ensure valid type of Radius data file
+  type <- match.arg(type)
 
+  # Create path to raw data file
+  path <- matchRegexRoot(radiusFileRoots(type), date) %>%
+    file.path(rawDataDir(), .)
 
   # Read and clean column names
-  dat <- readxl::read_excel(path, .name_repair = "unique_quiet")
-  names(dat) <- names(dat) %>%
+  data <- readxl::read_excel(path, .name_repair = "unique_quiet")
+  names(data) <- names(data) %>%
     stringr::str_trim() %>%
     stringr::str_replace_all(" ", "_")
+  # ADD CHECK FOR DUPLICATE COLUMNS
 
-  return(dat)
-
+  invisible(data)
 }
 
-readRawData.old <- function(fileRoot, date,
-                        ignoreMissing = F, regExFile = F) {
-  # Format file root into Radius style file name
-  fileName <- as.rawFileName(fileRoot, date)
-  filePath <- NULL
+matchRegexRoot <- function(root, date) {
   dir <- rawDataDir()
+  fileRegex <- as.rawFileName(root, date)
 
-  #If regex find a match with fileRoot in either folder
-  #If regex find a match with fileRoot in either folder
-  if(regExFile) {
-    #Compare first to rawFiles,
-    rawFiles <- list.files(file.path(dir))
-    fileOptions <- rawFiles[grepl(fileName, rawFiles)]
+  regexMatches <- list.files(dir) %>%
+    magrittr::extract(stringr::str_detect(., fileRegex))
 
-    if(length(fileOptions)==1){
-      #If only one is found assign it
-      fileName <- fileOptions[1]
-    }else if(length(fileOptions)>1){
-      #If more than 1, error
-      stop(paste0("\"",fileName, "\" matched with the following files...",
-                  paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                  "\"\n...and does not know how to proceed, ",
-                  "be more specific and try again."))
-    } else if (length(fileOptions)==0){
-      #If not found compare to downloads folder
-      downloadPath <- file.path(regmatches(getwd(),
-                                           regexpr("^.*?[/].*?[/].*?(?=/)",
-                                                   getwd(), perl = T)),
-                                "Downloads")
-      downloadFiles <- list.files(downloadPath)
-      fileOptions <- downloadFiles[grepl(fileName, downloadFiles)]
+  root <- switch(as.character(length(regexMatches)),
+    "1" = regexMatches,
+    "0" = stop(
+      "No files were found matching the regex \"", fileRegex, "\".\n",
+      "  Try again after downloading and moving the file to \"", dir, "\"."
+    ),
+    stop(
+      "The following files were matched for the regex \"", fileRegex, "\":\n",
+      "\t", paste0(regexMatches, collapse = "\n\t"), "\n",
+      "  Try again after keeping only one of these in \"", dir, "\"."
+    )
+  )
 
-
-      if(length(fileOptions)==1){
-        #If only one is found assign it
-        fileName <- fileOptions
-      }else if(length(fileOptions)>1){
-        #If more than 1 match, error
-        stop(paste0("\"",fileName, "\" matched with the following files...",
-                    paste("",fileOptions, sep = "\"\n\"", collapse = ""),
-                    "\"\n...and does not know how to proceed, ",
-                    "be more specific and try again."))
-      } else if (length(fileOptions)==0){
-        #If no matches stop and error
-        stop(paste0("After searching both \"./mnco-raw-data\",",
-                    "and \"./Downloads\" \"", fileName, "\" yielded no matches.",
-                    " Please try again."))
-      }}
-  }
-  # Default behavior: attempt to move file from Downloads, then look
-  #   in Raw_Data
-  filePath <- file.path(dir, fileName)
-
-  # Read file and reformat column names to prevent bad behaviors
-  dat <- readxl::read_excel(filePath, .name_repair = "unique_quiet")
-  names(dat) <- gsub(" ", "_", names(dat))
-
-  return(dat)
-}#eof
+  return(root)
+}

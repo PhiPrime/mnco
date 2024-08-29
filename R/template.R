@@ -8,7 +8,7 @@
 #' @examples
 saveTemplates <- function(date = Sys.Date()) {
   cacheFile <- file.path(cacheDir(), "Templates.rds")
-  newFile <- readRawData.old("Template Export", date) %>%
+  newFile <- readRawData("template", date) %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
@@ -90,7 +90,7 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM", name = NULL) {
 #' @examples
 templatesNeedUpdated <- function(date = Sys.Date()) {
   cacheFile <- file.path(cacheDir(), "Templates.rds")
-  newFile <- readRawData.old("Template Export", date) %>%
+  newFile <- readRawData("template", date) %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(

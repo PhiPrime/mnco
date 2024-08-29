@@ -13,6 +13,7 @@
 #' getCenterData("student")
 getCenterData <- function(type = c("all", radiusFileRoots("types")),
                           date = Sys.Date(), ignoreMissing = F) {
+  # Ensure valid type of Radius data file
   type <- match.arg(type)
 
   # USE match.arg, stopifnot
@@ -30,42 +31,10 @@ getCenterData <- function(type = c("all", radiusFileRoots("types")),
 
   } else {
     # Get and tidy data
-    tdat <-
-      readRawData(type, date) %>%
-      tidyRawData(type)
+    tdat <- readRawData(type, date) %>% tidyRawData(type)
   }
 
   invisible(tdat)
-}
-
-#' Read and tidy Radius payment data
-#'
-#' @inheritParams getCenterData
-#'
-#' @return A data frame
-#' @export
-#'
-#' @examples
-#' getPaymentData()
-getPaymentData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData.old("Payments.xlsx", date)
-
-  return(dat)
-}
-
-#' Read and tidy Radius curriculum data
-#'
-#' @inheritParams getCenterData
-#'
-#' @return A data frame
-#' @export
-#'
-#' @examples
-#' getCurriculumData()
-getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
-  dat <- readRawData.old("Curriculum Library Export", date)
-
-  return(dat)
 }
 
 ### getAttendanceData
@@ -80,7 +49,7 @@ getCurriculumData <- function(date = Sys.Date(), ignoreMissing = F) {
 #' @examples
 #' getAttendanceData()
 getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
-  dat <- readRawData.old("Student Attendance Report Export", date)
+  dat <- readRawData("attendance", date)
 
   logfile <- file.path(cacheDir(), "studentAttendanceLog.csv")
 
