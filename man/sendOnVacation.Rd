@@ -4,12 +4,12 @@
 \alias{sendOnVacation}
 \title{Send student on vacation}
 \usage{
-sendOnVacation(who, returnDate = lubridate::rollforward(Sys.Date()))
+sendOnVacation(..., returnDate = NULL)
 }
 \arguments{
-\item{who}{Student name}
-
 \item{returnDate}{Date of return}
+
+\item{who}{Student name}
 }
 \value{
 None (invisible \code{NULL})

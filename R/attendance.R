@@ -13,8 +13,6 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 
   # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
-  returnFromVacation()
-
 
   # Get list of dates any student attended
   acceptableDates <- stu %>%
@@ -197,55 +195,57 @@ pluralizeNames <- function(...) {
 #'
 #' @examples
 #' sendOnVacation("John Doe", returnDate = "2024-07-31")
-sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date())) {
+sendOnVacation <- function(..., returnDate = NULL) {
+  # Allow multiple students to be passed in
+  students <- unlist(list(...))
 
-  #If returnDate is not in Date format
-  if(!lubridate::is.Date(returnDate)){
-    #Then try some formats
-    addThisYear <- function(old) {lubridate::mdy(paste(
-      old, lubridate::year(Sys.Date())))}
+  # Handle returnDate argument
+  if (is.null(returnDate)) {
+    # Default argument: set to end of month
+    returnDate <- lubridate::rollforward(Sys.Date())
+  } else {
+    # Test if in Date format when returnDate is given
     returnDate <- tryCatch(
-      expr = lubridate::mdy(returnDate),
+      as.Date(returnDate),
       error = function(e) {
-        addThisYear(returnDate)
-      },
-      warning = function(w) {
-        addThisYear(returnDate)
+        stop("`returnDate` cannot be converted into a Date object: ", returnDate)
       }
     )
   }
 
-  #Store current Student file for efficiency
-  stus <- dplyr::mutate(getCenterData("student"),
-                 Student = .data$Student)
+  # Read vacation cache file, create if it doesn't exist
+  vacFilePath <- file.path(cacheDir(), "StudentsOnVacation.rds")
 
-  #Make function user friendly by regexing for name
-  names <- stus$Student
+  if(!file.exists(vacFilePath)) {
+    vac <- data.frame(
+      Student = character(0),
+      Last_Attendance = as.Date(integer(0)),
+      returnDate = as.Date(integer(0))
+    )
+    saveRDS(vac, vacFilePath)
+  }
+  vac <- readRDS(vacFilePath)
 
-  #Create data.frame to allow for sending multiple `who`s at the same time
-  tmp <- data.frame(matrix(ncol = 1, nrow = 0, dimnames = list(NULL, "name")))
-  for(i in who){
-    tmp <- rbind(tmp,names[grepl(i, names, ignore.case = TRUE)])
+  # Check students exists and grab last attendance date
+  stu <- getCenterData("student") %>%
+    dplyr::select("Student", "Last_Attendance_Date") %>%
+    # UNRENAME THIS LATER
+    dplyr::rename(Last_Attendance = "Last_Attendance_Date") %>%
+    dplyr::filter(tolower(.data$Student) %in% tolower(students)) %>%
+    dplyr::mutate(returnDate = returnDate)
+
+  # Append students to vacation data frame
+  newVac <- vac %>%
+    dplyr::rows_upsert(stu, by = "Student")
+
+  # Update .rds file if something has changed
+  studentSent <- FALSE
+  if (!identical(newVac, vac)) {
+    saveRDS(newVac, vacFilePath)
+    studentSent <- TRUE
   }
 
-  who <- tmp[,1]
-  stus <- dplyr::filter(stus, .data$Student%in%who)
-  #Create data frame to store
-  toStore <- data.frame(Student = who,
-                        Last_Attendance = stus$Last_Attendance_Date,
-                        returnDate = returnDate)
-
-  if(dim(getStudentsOnVacation())[1]==0){
-    dat <- toStore
-  }
-  else{
-    dat <- getStudentsOnVacation()
-    dat <- rbind(dat, toStore)
-  }
-
-  setStudentsOnVacation(dat)
-  invisible(NULL)
-
+  return(studentSent)
 }
 
 #' Get students on vacation
@@ -257,69 +257,23 @@ sendOnVacation <- function(who, returnDate = lubridate::rollforward(Sys.Date()))
 #' getStudentsOnVacation()
 getStudentsOnVacation <- function(){
   fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
-  if(!file.exists(fileLoc)){
-    #Run null constructor
-    setStudentsOnVacation()
+  if(!file.exists(fileLoc)) {
+    vac <- data.frame(
+      Student = character(0),
+      Last_Attendance = as.Date(integer(0)),
+      returnDate = as.Date(integer(0))
+    )
+    saveRDS(vac, fileLoc)
   }
 
-  ret <- readRDS(fileLoc)
+  # Order the values
+  vac <- readRDS(fileLoc) %>%
+    arrange(.data$returnDate, .data$Last_Attendance)
 
-  #Order the values
-  ret <- ret[order(ret$returnDate, decreasing = FALSE),]
+  # Update before returning (to check for exp)
+  returnFromVacation()
 
-  #Update before returning (to check for exp)
-  setStudentsOnVacation(ret)
-
-
-  return(ret)
-}
-
-#' Add student to vacation file
-#'
-#' @param dat Data frame of students to add
-#'
-#' @return None (invisible `NULL`)
-#' @export
-#'
-#' @examples
-#' setStudentsOnVacation()
-setStudentsOnVacation <- function(dat = data.frame(
-  matrix(ncol=2, nrow = 0,
-         dimnames = list(NULL,
-                         c("Student", "returnDate"))))){
-  fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
-
-  #Query last attendance date
-  dat <- merge(dat,
-               dplyr::mutate(getCenterData("student"),
-                      Student = .data$Student,
-                      Last_Attendance = .data$Last_Attendance_Date) %>%
-                 dplyr::select("Student", "Last_Attendance"))
-
-  #Requirements for vacation
-  ## They were not claimed to have returned,
-
-
-
-  ### Note: The following code is insufficient to see if a student
-  ###        has attended since they were sent on Vacation. A restructure
-  ###        of the stored datatype is needed. Current conditional should
-  ###        be a tautology
-
-  ## They did not attend
-
-
-  #Only save those that meet requirements
-  # dat <- dat[Sys.Date()<dat$returnDate & dat$Last_Attendance<Sys.Date(),]
-
-
-  if(dim(dat)[1]==0){
-    #Send warning about empty file
-    warning(paste0("The following file is now empty:\n", fileLoc))
-  }
-
-  saveRDS(dat, fileLoc)
-  invisible(NULL)
+  return(vac)
 }
 
 #' Remove student from vacation file
@@ -348,7 +302,7 @@ returnFromVacation <- function(studentName = NULL) {
     newVac <- vac %>%
       dplyr::left_join(stu, by = "Student") %>%
       dplyr::filter(Sys.Date() <= .data$returnDate) %>%
-      #dplyr::filter(.data$stu_last_attendance <= .data$Last_Attendance) %>%
+      dplyr::filter(.data$stu_last_attendance <= .data$Last_Attendance) %>%
       dplyr::select(-"stu_last_attendance")
 
     if (!identical(newVac, vac)) {
