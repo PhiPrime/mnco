@@ -7,18 +7,11 @@
 #' @export
 #'
 #' @examples
-kablize <- function(todisplay){
-
-  rm <- gsub("(^.{1,8})", "", names(todisplay))
-  for(i in 1:length(names(todisplay))){
-    names(todisplay)[i] <- gsub(rm[i], "", names(todisplay)[i])
-    if(stringr::str_length(rm[i])>0){
-      names(todisplay)[i] <- paste0(names(todisplay)[i], "...")
-    }
-  }
-  # Remove underscores in headers
+kablize <- function(todisplay, headerWidth = 12) {
+  # Format headers for display
   names(todisplay) <- names(todisplay) %>%
-    stringr::str_replace("_", " ")
+    stringr::str_replace("_", " ") %>%
+    stringr::str_trunc(headerWidth)
 
   todisplay <- todisplay %>%
     kableExtra::kbl(
