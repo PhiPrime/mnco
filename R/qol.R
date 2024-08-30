@@ -13,14 +13,13 @@ catt <- function() getCenterData("attendance")
 ctem <- function() getCenterData("template")
 
 
-#' Knits daily-report.Rmd and, by default, opens it
+#' Knits daily-report.Rmd and opens it
 #'
-#' Recommended workflow for testing changes to daily-report.pdf is:
-#'   install()/ctrl+shift+B
-#'   dailyReport()
-#' If using already installed version of mnco to knit and/or open:
-#'   load_all()/ctrl+shift+L
-#'   dailyReport()
+#' @description
+#' Recommended workflow:
+#'   install()/ctrl+shift+B  (if new code changes are needed)
+#'   load_all()/ctrl+shift+L (to use dailyReport() in console)
+#'   dailyReport()           (can choose whether to knit/open)
 #'
 #' New data and updated reports still have to be committed and pushed using
 #'   terminal or rstudio gui in mcp-data
