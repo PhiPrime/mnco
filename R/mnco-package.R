@@ -5,5 +5,6 @@
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
+#' @importFrom dplyr transmute
 ## usethis namespace: end
 NULL

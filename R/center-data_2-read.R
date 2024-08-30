@@ -53,5 +53,5 @@ matchRegexRoot <- function(rootRegex, date) {
     )
   )
 
-  return(rootRegex)
+  return(path)
 }

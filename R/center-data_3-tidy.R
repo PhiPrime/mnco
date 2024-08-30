@@ -4,11 +4,7 @@
 #' @param type Radius data file type
 #'
 #' @return A data frame
-#' @export
-#'
-#' @examples
-#' stu <- readRawData("student")
-#' tidyRawData(stu, "student")
+#' @keywords internal
 tidyRawData <- function(data, type) {
   switch (type,
     "student"    = tidyRawData.student(data),
@@ -198,7 +194,19 @@ tidyRawData.curriculum <- function(data) {
 }
 
 tidyRawData.attendance <- function(data) {
-  # TIDYING GOES HERE
+  data <- data %>%
+    mutate(
+      date      = as.Date(.data$Attendance_Date, format = "%m/%d/%y"),
+      accountID = .data$Account_Id,
+      name      = paste(.data$First_Name,.data$Last_Name),
+      startTime = strptime(.data$Arrival_Time, "%I:%M %p"),
+      endTime   = strptime(.data$Departure_Time, "%I:%M %p"),
+      totalVisits       = .data$Total_Visits,
+      membershipType    = as.factor(.data$Membership_Type),
+      sessionsPerMonth  = as.factor(.data$Sessions_Per_Month),
+      sessionsRemaining = .data$Sessions_Remaining,
+      delivery          = as.factor(.data$Delivery)
+    )
 
   invisible(data)
 }

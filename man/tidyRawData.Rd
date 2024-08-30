@@ -21,3 +21,4 @@ Tidy Radius data
 stu <- readRawData("student")
 tidyRawData(stu, "student")
 }
+\keyword{internal}
