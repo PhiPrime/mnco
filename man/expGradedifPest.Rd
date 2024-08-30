@@ -2,10 +2,16 @@
 % Please edit documentation in R/plot.R
 \name{expGradedifPest}
 \alias{expGradedifPest}
-\title{Title}
+\title{Plot grade difference vs. point estimate}
 \usage{
 expGradedifPest()
 }
+\value{
+A ggplot object
+}
 \description{
-Title
+Plot grade difference vs. point estimate
+}
+\examples{
+# write later
 }

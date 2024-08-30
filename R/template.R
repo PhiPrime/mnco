@@ -1,14 +1,13 @@
-#' Save template
+#' Save template to cache file
 #'
-#' @param date
-#'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
-saveTemplates <- function(date = Sys.Date()) {
+#' # write later
+saveTemplates <- function() {
   cacheFile <- file.path(cacheDir(), "Templates.rds")
-  newFile <- readRawData("template", date) %>%
+  newFile <- readRawData("template") %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(
@@ -60,14 +59,16 @@ saveTemplates <- function(date = Sys.Date()) {
 
 ##getTemplate
 ## Uses Template cache to return template based on creation date
-#' Title
+#' Retrieve template from template cache file
 #'
-#' @param createdDate
+#' @param createdDate POSIXlt object used as key for template
+#' @param name Optional argument to get template by name
 #'
-#' @return
+#' @return A character string
 #' @export
 #'
 #' @examples
+#' # write later
 getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM", name = NULL) {
   cacheFile <- file.path(cacheDir(), "Templates.rds")
   dat <- readRDS(cacheFile)
@@ -80,17 +81,16 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM", name = NULL) {
   rtn <- dat[grepl(regexEx, dat$Created_Date),]$template
 }
 
-#' Title
+#' Get list of templates to be updated
 #'
-#' @param date
-#'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
-templatesNeedUpdated <- function(date = Sys.Date()) {
+#' # write later
+templatesNeedUpdated <- function() {
   cacheFile <- file.path(cacheDir(), "Templates.rds")
-  newFile <- readRawData("template", date) %>%
+  newFile <- readRawData("template") %>%
     #Mark LA timezone, as that's what Radius stores
     dplyr::mutate(
       Last_Modified_Date = lubridate::force_tz(

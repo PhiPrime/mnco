@@ -2,13 +2,23 @@
 % Please edit documentation in R/plot.R
 \name{plotHighestCor}
 \alias{plotHighestCor}
-\title{Title}
+\title{Create plot of most correlated variables}
 \usage{
 plotHighestCor(dataset, removeOutliers = FALSE, oCI = 99)
 }
 \arguments{
-\item{oCI}{}
+\item{dataset}{A data frame}
+
+\item{removeOutliers}{\code{logical} indicating to remove outliers}
+
+\item{oCI}{???}
+}
+\value{
+Two ggplot objects
 }
 \description{
-Title
+Create plot of most correlated variables
+}
+\examples{
+# write later
 }

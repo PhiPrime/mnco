@@ -2,13 +2,16 @@
 % Please edit documentation in R/template.R
 \name{saveTemplates}
 \alias{saveTemplates}
-\title{Save template}
+\title{Save template to cache file}
 \usage{
-saveTemplates(date = Sys.Date())
+saveTemplates()
 }
-\arguments{
-\item{date}{}
+\value{
+None (invisible \code{NULL})
 }
 \description{
-Save template
+Save template to cache file
+}
+\examples{
+# write later
 }

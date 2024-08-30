@@ -1,13 +1,14 @@
-#' Title
+#' Create plot of most correlated variables
 #'
-#' @param dataset
-#' @param removeOutliers
-#' @param oCI
+#' @param dataset A data frame
+#' @param removeOutliers `logical` indicating to remove outliers
+#' @param oCI ???
 #'
-#' @return
+#' @return Two ggplot objects
 #' @export
 #'
 #' @examples
+#' # write later
 plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   #Filter out col with numeric datatypes, any uncertainty is made 0 by default
   numdata <- dplyr::select_if(dataset, is.numeric)
@@ -65,19 +66,21 @@ plotHighestCor <- function(dataset, removeOutliers = FALSE, oCI = 99){
   # p1+p2
 }
 
-#' Title
+#' Plot grade difference vs. point estimate
 #'
-#' @return
+#' @return A ggplot object
 #' @export
 #'
 #' @examples
+#' # write later
 expGradedifPest <- function() {
-  dat <- merge(dplyr::mutate(getCenterData("progress"),
-                             Pest = .data$Skills_Mastered/.data$Attendances),
-               getMostRecentAssessments()) %>%
-    dplyr::filter(.data$Pest <2, .data$gradeDif >= -2)
-  p2 <- ggplot2::ggplot(dat, ggplot2::aes(x=.data$gradeDif, y = .data$Pest)) +
+  dat <- getCenterData("progress") %>%
+    dplyr::mutate(Pest = .data$Skills_Mastered/.data$Attendances) %>%
+    merge(getMostRecentAssessments()) %>%
+    dplyr::filter(.data$Pest < 2, .data$gradeDif >= -2)
+
+  p2 <-
+    ggplot2::ggplot(dat, ggplot2::aes(x=.data$gradeDif, y = .data$Pest)) +
     ggplot2::xlab("Grade Difference") + ggplot2::ylab("P Skills per session") +
     ggplot2::geom_point() + ggplot2::geom_smooth()
-  return(p2)
 }

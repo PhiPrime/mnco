@@ -2,7 +2,7 @@
 % Please edit documentation in R/pricing.R
 \name{getPricingGrid}
 \alias{getPricingGrid}
-\title{Title}
+\title{Create table of monthly amounts}
 \usage{
 getPricingGrid(
   verbose = FALSE,
@@ -11,8 +11,16 @@ getPricingGrid(
 )
 }
 \arguments{
-\item{nstu}{}
+\item{verbose}{Whether to calculate price per session}
+
+\item{nstu}{Number of enrolled students}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Create table of monthly amounts
+}
+\examples{
+# write later
 }

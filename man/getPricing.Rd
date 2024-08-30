@@ -2,7 +2,7 @@
 % Please edit documentation in R/pricing.R
 \name{getPricing}
 \alias{getPricing}
-\title{Title}
+\title{Calculate monthly payment amount}
 \usage{
 getPricing(
   gradeRange = "Kindergarten to Pre-Algebra",
@@ -13,8 +13,20 @@ getPricing(
 )
 }
 \arguments{
-\item{nstu}{}
+\item{gradeRange}{A character string}
+
+\item{contractLength}{Number of months}
+
+\item{sessionCount}{Number of sessions per month}
+
+\item{nstu}{Number of enrolled students}
+}
+\value{
+A numeric
 }
 \description{
-Title
+Calculate monthly payment amount
+}
+\examples{
+# write later
 }

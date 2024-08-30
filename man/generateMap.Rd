@@ -2,13 +2,19 @@
 % Please edit documentation in R/map.R
 \name{generateMap}
 \alias{generateMap}
-\title{Title}
+\title{Create map of ???}
 \usage{
 generateMap(useCache = TRUE)
 }
 \arguments{
-\item{useCache}{}
+\item{useCache}{\code{logical} indicating to use the cache file}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Create map of ???
+}
+\examples{
+# write later
 }

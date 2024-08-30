@@ -2,13 +2,19 @@
 % Please edit documentation in R/display.R
 \name{kablize}
 \alias{kablize}
-\title{Title}
+\title{Format data frame as LaTeX table for .Rmd knit}
 \usage{
 kablize(todisplay, headerWidth = 12)
 }
 \arguments{
-\item{todisplay}{}
+\item{todisplay}{A data frame}
+}
+\value{
+LaTeX talbe
 }
 \description{
-Title
+Format data frame as LaTeX table for .Rmd knit
+}
+\examples{
+# write later
 }

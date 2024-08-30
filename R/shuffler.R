@@ -83,7 +83,7 @@ create_new_pdf <- function(vector) {
 #' @param visual_pdf Variable for Visual Demo Pdf
 #' @param mental_pdf Variable for Mental Demo Pdf
 #'
-#' @return
+#' @return None (invisible `NULL`)
 #' @export
 #'
 #' @examples
@@ -107,4 +107,6 @@ shuffle_blue_cards <- function(visual_pdf, mental_pdf) {
   #Output
   create_new_pdf(pi_shuffle(reassemble))
   message("Output created")
+
+  invisible(NULL)
 }

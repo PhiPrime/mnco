@@ -124,17 +124,17 @@ removeDifferentDurationStudent <- function(student) {
   utils::write.csv(dat, filePath, row.names = F)
 }
 
-#Used with ranking to adjust score based on variableName
-#' Title
+#' Regularize student ranking score
 #'
-#' @param dat
-#' @param variableName
-#' @param centerVal
+#' @param dat Data frame of students with scores
+#' @param variableName Variable to regularize on
+#' @param centerVal ???
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' # write later
 regularizeScore <- function(dat, variableName, centerVal){
   #if no Score present in data frame, assume it should be LB
   if(!("Score" %in% names(dat))){
@@ -158,13 +158,14 @@ regularizeScore <- function(dat, variableName, centerVal){
   return(dat)
 }
 
-#' Title
+#' Plot regularized scores
 #'
-#' @return
+#' @return A ggplot object
 #' @export
 #'
 #' @examples
-showcaseRegularizeScore <- function(){
+#' # write later
+showcaseRegularizeScore <- function() {
   dat <- merge(getStudentRanking(),
                getMostRecentAssessments())
 

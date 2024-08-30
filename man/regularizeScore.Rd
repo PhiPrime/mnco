@@ -2,13 +2,23 @@
 % Please edit documentation in R/ranking.R
 \name{regularizeScore}
 \alias{regularizeScore}
-\title{Title}
+\title{Regularize student ranking score}
 \usage{
 regularizeScore(dat, variableName, centerVal)
 }
 \arguments{
-\item{centerVal}{}
+\item{dat}{Data frame of students with scores}
+
+\item{variableName}{Variable to regularize on}
+
+\item{centerVal}{???}
+}
+\value{
+A data frame
 }
 \description{
-Title
+Regularize student ranking score
+}
+\examples{
+# write later
 }

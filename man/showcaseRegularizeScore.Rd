@@ -2,10 +2,16 @@
 % Please edit documentation in R/ranking.R
 \name{showcaseRegularizeScore}
 \alias{showcaseRegularizeScore}
-\title{Title}
+\title{Plot regularized scores}
 \usage{
 showcaseRegularizeScore()
 }
+\value{
+A ggplot object
+}
 \description{
-Title
+Plot regularized scores
+}
+\examples{
+# write later
 }

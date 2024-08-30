@@ -2,13 +2,16 @@
 % Please edit documentation in R/template.R
 \name{templatesNeedUpdated}
 \alias{templatesNeedUpdated}
-\title{Title}
+\title{Get list of templates to be updated}
 \usage{
-templatesNeedUpdated(date = Sys.Date())
+templatesNeedUpdated()
 }
-\arguments{
-\item{date}{}
+\value{
+A data frame
 }
 \description{
-Title
+Get list of templates to be updated
+}
+\examples{
+# write later
 }

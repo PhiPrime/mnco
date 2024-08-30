@@ -1,15 +1,15 @@
-### getPricing
-#' Title
+#' Calculate monthly payment amount
 #'
-#' @param gradeRange
-#' @param contractLength
-#' @param sessionCount
-#' @param nstu
+#' @param gradeRange A character string
+#' @param contractLength Number of months
+#' @param sessionCount Number of sessions per month
+#' @param nstu Number of enrolled students
 #'
-#' @return
+#' @return A numeric
 #' @export
 #'
 #' @examples
+#' # write later
 getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
                        contractLength = retrieve_variable("Standard_Contract_Length"),
                        sessionCount = retrieve_variable("Standard_Number_Sessions"),
@@ -54,31 +54,36 @@ getPricing <- function(gradeRange = "Kindergarten to Pre-Algebra",
 }
 
 ### getPricingGrid
-#' Title
+#' Create table of monthly amounts
 #'
-#' @param verbose
-#' @param nstu
+#' @param verbose Whether to calculate price per session
+#' @param nstu Number of enrolled students
 #'
-#' @return
+#' @return A data frame
 #' @export
 #'
 #' @examples
+#' # write later
 getPricingGrid <- function(verbose = FALSE,
                            nstu = dim(getCenterData("student")[which(getCenterData("student")$Enrollment_Status=="Enrolled"),])[1]){
   df <- data.frame()
-  for(gradeBin in c("Kindergarten to Pre-Algebra","Algebra and Beyond")){
-    for (contractLen in c(1,7,12)){
-      for (sessions in c(10,15)){
-        df <- rbind(df, data.frame("Grade.Level" = gradeBin,
-                                   "Contract.Length" = contractLen,
-                                   "Sessions.Per.Month" = sessions,
-                                   "Monthly.Rate" = getPricing(gradeBin, contractLen,
-                                                               sessions, nstu)))
+  for(gradeBin in c("Kindergarten to Pre-Algebra","Algebra and Beyond")) {
+    for (contractLen in c(1, 7, 12)) {
+      for (sessions in c(10, 15)) {
+        df <- df %>% rbind(data.frame(
+          "Grade.Level"        = gradeBin,
+          "Contract.Length"    = contractLen,
+          "Sessions.Per.Month" = sessions,
+          "Monthly.Rate" = getPricing(gradeBin, contractLen, sessions, nstu)))
       }
     }
   }
-  if(verbose){
-    df <- dplyr::mutate(df, Price.per.Session = round(.data$Monthly.Rate/.data$Sessions.Per.Month,2))
+  if(verbose) {
+    df <- df %>%
+      dplyr::mutate(
+        Price.per.Session =
+          round(.data$Monthly.Rate/.data$Sessions.Per.Month, 2)
+      )
   }
   return(df)
 }

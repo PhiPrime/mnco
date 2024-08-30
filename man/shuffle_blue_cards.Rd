@@ -11,6 +11,9 @@ shuffle_blue_cards(visual_pdf, mental_pdf)
 
 \item{mental_pdf}{Variable for Mental Demo Pdf}
 }
+\value{
+None (invisible \code{NULL})
+}
 \description{
 Takes in and shuffles demo pdfs
 }

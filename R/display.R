@@ -1,12 +1,13 @@
 #################     MAKE INTO UNIFIED KABLE FUNCTION     ##################
-#' Title
+#' Format data frame as LaTeX table for .Rmd knit
 #'
-#' @param todisplay
+#' @param todisplay A data frame
 #'
-#' @return
+#' @return LaTeX talbe
 #' @export
 #'
 #' @examples
+#' # write later
 kablize <- function(todisplay, headerWidth = 12) {
   # Format headers for display
   names(todisplay) <- names(todisplay) %>%
@@ -28,13 +29,7 @@ kablize <- function(todisplay, headerWidth = 12) {
   return(todisplay)
 }
 
-#######     FUNCTION TO GENERATE "MOST PRODUCTIVE STUDENT" KABLE     ########
-#' Title
-#'
-#' @return
-#' @export
-#'
-#' @examples
+# FUNCTION TO GENERATE "MOST PRODUCTIVE STUDENT" KABLE
 displayMostProductiveStudents <- function(){
 
 }
