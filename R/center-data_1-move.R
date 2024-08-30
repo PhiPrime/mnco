@@ -13,17 +13,15 @@
 #' moveDataDownloads()
 moveDataDownloads <- function() {
   # MAKE DEFAULT ARGUMENTS FOR src and dest DIRECTORIES
-  files <- list.files(downloadsDir(), pattern = "\\d{1,2}_\\d{1,2}_\\d{4}.xlsx$")
-  fileSrc <- file.path(downloadsDir(), files)
-  fileDest <- file.path(rawDataDir(), files)
-
-  filesMoved <- ifelse(
-    identical(file.rename(fileSrc, fileDest), logical(0)),
-    FALSE,
-    TRUE
+  files <- list.files(
+    downloadsDir(),
+    pattern = "\\d{1,2}_\\d{1,2}_\\d{4}.xlsx$"
   )
 
-  # CHANGE TO NOT PRINT FULL PATH
+  src <- file.path(downloadsDir(), files)
+  dest <- file.path(rawDataDir(), files)
+  filesMoved <- !identical(file.rename(src, dest), logical(0))
+
   if (filesMoved) {
     message("NOTICE: The following files have been moved from ",
             "\"", downloadsDir(), "\" to \"", rawDataDir(), "\".\n",
@@ -34,5 +32,4 @@ moveDataDownloads <- function() {
   }
 
   invisible(filesMoved)
-
 }
