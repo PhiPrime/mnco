@@ -3,7 +3,7 @@
 #' @param data Data frame to tidy
 #' @param type Radius data file type
 #'
-#' @return A data frame
+#' @return A tidied data frame
 #' @keywords internal
 tidyRawData <- function(data, type) {
   switch (type,
@@ -20,11 +20,7 @@ tidyRawData <- function(data, type) {
   )
 }
 
-#' Tidy Radius student data
-#'
-#' @inheritParams tidyRawData
-#'
-#' @return A data frame
+# Individual data tidying functions
 tidyRawData.student <- function(data) {
   # Rename columns
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
@@ -57,11 +53,6 @@ tidyRawData.student <- function(data) {
   invisible(data)
 }
 
-#' Tidy Radius account data
-#'
-#' @inheritParams tidyRawData
-#'
-#' @return A data frame
 tidyRawData.account <- function(data) {
   # Create new columns
   data <- mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
@@ -81,11 +72,6 @@ tidyRawData.account <- function(data) {
   invisible(data)
 }
 
-#' Tidy Radius progress data
-#'
-#' @inheritParams tidyRawData
-#'
-#' @return A data frame
 tidyRawData.progress <- function(data) {
   # PROCESS COLUMNS HERE
   rm_cols <- c("Guardian")
@@ -100,11 +86,6 @@ tidyRawData.progress <- function(data) {
   invisible(data)
 }
 
-#' Tidy Radius enrollment data
-#'
-#' @inheritParams tidyRawData
-#'
-#' @return A data frame
 tidyRawData.enrollment <- function (data) {
   # Rename columns
   names(data)[names(data) == "Account_Name"] <- "Account"
@@ -225,6 +206,7 @@ tidyRawData.template <- function(data) {
 #'  not contain only `NA` values.
 #'
 #' @return A data frame
+#' @noRd
 #'
 #' @examples
 #' stu <- readRawData("student")

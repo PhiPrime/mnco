@@ -12,13 +12,9 @@ tidyRawData(data, type)
 \item{type}{Radius data file type}
 }
 \value{
-A data frame
+A tidied data frame
 }
 \description{
 Tidy Radius data
-}
-\examples{
-stu <- readRawData("student")
-tidyRawData(stu, "student")
 }
 \keyword{internal}
