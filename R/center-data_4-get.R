@@ -19,59 +19,99 @@ getCenterData <- function(type = c("all", radiusFileRoots("types")),
   # USE match.arg, stopifnot
   if (type == "all") {
     # Get all data and merge
-    stu <- getCenterData("student", date)
-    acc <- getCenterData("account", date)
-    pro <- getCenterData("progress", date)
-    enr <- getCenterData("enrollment", date)
-
-    tdat <- stu %>%
-      mergeWithFill(acc, .by = "Account_Id") %>%
-      merge(pro, all.x = T) %>%
-      merge(enr, all.x = T)
+    data <-
+      list(
+        getCenterData("student", date),
+        getCenterData("account", date),
+        getCenterData("progress", date),
+        getCenterData("enrollment", date)
+      ) %>%
+      patchJoin(.by = c("Student", "Account_Id"), first = T)
 
   } else {
-    # Get and tidy data
-    tdat <- readRawData(type, date) %>% tidyRawData(type)
+    # Read and tidy data
+    data <- readRawData(type, date) %>% tidyRawData(type)
   }
 
-  invisible(tdat)
+  invisible(data)
 }
 
-#' Combine data frames and coalesce shared columns
+#' Join data frames and patch NA values
 #'
-#' @param df1,df2 Data frames to merge. Elements in `df1` have priority for
-#'  coalescing
-#' @param .by Column name to use for merging through [merge()]
+#' @param ... Data frames or list of data frames
+#' @param .by Character string or vector of key columns used to join
+#' @param first If `TRUE`, only the shared column that appears first in `.by` is
+#'   used to join? Matching occurs between each pair of consecutive data frames
+#'   in the order they are passed in. If `FALSE`, all key columns in `.by` must
+#'   must exist in all data frames.
 #'
 #' @return A data frame
-#' @export
+#' @keywords internal
 #'
 #' @examples
 #' stu <- getCenterData("student")
 #' acc <- getCenterData("account")
-#' mergeWithFill(stu, acc, .by = "Account_Id")
-mergeWithFill <- function(df1, df2, .by) {
-  # Merge df1 and df2. Common columns are suffixed with .x and .y
-  df <- merge(df1, df2, all.x = T, by = .by)
+#' pro <- getCenterData("progress")
+#' patchJoin(stu, acc, .by = "Account_Id")
+#' patchJoin(list(stu, acc), .by = "Account_Id")
+#' patchJoin(stu, acc, pro, .by = c("Student", "Account_Id"), first = T)
+#'
+patchJoin <- function(..., .by, first = FALSE) {
+  # Data frames can be passed in singly or in a list
+  dfs <- list(...)
+  if (length(dfs) == 1 && is.list(dfs[[1]])) dfs <- dfs[[1]]
 
-  # Iterate through common columns
-  for (colName in intersect(names(df1), names(df2))) {
-    # Skip iteration if column was used to match
-    if (colName %in% .by) next
+  # Join data frames one by one
+  joined <- NULL
 
-    # Suffixed column strings
-    colName.x <- paste0(colName, ".x")
-    colName.y <- paste0(colName, ".y")
+  for (i in seq_along(dfs)) {
+    toJoin <- dfs[[i]]
 
-    # Fill value for common column to col.x and rename to col
-    df[[colName.x]] <- dplyr::coalesce(df[[colName.x]], df[[colName.y]])
-    names(df)[names(df) == colName.x] <- colName
-    # CHANGE TO THIS? MAYBE DOESN'T WORK
-    #df <- rename(df, col = col.x)
+    # Store first data frame
+    if (is.null(joined)) {
+      joined <- toJoin
+      next
+    }
 
-    # Delete col.y
-    df[[colName.y]] <- NULL
+    # Ensure key columns from `.by` exist between `joined` and `toJoin`
+    sharedCols <- intersect(names(joined), names(toJoin))
+
+    if (first) {
+      # Join only by the first shared column in `.by`
+      byMatch <-
+        match(T, .by %in% sharedCols) %>%
+        magrittr::extract(.by, .)
+
+      # Throw error if no single column found in both data frames
+      if (is.na(byMatch)) {
+        stop(
+          "None of the following key columns could be found in `patchJoin()` ",
+          "arguments ", (i - 1), " and ", i, ":\n",
+          "\t", paste0(.by, collapse = " ")
+        )
+      }
+    } else {
+      # Join by all columns in `.by`
+      byMatch <- .by
+
+      # Throw error if all columns not found in both data frames
+      if (!all(byMatch %in% sharedCols)) {
+        stop(
+          "All of the following key columns were not found in `patchJoin()` ",
+          "arguments ", (i - 1), " and ", i, ":\n",
+          "\t", paste0(.by, collapse = " "), "\n",
+          "  Did you mean to use `first = TRUE` to join by the first shared ",
+          "column in `.by`?"
+        )
+      }
+    }
+
+    # Join data frames and patch NA values
+    joined <- joined %>%
+      dplyr::left_join(toJoin, by = byMatch, suffix = c("", ".y")) %>%
+      select(-dplyr::ends_with(".y")) %>%
+      dplyr::rows_patch(toJoin, by = byMatch)
   }
 
-  return(df)
+  invisible(joined)
 }

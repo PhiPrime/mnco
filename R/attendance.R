@@ -24,7 +24,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
     c(Sys.Date())
 
   flaggedStudents <-
-    mergeWithFill(stu, acc, .by = "Account_Id") %>%
+    patchJoin(stu, acc, .by = "Account_Id") %>%
     filter(
       .data$Enrollment_Status == "Enrolled" &
       !(.data$Last_Attendance_Date %in% acceptableDates) &
@@ -133,7 +133,8 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
         Student_Id = flaggedFirstNames %>%
           filter(.data$Account_Id == accountID) %>%
           dplyr::arrange(.data$Student) %>%
-          magrittr::extract(1, "Student_Id"),
+          dplyr::pull("Student_Id") %>%
+          head(),
 
         path1 = file.path(
           getwd(), cacheDir(), "Messages", paste0(fileRoot, "-1.txt")

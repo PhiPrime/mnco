@@ -33,3 +33,5 @@ moveDataDownloads <- function() {
 
   invisible(filesMoved)
 }
+
+# ADD FUNCTION TO AUTOMATICALLY UPDATE CACHE FILeS
