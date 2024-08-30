@@ -26,14 +26,21 @@ readRawData <- function(type = radiusFileRoots("types"), date = Sys.Date()) {
   invisible(data)
 }
 
-matchRegexRoot <- function(root, date) {
+#' Extract path of raw data file matched by regex
+#'
+#' @param rootRegex Radius file root given by radiusFileRoots()
+#' @param date Date suffix of file to search for
+#'
+#' @return Path to matched file
+#' @noRd
+matchRegexRoot <- function(rootRegex, date) {
   dir <- rawDataDir()
-  fileRegex <- as.rawFileName(root, date)
+  fileRegex <- as.rawFileName(rootRegex, date)
 
   regexMatches <- list.files(dir) %>%
     magrittr::extract(stringr::str_detect(., fileRegex))
 
-  root <- switch(as.character(length(regexMatches)),
+  path <- switch(as.character(length(regexMatches)),
     "1" = regexMatches,
     "0" = stop(
       "No files were found matching the regex \"", fileRegex, "\".\n",
@@ -46,5 +53,5 @@ matchRegexRoot <- function(root, date) {
     )
   )
 
-  return(root)
+  return(rootRegex)
 }
