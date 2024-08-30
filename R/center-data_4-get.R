@@ -153,13 +153,3 @@ mergeWithFill <- function(df1, df2, .by) {
 
   return(df)
 }
-
-
-# these functions are intended ONLY for convenience in interactive testing with
-#   load_all() (or ctrl+shift+L)
-# do NOT use these in a package function. use otherwise at risk of them being
-#   removed at any time
-cstu <- function() getCenterData("student")
-cacc <- function() getCenterData("account")
-cenr <- function() getCenterData("enrollment")
-cpro <- function() getCenterData("progress")
