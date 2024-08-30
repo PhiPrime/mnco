@@ -69,11 +69,11 @@ sendOnVacation <- function(..., returnDate = NULL) {
 
   # Check students exists and grab last attendance date
   stu <- getCenterData("student") %>%
-    dplyr::select("Student", "Last_Attendance_Date") %>%
+    select("Student", "Last_Attendance_Date") %>%
     # UNRENAME THIS LATER
     dplyr::rename(Last_Attendance = "Last_Attendance_Date") %>%
-    dplyr::filter(tolower(.data$Student) %in% tolower(students)) %>%
-    dplyr::mutate(returnDate = returnDate)
+    filter(tolower(.data$Student) %in% tolower(students)) %>%
+    mutate(returnDate = returnDate)
 
   # Append students to vacation data frame
   newVac <- vac %>%
@@ -108,15 +108,15 @@ returnFromVacation <- function(studentName = NULL) {
     # Default behavior: remove students whose return dates have passed OR
     #   if they've attended a session since going on vacation
     stu <- getCenterData("student") %>%
-      dplyr::transmute(
+      transmute(
         Student = .data$Student,
         stu_last_attendance = .data$Last_Attendance_Date
       )
     newVac <- vac %>%
       dplyr::left_join(stu, by = "Student") %>%
-      dplyr::filter(Sys.Date() <= .data$returnDate) %>%
-      dplyr::filter(.data$stu_last_attendance <= .data$Last_Attendance) %>%
-      dplyr::select(-"stu_last_attendance")
+      filter(Sys.Date() <= .data$returnDate) %>%
+      filter(.data$stu_last_attendance <= .data$Last_Attendance) %>%
+      select(-"stu_last_attendance")
 
     if (!identical(newVac, vac)) {
       saveRDS(newVac, vacFilePath)

@@ -18,7 +18,7 @@ generateMap <- function(useCache = TRUE){
   # Consolidation
 
   tidydat <- dat %>%
-    dplyr::mutate(
+    mutate(
       name    = paste(.data$First_Name, .data$Last_Name),
       address = paste(
         .data$Billing_Street_1,
@@ -35,7 +35,7 @@ generateMap <- function(useCache = TRUE){
       total   = .data$Monthly_Amount*.data$Enrollment_Length_of_Stay,
       info    = paste(.data$name, .data$total, sep="<br>")
     ) %>%
-    dplyr::select(
+    select(
       "name", "total", "info", "address",
       "Enrollment_Status", "Enrollment_Length_of_Stay", "Monthly_Amount"
     )

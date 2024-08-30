@@ -16,7 +16,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 
   # Get list of dates any student attended
   acceptableDates <- stu %>%
-    dplyr::filter(Last_Attendance_Date != Sys.Date()) %>%
+    filter(Last_Attendance_Date != Sys.Date()) %>%
     dplyr::pull("Last_Attendance_Date") %>%
     unique() %>%
     sort() %>%
@@ -25,12 +25,12 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 
   flaggedStudents <-
     mergeWithFill(stu, acc, .by = "Account_Id") %>%
-    dplyr::filter(
+    filter(
       .data$Enrollment_Status == "Enrolled" &
       !(.data$Last_Attendance_Date %in% acceptableDates) &
       !(.data$Student %in% vac$Student)
     ) %>%
-    dplyr::transmute(
+    transmute(
       Last_Attendance_Date = format(.data$Last_Attendance_Date, "%m/%d/%Y"),
       Student = .data$Student,
       Account = .data$Account %>%
@@ -46,8 +46,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       Account_Id = .data$Account_Id
     ) %>%
     createTextMessageFiles() %>%
-    dplyr::select(-"Student_Id", -"Account_Id") %>%
-    dplyr::mutate(across(
+    select(-"Student_Id", -"Account_Id") %>%
+    mutate(across(
       c("Account", "Phone"),
       ~ifelse(is.na(.data$Link_1), NA_character_, .x)
     )) %>%
@@ -68,17 +68,18 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 #' @param date Date for file name
 #'
 #' @return Character string containing the name of the file
+#' @noRd
 createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
   # Get a copy of flaggedStudents with first names
   studentRawData <-
     readRawData("student") %>%
-    dplyr::transmute(
+    transmute(
       Student_Id = .data$Student_Id,
       Student_First_Name = First_Name
     )
   accountRawData <-
     readRawData("account") %>%
-    dplyr::transmute(
+    transmute(
       Account_Id = .data$Account_Id,
       Account_First_Name = First_Name
     )
@@ -94,13 +95,13 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
 
   # Create message columns to be filled in
   flaggedStudents <- flaggedStudents %>%
-    dplyr::mutate(Link_1 = NA_character_, Link_2 = NA_character_)
+    mutate(Link_1 = NA_character_, Link_2 = NA_character_)
 
   # Iterate through each account ------------------------------
   for (accountID in unique(flaggedStudents$Account_Id)) {
     # Filter students for each account
     flaggedAccount <- flaggedFirstNames %>%
-      dplyr::filter(.data$Account_Id == accountID)
+      filter(.data$Account_Id == accountID)
 
     # Get student and account first names to put in message
     studentFirstNames <- flaggedAccount %>%
@@ -110,7 +111,7 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
 
     # Create file name root for this account
     accountName <- flaggedStudents %>%
-      dplyr::filter(.data$Account_Id == accountID) %>%
+      filter(.data$Account_Id == accountID) %>%
       magrittr::extract(1, "Account")
     fileRoot <- paste0(Sys.Date(), "__", accountName) %>%
       stringr::str_replace_all("[ -]", "_")
@@ -118,19 +119,19 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
     # Fill in templates and create hyperlinks to text files
     # NEED TO PULL CENTER NAME TO FILL IN
     messages <- templates %>%
-      dplyr::mutate(across(everything(), ~stringr::str_replace_all(
+      mutate(across(everything(), ~stringr::str_replace_all(
         .x, "\\[Center\\]", "Colonial Park"
       ))) %>%
-      dplyr::mutate(across(everything(), ~stringr::str_replace_all(
+      mutate(across(everything(), ~stringr::str_replace_all(
         .x, "\\[StudentFirstName\\]", studentFirstNames
       ))) %>%
-      dplyr::mutate(across(everything(), ~stringr::str_replace_all(
+      mutate(across(everything(), ~stringr::str_replace_all(
         .x, "\\[AccountFirstName\\]", accountFirstName
       ))) %>%
-      dplyr::mutate(
+      mutate(
         # Use first student alphabetically for links
         Student_Id = flaggedFirstNames %>%
-          dplyr::filter(.data$Account_Id == accountID) %>%
+          filter(.data$Account_Id == accountID) %>%
           dplyr::arrange(.data$Student) %>%
           magrittr::extract(1, "Student_Id"),
 
@@ -154,7 +155,7 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
     # Add links to students to return back to attendanceCheck()
     # Only the first student alphabetically for each account is given links
     flaggedStudents <- messages %>%
-      dplyr::select("Student_Id", "Link_1", "Link_2") %>%
+      select("Student_Id", "Link_1", "Link_2") %>%
       dplyr::rows_patch(flaggedStudents, ., by = "Student_Id")
   }
 

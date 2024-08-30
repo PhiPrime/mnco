@@ -34,10 +34,10 @@ tidyRawData.student <- function(data) {
   names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
 
   # Reformat columns
-  data <- dplyr::mutate(data, Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"))
+  data <- mutate(data, Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"))
 
   # Create new columns
-  data <- dplyr::mutate(data, Student = paste(.data$First_Name, .data$Last_Name), .before = "Student_Id")
+  data <- mutate(data, Student = paste(.data$First_Name, .data$Last_Name), .before = "Student_Id")
 
   # Columns to be removed
   # ORGANIZE rm_cols
@@ -68,7 +68,7 @@ tidyRawData.student <- function(data) {
 #' @return A data frame
 tidyRawData.account <- function(data) {
   # Create new columns
-  data <- dplyr::mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
+  data <- mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
 
   # Columns to be removed
   rm_cols <- c("First_Name", "Last_Name", "Last_Modified_By...20",
@@ -117,20 +117,20 @@ tidyRawData.enrollment <- function (data) {
 
   # Reformat columns
   data <- data %>%
-    dplyr::mutate(Membership_Type =
+    mutate(Membership_Type =
              gsub("^\\* ", "", .data$Membership_Type)) %>%
-    dplyr::mutate(Enrollment_Contract_Length =
+    mutate(Enrollment_Contract_Length =
              gsub(" months?", "", .data$Enrollment_Contract_Length)) %>%
-    dplyr::mutate(Enrollment_Length_of_Stay =
+    mutate(Enrollment_Length_of_Stay =
              gsub(" months?", "", .data$Enrollment_Length_of_Stay)) %>%
-    dplyr::mutate(Student_Length_of_Stay =
+    mutate(Student_Length_of_Stay =
              gsub(" months?", "", .data$Student_Length_of_Stay)) %>%
 
-    dplyr::mutate(Monthly_Sessions = as.numeric(.data$Monthly_Sessions)) %>%
-    dplyr::mutate(Delivery = as.factor(.data$Delivery))
+    mutate(Monthly_Sessions = as.numeric(.data$Monthly_Sessions)) %>%
+    mutate(Delivery = as.factor(.data$Delivery))
 
   # Create new columns
-  data <- dplyr::mutate(data, Student = paste(.data$Student_First_Name, .data$Student_Last_Name),
+  data <- mutate(data, Student = paste(.data$Student_First_Name, .data$Student_Last_Name),
                 .before = "Student_First_Name")
 
   # Columns to be removed
@@ -150,7 +150,7 @@ tidyRawData.enrollment <- function (data) {
 
 tidyRawData.assessment <- function(data) {
   data <-  data %>%
-    dplyr::transmute(
+    transmute(
       Lead_Id    = as.character(.data$Lead_Id),
       Account_Id = .data$Account_Id,
       Student    = paste(.data$Student_First_Name, .data$Student_Last_Name),
@@ -177,7 +177,7 @@ tidyRawData.assessment <- function(data) {
       Group      = .data$Group == "Yes",
       Center     = as.factor(.data$Center)) %>%
     #Avoid NA warning when none is needed
-    dplyr::mutate(
+    mutate(
       Grade = as.numeric(.data$Grade),
       Level = as.numeric(.data$Level)
     ) %>%

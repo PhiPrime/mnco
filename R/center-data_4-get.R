@@ -61,7 +61,7 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
   }
 
   #Mutate to tidy
-  dat <- dplyr::mutate(dat,
+  dat <- mutate(dat,
                 date = as.Date(.data$Attendance_Date,
                                format = "%m/%d/%y"),
                 accountID = .data$Account_Id,
@@ -74,11 +74,11 @@ getAttendanceData <- function(get = FALSE, date = Sys.Date()) {
                 sessionsRemaining = .data$Sessions_Remaining,
                 delivery = as.factor(.data$Delivery))
 
-  dat <- dplyr::mutate(dat,
+  dat <- mutate(dat,
                 line = paste(.data$accountID,.data$date,.data$name,
                              sep = ";"))
 
-  dat <- dplyr::select(dat, "date":"delivery", "line")
+  dat <- select(dat, "date":"delivery", "line")
 
 
   newdat <- dat[!(dat$line %in% logdat$line),]

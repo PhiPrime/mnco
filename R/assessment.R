@@ -39,14 +39,14 @@ getHistoricAssessments <- function(Assessments_Prior_to_ = "8_5_2024") {
 #' getMostRecentAssessments(Assessments_Prior_to_ = "8_5_2024")
 getMostRecentAssessments <- function(Assessments_Prior_to_ = "8_5_2024"){
   dat <- getHistoricAssessments(Assessments_Prior_to_)
-  dat <- dplyr::filter(dat, !is.na(.data$Level))
+  dat <- filter(dat, !is.na(.data$Level))
   dat <- dat[order(dat$Student, dat$Level, decreasing = TRUE),]
   ldat <- lapply(unique(dat$Student),
-                 with(dat, function(x)dplyr::filter(dat, .data$Student == x)[1,]))
+                 with(dat, function(x)filter(dat, .data$Student == x)[1,]))
   dat <- data.frame(Reduce(rbind, ldat))
-  dat <- dplyr::mutate(dat, yearsSince = as.numeric(round(
+  dat <- mutate(dat, yearsSince = as.numeric(round(
     (Sys.time()-.data$Date)/365.25)))
-  ret <- dplyr::mutate(dat,
+  ret <- mutate(dat,
                 gradeDif = as.numeric(.data$Level)-as.numeric(.data$Grade))
   return(ret)
 }
@@ -72,9 +72,9 @@ needsDeckBasedOnAssessment <- function(date = Sys.time()){
   assessments <- getCenterData("assessment", date)
 
   #Option 1
-  stus <- dplyr::select(getCenterData("student", date),
+  stus <- select(getCenterData("student", date),
                  "Student", "Last_Attendance_Date")
-  prog <- dplyr::select(getCenterData("progress", date),
+  prog <- select(getCenterData("progress", date),
                  "Student", "Active_Learning_Plans")
   assessments <- merge(assessments, stus) %>%
     merge(prog)

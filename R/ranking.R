@@ -10,10 +10,10 @@
 getStudentRanking <- function(date = Sys.Date()) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
-    dplyr::select("Student", "Skills_Mastered", "Attendances")
+    select("Student", "Skills_Mastered", "Attendances")
 
   deliveryKey <- getCenterData("enrollment", date) %>%
-    dplyr::select("Student", "Monthly_Sessions", "Delivery")
+    select("Student", "Monthly_Sessions", "Delivery")
 
   differentDurationStudents <-
     utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
@@ -24,11 +24,11 @@ getStudentRanking <- function(date = Sys.Date()) {
     merge(deliveryKey, all.x = T) %>%
 
     # Scale attendances based on session length
-    dplyr::mutate(Duration = dplyr::coalesce(.data$Duration, 60),
+    mutate(Duration = dplyr::coalesce(.data$Duration, 60),
            Attendances = .data$Attendances * .data$Duration / 60) %>%
 
     # Subset valid contestants
-    dplyr::filter(.data$Attendances >= .data$Monthly_Sessions / 2,
+    filter(.data$Attendances >= .data$Monthly_Sessions / 2,
                   .data$Skills_Mastered > 2,
                   .data$Delivery == "In-Center")
 
@@ -39,7 +39,7 @@ getStudentRanking <- function(date = Sys.Date()) {
 
   # Calculate ranking
   dat <- dat %>%
-    dplyr::mutate(
+    mutate(
       Pest = .data$Skills_Mastered / .data$Attendances,
 
       #Outlier test
@@ -65,7 +65,7 @@ getStudentRanking <- function(date = Sys.Date()) {
         )
       )
     ) %>%
-    dplyr::select(-"samdev")
+    select(-"samdev")
 
   # Reorder columns and sort by rank
   col_order <- union(
@@ -74,7 +74,7 @@ getStudentRanking <- function(date = Sys.Date()) {
   )
 
   dat <- dat %>%
-    dplyr::select(tidyselect::all_of(col_order)) %>%
+    select(tidyselect::all_of(col_order)) %>%
     dplyr::arrange(.data$Rank)
 
   return(dat)
@@ -138,7 +138,7 @@ removeDifferentDurationStudent <- function(student) {
 regularizeScore <- function(dat, variableName, centerVal){
   #if no Score present in data frame, assume it should be LB
   if(!("Score" %in% names(dat))){
-    dat <- dplyr::mutate(dat, Score = .data$LB)
+    dat <- mutate(dat, Score = .data$LB)
   }
 
   gdMeans <- t(sapply(unique(dat[[variableName]]), function(x)
@@ -149,12 +149,12 @@ regularizeScore <- function(dat, variableName, centerVal){
   names(gdMeans)[names(gdMeans) == "tmp"] <- variableName
 
   gdMeans <- gdMeans[order(gdMeans[[variableName]]),]
-  gdMeans <- dplyr::mutate(gdMeans,
+  gdMeans <- mutate(gdMeans,
                            offset = gdMeans[gdMeans[[variableName]]==centerVal,
                            ]$Mean-.data$Mean)
   dat <- merge(dat, gdMeans)
   dat$Score <- with(dat, Score + offset)
-  dat <- dplyr::select(dat, -"offset", -"Mean")
+  dat <- select(dat, -"offset", -"Mean")
   return(dat)
 }
 

@@ -14,7 +14,7 @@
 saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
   filePath <- file.path(cacheDir(), "centerHistory.rds")
 
-  history <- dplyr::mutate(getCenterData("all", date, ignoreMissing), Date = date,
+  history <- mutate(getCenterData("all", date, ignoreMissing), Date = date,
                            .before = "Account_Id")
 
   # Remove [ and ] from column names
