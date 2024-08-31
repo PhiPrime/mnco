@@ -34,6 +34,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       Last_Attendance = format(.data$Last_Attendance_Date, "%m/%d/%Y"),
       Days = as.integer(Sys.Date() - .data$Last_Attendance_Date),
       Student = .data$Student,
+      # Reformat account name
       Account = .data$Account %>%
         stringr::str_replace("(?:(.+?), (.+))", "\\2 \\1"),
       # Select phone in this order: Mobile, Home, Other
@@ -110,11 +111,14 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
       pluralizeNames()
     accountFirstName <- flaggedAccount$Account_First_Name[1]
 
-    # Create file name root for this account
-    accountName <- flaggedStudents %>%
+    # Create file name root for this account using phone number
+    fileRoot <- flaggedStudents %>%
       filter(.data$Account_Id == accountID) %>%
-      magrittr::extract(1, "Account")
-    fileRoot <- paste0(Sys.Date(), "__", accountName) %>%
+      select("Account", "Phone") %>%
+      head() %>%
+      mutate(root = paste0(.data$Phone, "__", .data$Account)) %>%
+      pull("root") %>%
+      stringr::str_replace_all("[()]", "") %>%
       stringr::str_replace_all("[ -]", "_")
 
     # Fill in templates and create hyperlinks to text files
