@@ -4,14 +4,10 @@
 \alias{removeDeckSuppression}
 \title{Remove deck warning suppression from student}
 \usage{
-removeDeckSuppression(
-  studentRows = data.frame(matrix(ncol = 7, nrow = 0, dimnames = list(NULL, c("Student",
-    "Skills_Currently_Assigned", "Pest", "Skills_Mastered", "Attendances", "creation",
-    "expDate"))))
-)
+removeDeckSuppression(student = NULL)
 }
 \arguments{
-\item{studentRows}{Data frame of students}
+\item{student}{Name of student to remove}
 }
 \value{
 None (invisible(\code{NULL}))

@@ -110,7 +110,7 @@ patchJoin <- function(..., .by, first = FALSE) {
     joined <- joined %>%
       dplyr::left_join(toJoin, by = byMatch, suffix = c("", ".y")) %>%
       select(-dplyr::ends_with(".y")) %>%
-      dplyr::rows_patch(toJoin, by = byMatch)
+      dplyr::rows_patch(toJoin, by = byMatch, unmatched = "ignore")
   }
 
   invisible(joined)

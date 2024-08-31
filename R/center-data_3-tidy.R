@@ -73,7 +73,12 @@ tidyRawData.account <- function(data) {
 }
 
 tidyRawData.progress <- function(data) {
-  # PROCESS COLUMNS HERE
+  data <- data %>%
+    mutate(dplyr::across(
+      c("Skills_Mastered", "Skills_Currently_Assigned"),
+      ~tidyr::replace_na(.x, 0)
+    ))
+
   rm_cols <- c("Guardian")
   na_cols <- c("BPR_Comment")
 
@@ -149,7 +154,7 @@ tidyRawData.assessment <- function(data) {
         .default = "NaN"),
       Percent    = .data$Score * 100,
       # RENAME THIS LATER - WILL CONFLICT WITH SAVE FUNCTIONS
-      Date       = strptime(.data$Date_Taken, format = "%m/%e/%Y"),
+      Date_Taken = as.Date(.data$Date_Taken, format = "%m/%d/%Y"),
       Pre        = .data$`Pre/Post` == "Pre",
       Group      = .data$Group == "Yes",
       Center     = as.factor(.data$Center)) %>%
@@ -158,7 +163,7 @@ tidyRawData.assessment <- function(data) {
       Grade = as.numeric(.data$Grade),
       Level = as.numeric(.data$Level)
     ) %>%
-    dplyr::arrange(desc(.data$Date))
+    dplyr::arrange(desc(.data$Date_Taken))
   invisible(data)
 }
 

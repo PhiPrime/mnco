@@ -4,10 +4,7 @@
 \alias{needsNewDeck}
 \title{Check which students need skills assigned}
 \usage{
-needsNewDeck(
-  minAllowed = retrieve_variable("Deck_Minimum_Threshold"),
-  date = Sys.Date()
-)
+needsNewDeck(minAllowed = retrieve_variable("Deck_Minimum_Threshold"))
 }
 \arguments{
 \item{minAllowed}{Threshold for number of assigned skills. Students under

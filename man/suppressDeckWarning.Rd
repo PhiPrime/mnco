@@ -4,16 +4,12 @@
 \alias{suppressDeckWarning}
 \title{Exclude student from deck warnings}
 \usage{
-suppressDeckWarning(
-  studentRows = data.frame(matrix(ncol = 5, nrow = 0, dimnames = list(NULL, c("Student",
-    "Skills_Currently_Assigned", "Pest", "Skills_Mastered", "Attendances")))),
-  durationDays = retrieve_variable("Deck_Warning_Duration")
-)
+suppressDeckWarning(..., duration = retrieve_variable("Deck_Warning_Duration"))
 }
 \arguments{
-\item{studentRows}{Data frame of students}
+\item{...}{Character string or vectors of students}
 
-\item{durationDays}{Number of days}
+\item{duration}{Number of days}
 }
 \value{
 None (invisible \code{NULL})
