@@ -15,6 +15,10 @@ kablize <- function(todisplay, headerWidth = 12) {
     stringr::str_trunc(headerWidth)
 
   todisplay <- todisplay %>%
+    mutate(dplyr::across(
+      where(is.Date),
+      ~format(.x, "%m-%d-%Y")
+    )) %>%
     kableExtra::kbl(
       format = "latex",
       row.names = F,

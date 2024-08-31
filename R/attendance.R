@@ -31,7 +31,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       !(.data$Student %in% vac$Student)
     ) %>%
     transmute(
-      Last_Attendance = format(.data$Last_Attendance_Date, "%m/%d/%Y"),
+      Last_Attendance = .data$Last_Attendance_Date,
       Days = as.integer(Sys.Date() - .data$Last_Attendance_Date),
       Student = .data$Student,
       # Reformat account name
