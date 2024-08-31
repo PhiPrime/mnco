@@ -38,6 +38,49 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
   return(ret)
 }
 
+#' Needs deck based on assessment
+#'
+#' @param date Date to look at data for
+#'
+#' @return A [`character`] vector of students
+#' @export
+#'
+#' @examples
+#' needsDeckBasedOnAssessment()
+needsDeckBasedOnAssessment <- function(date = Sys.time()){
+
+  ## Ways to tell if a deck needs made based on assessments:
+  ### 1) Assessment Date is between Last_Attendance_Date and today
+  ### 2) Active_Learning_Plans... == 0 & Pre | == 1 & Post | <2 & NF
+  ### 3) Save data in a cache and keep track of all assessments for each student
+
+  ## We will use options 1&2
+  ret <- NA_character_
+  assessments <- getCenterData("assessment", date)
+
+  #Option 1
+  stus <- select(getCenterData("student", date),
+                 "Student", "Last_Attendance_Date")
+  prog <- select(getCenterData("progress", date),
+                 "Student", "Active_Learning_Plans")
+  assessments <- merge(assessments, stus) %>%
+    merge(prog)
+
+  #Option 1
+  ret <- c(ret,
+           assessments$Student[with(assessments,
+                                    {Date>=Last_Attendance_Date | is.na(Last_Attendance_Date)})])
+
+  #Option 2
+  ret <- c(ret,
+           assessments$Student[with(assessments,
+                                    (Active_Learning_Plans==0)|
+                                      (Active_Learning_Plans==1)&!Pre)])
+
+  return(ret)
+
+}
+
 ### suppressDeckWarning
 #' Exclude student from deck warnings
 #'
