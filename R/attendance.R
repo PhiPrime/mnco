@@ -31,7 +31,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       !(.data$Student %in% vac$Student)
     ) %>%
     transmute(
-      Last_Attendance_Date = format(.data$Last_Attendance_Date, "%m/%d/%Y"),
+      Last_Attendance = format(.data$Last_Attendance_Date, "%m/%d/%Y"),
+      Days = as.integer(Sys.Date() - .data$Last_Attendance_Date),
       Student = .data$Student,
       Account = .data$Account %>%
         stringr::str_replace("(?:(.+?), (.+))", "\\2 \\1"),
@@ -52,7 +53,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       ~ifelse(is.na(.data$Link_1), NA_character_, .x)
     )) %>%
     dplyr::arrange(
-      lubridate::mdy(.data$Last_Attendance_Date), .data$Account, .data$Student
+      lubridate::mdy(.data$Last_Attendance), .data$Account, .data$Student
     )
 
   return(flaggedStudents)
