@@ -234,3 +234,50 @@ removeRawCols <- function(df, ..., test_na = F) {
   }
   return(df)
 }
+
+# MODIFY TO ALLOW ITERATION THROUGH MULTIPLE DATES?
+#' Get NA column names
+#'
+#' @param date Date to read data for
+#'
+#' @return A vector of column names
+#'
+#' @examples
+#' get_raw_na_cols()
+get_raw_na_cols <- function(date = Sys.Date()) {
+  rootType <- c("student", "account", "progress", "enrollment")
+
+  # Iterate through each raw data file for given date
+  na_col_list <- list()
+  for (i in 1:4) {
+    dat <- readRawData(rootType[i], date)
+
+    # Get and append names of NA columns to list
+    na_col <- sapply(dat, function(x) all(is.na(x)))
+    na_col_names <- names(na_col)[na_col]
+    na_col_list[[i]] <- na_col_names
+  }
+  names(na_col_list) <- fileRoots
+
+  return(na_col_list)
+}
+
+#' Prints names of NA columns in raw data files
+#'
+#' The column names are formatted for copy/paste into a vector in code
+#'
+#' @param date Date to read data for
+#'
+#' @return None (invisible `NULL`)
+#'
+#' @examples
+#' print_raw_na_cols
+print_raw_na_cols <- function(date = Sys.Date()) {
+  na_col_list = get_raw_na_cols(date)
+
+  for (col_name in names(na_col_list)) {
+    message(col_name, ": \"", paste0(na_col_list[[col_name]], collapse = "\", \""), "\"")
+  }
+
+  invisible(NULL)
+}

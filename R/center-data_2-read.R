@@ -55,3 +55,46 @@ matchRegexRoot <- function(rootRegex, date) {
 
   return(path)
 }
+
+#' Format Radius data file path
+#'
+#' @param dir Raw data directory path
+#' @param root Raw data file root
+#' @param date A date
+#'
+#' @return A character string
+#' @export
+#'
+#' @examples
+#' as.rawFilePath(rawDataDir(), "Student Export", "2024-07-31")
+as.rawFilePath <- function(dir, root, date) {
+  file.path(dir, as.rawFileName(root, date))
+}
+
+#' Format Radius style file name
+#'
+#' @inheritParams as.rawFilePath
+#'
+#' @return A character string
+#' @export
+#'
+#' @examples
+#' as.rawFileName("Students Export", "2024-07-31")
+as.rawFileName <- function(root, date) {
+  paste0(root, "  ", as.radiusDate(date), ".xlsx")
+}
+
+#' Format Radius style date
+#'
+#' @inheritParams as.rawFilePath
+#'
+#' @return A character string
+#' @export
+#'
+#' @examples
+#' as.radiusDate("2024-07-31")
+as.radiusDate <- function(date) {
+  paste(lubridate::month(date),
+        lubridate::day(date),
+        lubridate::year(date), sep = "_")
+}
