@@ -26,6 +26,8 @@ ctem <- function() getCenterData("template")
 #'
 #' @param knit Whether to knit
 #' @param open Whether to open
+#'
+#' @export
 #' @noRd
 dailyReport <- function(knit = TRUE, open = TRUE) {
   if (knit) rmarkdown::render("../mcp-data/daily-report.Rmd")

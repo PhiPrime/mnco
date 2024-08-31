@@ -117,7 +117,7 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
       select("Account", "Phone") %>%
       head() %>%
       mutate(root = paste0(.data$Phone, "__", .data$Account)) %>%
-      pull("root") %>%
+      dplyr::pull("root") %>%
       stringr::str_replace_all("[()]", "") %>%
       stringr::str_replace_all("[ -]", "_")
 
