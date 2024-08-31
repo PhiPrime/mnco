@@ -102,7 +102,7 @@ suppressDeckWarning <- function(studentRows = data.frame(
 #' @examples
 #' # write later
 getSuppressedStudents <- function(){
-  fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
+  fileLoc <- file.path(cacheDir(), "suppressions.rds")
   if(!file.exists(fileLoc)){
     #Run null constructor
     setSuppressedStudents()
@@ -135,7 +135,7 @@ setSuppressedStudents <- function(dat = data.frame(
   #Check for expired stints
   dat <- dat[which((Sys.Date()<dat$expDate)),]
 
-  fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
+  fileLoc <- file.path(cacheDir(), "suppressions.rds")
   saveRDS(dat, fileLoc)
 
   invisible(NULL)
@@ -161,7 +161,7 @@ removeDeckSuppression <- function(studentRows = data.frame(
   correctNames <- c("Student", "Skills_Currently_Assigned", "Pest",
                     "Skills_Mastered", "Attendances",
                     "creation", "expDate")
-  fileLoc <- file.path(cacheDir(), "suppressedStudents.rds")
+  fileLoc <- file.path(cacheDir(), "suppressions.rds")
 
   #Check for correct format
   if (any(names(studentRows) != correctNames)){

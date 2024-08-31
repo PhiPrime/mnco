@@ -6,7 +6,7 @@
 #' @examples
 #' getStudentsOnVacation()
 getStudentsOnVacation <- function(){
-  fileLoc <- file.path(cacheDir(), "StudentsOnVacation.rds")
+  fileLoc <- file.path(cacheDir(), "vacations.rds")
   if(!file.exists(fileLoc)) {
     vac <- data.frame(
       Student = character(0),
@@ -55,7 +55,7 @@ sendOnVacation <- function(..., returnDate = NULL) {
   }
 
   # Read vacation cache file, create if it doesn't exist
-  vacFilePath <- file.path(cacheDir(), "StudentsOnVacation.rds")
+  vacFilePath <- file.path(cacheDir(), "vacations.rds")
 
   if(!file.exists(vacFilePath)) {
     vac <- data.frame(
@@ -99,7 +99,7 @@ sendOnVacation <- function(..., returnDate = NULL) {
 #' @examples
 #' returnFromVacation("John Doe")
 returnFromVacation <- function(studentName = NULL) {
-  vacFilePath <- file.path(cacheDir(), "StudentsOnVacation.rds")
+  vacFilePath <- file.path(cacheDir(), "vacations.rds")
   vac <- readRDS(vacFilePath)
 
   studentReturned <- FALSE

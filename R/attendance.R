@@ -142,10 +142,10 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
           head(),
 
         path1 = file.path(
-          getwd(), cacheDir(), "Messages", paste0(fileRoot, "-1.txt")
+          getwd(), cacheDir(), "messages", paste0(fileRoot, "-1.txt")
         ),
         path2 = file.path(
-          getwd(), cacheDir(), "Messages", paste0(fileRoot, "-2.txt")
+          getwd(), cacheDir(), "messages", paste0(fileRoot, "-2.txt")
         ),
 
         Link_1 = paste0("\\href{", .data$path1, "}{Text 1}"),
@@ -200,5 +200,5 @@ pluralizeNames <- function(...) {
 #' @return A data frame
 #' @export
 getAttendanceTrainingSet <- function() {
-  readRDS(file.path(cacheDir(), "prior2024.rds"))
+  readRDS(file.path(cacheDir(), "attendance-training-data.rds"))
 }

@@ -12,7 +12,7 @@
 #' @examples
 #' saveCenterData()
 saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
-  filePath <- file.path(cacheDir(), "centerHistory.rds")
+  filePath <- file.path(cacheDir(), "center-history.rds")
 
   history <- mutate(getCenterData("all", date, ignoreMissing), Date = date,
                            .before = "Account_Id")
@@ -55,10 +55,10 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
 #' saveAllCenterData()
 saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.Date(),
                               promptDelete = T) {
-  filePath <- file.path(cacheDir(), "centerHistory.rds")
+  filePath <- file.path(cacheDir(), "center-history.rds")
   date <- startDate
 
-  # Delete centerHistory.rds
+  # Delete center-history.rds
   if (file.exists(filePath)) {
     message("CAUTION: \"", filePath,
                 "\" will now be deleted and recreated!\n", sep = "")

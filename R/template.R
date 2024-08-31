@@ -6,7 +6,7 @@
 #' @examples
 #' # write later
 saveTemplates <- function() {
-  cacheFile <- file.path(cacheDir(), "Templates.rds")
+  cacheFile <- file.path(cacheDir(), "templates.rds")
   newFile <- readRawData("template") %>%
     #Mark LA timezone, as that's what Radius stores
     mutate(
@@ -70,7 +70,7 @@ saveTemplates <- function() {
 #' @examples
 #' # write later
 getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM", name = NULL) {
-  cacheFile <- file.path(cacheDir(), "Templates.rds")
+  cacheFile <- file.path(cacheDir(), "templates.rds")
   dat <- readRDS(cacheFile)
 
   if (!is.null(name)) return(dat[dat$Template_Name == name,]$template)
@@ -89,7 +89,7 @@ getTemplate  <- function(createdDate = "10/19/2021 6:55:40 PM", name = NULL) {
 #' @examples
 #' # write later
 templatesNeedUpdated <- function() {
-  cacheFile <- file.path(cacheDir(), "Templates.rds")
+  cacheFile <- file.path(cacheDir(), "templates.rds")
   newFile <- readRawData("template") %>%
     #Mark LA timezone, as that's what Radius stores
     mutate(
