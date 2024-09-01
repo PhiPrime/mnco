@@ -26,8 +26,8 @@ readCache <- function(type) {
     createCache(type)
     return("cache to be created")
   }
-  message("readCache(): cleanCache() called for ", type)
 
+  message("readCache(): cleanCacheData() called for ", type)
   readRDS(path) %>%
   #cleanCache(type) %>%
   return()
