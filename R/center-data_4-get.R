@@ -11,29 +11,44 @@
 #' @examples
 #' getCenterData()
 #' getCenterData("student")
-getCenterData <- function(type = c("all", radiusFileRoots("types")),
-                          date = Sys.Date(), ignoreMissing = F) {
+getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
   # Ensure valid type of Radius data file
-  type <- match.arg(type)
+  typeChoices = radiusFileRoots("types")
 
-  # USE match.arg, stopifnot
-  if (type == "all") {
+  if (length(type) == 1) {
+    type <- match.arg(type, c("all", typeChoices))
+  } else {
+    matchLength = length(
+      try(match.arg(type, typeChoices, several.ok = T), silent = T)
+    )
+
+    if (length(type) != length(matches)) {
+      stop(
+        "If `type` has length > 1, elements should be one of ",
+        radiusFileRoots("types") %>%
+          paste0("\"", ., "\"", collapse = ", ")
+      )
+    }
+  }
+
+  # Get data
+  if (identical(type, "all")) {
     # Get all data and merge
-    data <-
-      list(
-        getCenterData("student", date),
-        getCenterData("account", date),
-        getCenterData("progress", date),
-        getCenterData("enrollment", date)
-      ) %>%
-      patchJoin(.by = c("Student", "Account_Id"), first = T)
-
+    data <- list(
+      getCenterData("student", date),
+      getCenterData("account", date),
+      getCenterData("progress", date),
+      getCenterData("enrollment", date)
+    )
+  } else if (length(type) > 1) {
+    data <- lapply(type, getCenterData, date = date)
   } else {
     # Read and tidy data
     data <- readRawData(type, date) %>% tidyRawData(type)
   }
 
-  invisible(data)
+  # Join and return data frames
+  patchJoin(data, .by = c("Student", "Account_Id"), first = T)
 }
 
 #' Join data frames and patch NA values
@@ -59,7 +74,7 @@ getCenterData <- function(type = c("all", radiusFileRoots("types")),
 patchJoin <- function(..., .by, first = FALSE) {
   # Data frames can be passed in singly or in a list
   dfs <- list(...)
-  if (length(dfs) == 1 && is.list(dfs[[1]])) dfs <- dfs[[1]]
+  if (length(dfs) == 1 && isa(dfs[[1]], "list")) dfs <- dfs[[1]]
 
   # Join data frames one by one
   joined <- NULL

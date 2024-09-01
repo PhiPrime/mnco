@@ -2,6 +2,7 @@
 #   load_all() (or ctrl+shift+L)
 # do NOT use these in a package function. use otherwise at risk of them being
 #   removed at any time
+gcd  <- function(...) getCenterData(...)
 cstu <- function() getCenterData("student")
 cacc <- function() getCenterData("account")
 cenr <- function() getCenterData("enrollment")
