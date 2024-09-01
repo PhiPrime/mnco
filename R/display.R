@@ -16,7 +16,7 @@ kablize <- function(todisplay, headerWidth = 12) {
 
   todisplay <- todisplay %>%
     mutate(dplyr::across(
-      where(is.Date),
+      where(lubridate::is.Date),
       ~format(.x, "%m-%d-%Y")
     )) %>%
     kableExtra::kbl(

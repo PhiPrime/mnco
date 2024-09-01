@@ -53,9 +53,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       c("Account", "Phone"),
       ~ifelse(is.na(.data$Link_1), NA_character_, .x)
     )) %>%
-    dplyr::arrange(
-      lubridate::mdy(.data$Last_Attendance), .data$Account, .data$Student
-    )
+    dplyr::arrange(.data$Last_Attendance, .data$Account, .data$Student)
 
   return(flaggedStudents)
 }
@@ -115,7 +113,7 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
     fileRoot <- flaggedStudents %>%
       filter(.data$Account_Id == accountID) %>%
       select("Account", "Phone") %>%
-      head() %>%
+      head(1) %>%
       mutate(root = paste0(.data$Phone, "__", .data$Account)) %>%
       dplyr::pull("root") %>%
       stringr::str_replace_all("[()]", "") %>%
@@ -139,7 +137,7 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
           filter(.data$Account_Id == accountID) %>%
           dplyr::arrange(.data$Student) %>%
           dplyr::pull("Student_Id") %>%
-          head(),
+          head(1),
 
         path1 = file.path(
           getwd(), cacheDir(), "messages", paste0(fileRoot, "-1.txt")
