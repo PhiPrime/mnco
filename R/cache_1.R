@@ -10,7 +10,7 @@ the_cache$FILE_NAMES <- c(
 )
 
 createCache <- function(type) {
-  match.arg(type, names(the_cache$FILE_NAMES))
+  type <- match.cacheType(type)
 
   message("createCache(): processCache(empty) called for ", type)
   #processCache(empty, type) %>% saveRDS(cachePath(type))
@@ -18,7 +18,7 @@ createCache <- function(type) {
 }
 
 readCache <- function(type) {
-  match.arg(type, names(the_cache$FILE_NAMES))
+  type <- match.cacheType(type)
   path <- cachePath(type)
 
   if (!file.exists(path)) {
@@ -34,7 +34,7 @@ readCache <- function(type) {
 }
 
 saveCache <- function(data, type) {
-  match.arg(type, names(the_cache$FILE_NAMES))
+  type <- match.cacheType(type)
 
   cache <- readCache(type)
   if (!identical(data, cache)) {
@@ -45,6 +45,10 @@ saveCache <- function(data, type) {
 }
 
 cachePath <- function(type) {
-  match.arg(type, names(the_cache$FILE_NAMES))
+  type <- match.cacheType(type)
   return(file.path(cacheDir(), the_cache$FILE_NAMES[[type]]))
+}
+
+match.cacheType <- function(type) {
+  return(match.arg(type, names(the_cache$FILE_NAMES)))
 }
