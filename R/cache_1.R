@@ -5,7 +5,8 @@ the_cache$FILE_NAMES <- c(
   `session-length` = "session-length.rds",
   suppression      = "suppressions.rds",
   template         = "templates.rds",
-  vacation         = "vacations.rds"
+  vacation         = "vacations.rds",
+  test             = "test.rds"
 )
 
 cachePath <- function(type) {
