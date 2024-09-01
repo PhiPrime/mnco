@@ -22,7 +22,7 @@ getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
       try(match.arg(type, typeChoices, several.ok = T), silent = T)
     )
 
-    if (length(type) != length(matches)) {
+    if (length(type) != matchLength) {
       stop(
         "If `type` has length > 1, elements should be one of ",
         radiusFileRoots("types") %>%
