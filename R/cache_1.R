@@ -8,3 +8,7 @@ the_cache$FILE_NAMES <- c(
   vacation         = "vacations.rds"
 )
 
+cachePath <- function(type) {
+  match.arg(type, names(the_cache$FILE_NAMES))
+  return(file.path(cacheDir(), the_cache$FILE_NAMES[[type]]))
+}
