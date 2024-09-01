@@ -15,12 +15,14 @@ readCache <- function(type) {
 
   if (!file.exists(path)) {
     message("readCache(): createCache() called for ", type)
-    #createCache(type)
-    return(NULL)
+    createCache(type)
+    return("cache to be created")
   }
   message("readCache(): cleanCache() called for ", type)
 
-  return(readRDS(path))
+  readRDS(path) %>%
+  #cleanCache(type) %>%
+  return()
 }
 
 saveCache <- function(data, type) {
