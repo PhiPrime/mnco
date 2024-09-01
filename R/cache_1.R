@@ -21,7 +21,17 @@ readCache <- function(type) {
   message("readCache(): cleanCache() called for ", type)
 
   return(readRDS(path))
+}
 
+saveCache <- function(data, type) {
+  match.arg(type, names(the_cache$FILE_NAMES))
+
+  cache <- readCache(type)
+  if (!identical(data, cache)) {
+    saveRDS(data, cachePath(type))
+    return(TRUE)
+  }
+  return(FALSE)
 }
 
 cachePath <- function(type) {
