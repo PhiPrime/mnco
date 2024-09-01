@@ -49,7 +49,7 @@ sendOnVacation <- function(..., returnDate = NULL) {
     returnDate <- tryCatch(
       as.Date(returnDate),
       error = function(e) {
-        stop("`returnDate` cannot be converted into a Date object: ", returnDate)
+        stop("`returnDate` cannot be coerced into a Date object: ", returnDate)
       }
     )
   }
