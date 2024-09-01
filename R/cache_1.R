@@ -9,6 +9,14 @@ the_cache$FILE_NAMES <- c(
   test             = "test.rds"
 )
 
+createCache <- function(type) {
+  match.arg(type, names(the_cache$FILE_NAMES))
+
+  message("createCache(): processCache(empty) called for ", type)
+  #processCache(empty, type) %>% saveRDS(cachePath(type))
+  invisible(NULL)
+}
+
 readCache <- function(type) {
   match.arg(type, names(the_cache$FILE_NAMES))
   path <- cachePath(type)
