@@ -1,37 +1,43 @@
-processCacheData <- function(data, type) {
+updateCache <- function(input, type, remove = FALSE) {
   type <- match.cacheType(type)
-  key <- cacheKey(type)
 
-  processedData <- getCenterData() %>%
-    filter(.data[[key]] == data[[key]]) %>%
-    dplyr::left_join(data, by = key) %>%
-    {match.fun(paste0("processCacheData.", type))(.)}
+  path <- cachePath(type)
+  cache <- readRDS(path)
+  rowsAction <- if (!remove) dplyr::rows_upsert else dplyr::rows_delete
 
-  message("processCacheData(): cleanCacheData() called for ", type)
-  #dataClean <- cleanCacheData(data, type)
-  # if (!identical(data, dataClean)) {
-  #   stop("Invalid input was given")
-  # }
-  # NEED TO FINISH
+  return(match.fun(paste0("updateCache.", type))(input, cache, rowsAction))
 
-  return(processedData)
+  updated <-
+    match.fun(paste0("updateCache.", type))(input, cache, rowsAction) %>%
+    saveCache(type)
+
+  return(updated)
 }
 
-processCacheData.centerHistory <- function(data) {
+filterJoin <- function(x, y, key) {
+  filter(x, x[[key]] == y[[key]]) %>%
+    patchJoin(y, .by = key, update = T) %>%
+    return()
+}
+
+updateCache.centerHistory <- function(data) {
   # PROCESSING GOES HERE
 
   return(data)
 }
 
-processCacheData.sessionLength <- function(data) {
+updateCache.sessionLength <- function(data) {
   # PROCESSING GOES HERE
 
   return(data)
 }
 
-processCacheData.suppression <- function(data) {
-  # PROCESSING GOES HERE
-  data %>%
+updateCache.suppression <- function(input, cache, rowsAction) {
+  key <- "Student"
+  data <- getCenterData()
+
+  output <- data %>%
+    filterJoin(input, key) %>%
     mutate(
       # ADD PEST INTO PROGRESS TIDY
       Pest = .data$Skills_Mastered/.data$Attendances,
@@ -45,18 +51,30 @@ processCacheData.suppression <- function(data) {
       "Attendances",
       "creation",
       "expDate"
-    ) %>%
-    return()
+    )
+
+  output <- processedData %>%
+    {tryCatch(
+      rowsAction(cache, ., by = key),
+      error = function(e) cache
+    )} %>%
+    filter(Sys.Date() <= .data$expDate)
+
+  return(data)
 }
 
-processCacheData.template <- function(data) {
+updateCache.template <- function(data) {
   # PROCESSING GOES HERE
 
   return(data)
 }
 
-processCacheData.vacation <- function(data) {
-  data %>%
+updateCache.vacation <- function(input, cache, rowsAction) {
+  key <- "Student"
+  data <- getCenterData()
+
+  joinedData <- data %>% filterJoin(input, key)
+  transformedData <- joinedData %>%
     # RENAME THIS IN TIDY
     dplyr::mutate(
       Last_Attendance = .data$Last_Attendance_Date
@@ -64,12 +82,29 @@ processCacheData.vacation <- function(data) {
     select(
       "Student",
       "Last_Attendance",
-      "Return_Date"
+      "returnDate"
+    )
+  modifiedCache <- transformedData %>%
+    {tryCatch(
+      rowsAction(cache, ., by = key),
+      error = function(e) cache
+    )}
+
+  cleanedCache <- modifiedCache %>%
+    filter(Sys.Date() <= .data$returnDate) %>%
+    dplyr::left_join(by = "Student",
+      transmute(data,
+        Student = data$Student,
+        last_att_temp = data$Last_Attendance_Date
+      )
     ) %>%
-    return()
+    filter(.data$last_att_temp <= .data$Last_Attendance) %>%
+    select(-"last_att_temp")
+
+  return(cleanedCache)
 }
 
-processCacheData.test <- function(data) {
+updateCache.test <- function(data) {
   # PROCESSING GOES HERE
 
   return(data)
