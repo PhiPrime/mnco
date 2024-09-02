@@ -71,7 +71,7 @@ getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
 #' patchJoin(list(stu, acc), .by = "Account_Id")
 #' patchJoin(stu, acc, pro, .by = c("Student", "Account_Id"), first = T)
 #'
-patchJoin <- function(..., .by, first = FALSE) {
+patchJoin <- function(..., .by, first = FALSE, update = FALSE) {
   # Data frames can be passed in singly or in a list
   dfs <- list(...)
   if (length(dfs) == 1 && isa(dfs[[1]], "list")) dfs <- dfs[[1]]
@@ -121,11 +121,14 @@ patchJoin <- function(..., .by, first = FALSE) {
       }
     }
 
+    # SEPARATE INTO DIFFERENT FUNCTIONS
+    rows_action <- if (!update) dplyr::rows_patch else dplyr::rows_patch
+
     # Join data frames and patch NA values
     joined <- joined %>%
       dplyr::left_join(toJoin, by = byMatch, suffix = c("", ".y")) %>%
       select(-dplyr::ends_with(".y")) %>%
-      dplyr::rows_patch(toJoin, by = byMatch, unmatched = "ignore")
+      rows_action(toJoin, by = byMatch, unmatched = "ignore")
   }
 
   invisible(joined)
