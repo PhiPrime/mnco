@@ -1,13 +1,13 @@
 the_cache <- new.env(parent = emptyenv())
 
 the_cache$info <- tibble::tribble(
-  ~type,           ~key,
-  "centerHistory", "",
-  "sessionLength", "",
-  "suppression",   "Student",
-  "template",      "",
-  "vacation",      "Student",
-  "test",          ""
+  ~type,           ~file_name,
+  "centerHistory", "centerHistory.rds",
+  "sessionLength", "sessionLengths.rds",
+  "suppression",   "suppressions.rds",
+  "template",      "templates.rds",
+  "vacation",      "vacations.rds",
+  "test",          "test.rds"
 )
 
 createCache <- function(type) {
@@ -50,18 +50,8 @@ cachePath <- function(type) {
 
   the_cache$info %>%
     filter(.data$type == .env$type) %>%
-    dplyr::pull("type") %>%
-    paste0(".rds") %>%
+    dplyr::pull("file_name") %>%
     file.path(cacheDir(), .) %>%
-    return()
-}
-
-cacheKey <- function(type) {
-  type <- match.cacheType(type)
-
-  the_cache$info %>%
-    filter(.data$type == .env$type) %>%
-    dplyr::pull("key") %>%
     return()
 }
 
