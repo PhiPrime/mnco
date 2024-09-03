@@ -1,14 +1,11 @@
-updateCache <- function(input, type, remove = FALSE) {
+updateCache <- function(input, type, action = c("upsert", "delete"), unmatched) {
   type <- match.cacheType(type)
+  action <- match.arg(action)
 
-  path <- cachePath(type)
-  cache <- readRDS(path)
-  rowsAction <- if (!remove) dplyr::rows_upsert else dplyr::rows_delete
-
-  return(match.fun(paste0("updateCache.", type))(input, cache, rowsAction))
+  cache <- readRDS(cachePath(type))
 
   updated <-
-    match.fun(paste0("updateCache.", type))(input, cache, rowsAction) %>%
+    match.fun(paste0("updateCache.", type))(input, cache, action) %>%
     saveCache(type)
 
   return(updated)
@@ -32,35 +29,40 @@ updateCache.sessionLength <- function(data) {
   return(data)
 }
 
-updateCache.suppression <- function(input, cache, rowsAction) {
+updateCache.suppression <- function(input, cache, action) {
   key <- "Student"
   data <- getCenterData()
 
-  output <- data %>%
-    filterJoin(input, key) %>%
-    mutate(
-      # ADD PEST INTO PROGRESS TIDY
-      Pest = .data$Skills_Mastered/.data$Attendances,
-      creation = Sys.Date(),
-    ) %>%
-    select(
-      "Student",
-      "Skills_Currently_Assigned",
-      "Pest",
-      "Skills_Mastered",
-      "Attendances",
-      "creation",
-      "expDate"
-    )
+  if (action == "upsert") {
+    joinedData <- data %>% filterJoin(input, key)
 
-  output <- processedData %>%
-    {tryCatch(
-      rowsAction(cache, ., by = key),
-      error = function(e) cache
-    )} %>%
+    transformedData <- joinedData %>%
+      mutate(
+        # ADD PEST INTO PROGRESS TIDY
+        Pest = .data$Skills_Mastered/.data$Attendances,
+        creation = Sys.Date(),
+      ) %>%
+      select(
+        "Student",
+        "Skills_Currently_Assigned",
+        "Pest",
+        "Skills_Mastered",
+        "Attendances",
+        "creation",
+        "expDate"
+      )
+
+    modifiedCache <-
+      dplyr::rows_upsert(cache, transformedData, by = key)
+  } else if (action == "delete") {
+    modifiedCache <-
+      dplyr::rows_delete(cache, input, by = key, unmatched = "ignore")
+  }
+
+  cleanedCache <- modifiedCache %>%
     filter(Sys.Date() <= .data$expDate)
 
-  return(data)
+  return(cleanedCache)
 }
 
 updateCache.template <- function(data) {
@@ -69,26 +71,32 @@ updateCache.template <- function(data) {
   return(data)
 }
 
-updateCache.vacation <- function(input, cache, rowsAction) {
+updateCache.vacation <- function(input, cache, action) {
   key <- "Student"
+  blank <- tibble::tibble(
+    Student         = character(0),
+    Last_Attendance = as.Date(integer(0)),
+    returnDate      = as.Date(integer(0))
+  )
+
   data <- getCenterData()
 
-  joinedData <- data %>% filterJoin(input, key)
-  transformedData <- joinedData %>%
-    # RENAME THIS IN TIDY
-    dplyr::mutate(
-      Last_Attendance = .data$Last_Attendance_Date
-    ) %>%
-    select(
-      "Student",
-      "Last_Attendance",
-      "returnDate"
-    )
-  modifiedCache <- transformedData %>%
-    {tryCatch(
-      rowsAction(cache, ., by = key),
-      error = function(e) cache
-    )}
+  if (action == "upsert") {
+    joinedData <- data %>% filterJoin(input, key)
+
+    transformedData <- joinedData %>%
+      # RENAME THIS IN TIDY
+      mutate(
+        Last_Attendance = .data$Last_Attendance_Date
+      ) %>%
+      select(all_of(names(blank)))
+
+    modifiedCache <-
+      dplyr::rows_upsert(cache, transformedData, by = key)
+  } else if (action == "delete") {
+    modifiedCache <-
+      dplyr::rows_delete(cache, input, by = key, unmatched = "ignore")
+  }
 
   cleanedCache <- modifiedCache %>%
     filter(Sys.Date() <= .data$returnDate) %>%
