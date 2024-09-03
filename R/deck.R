@@ -13,7 +13,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
   sup <- getSuppressedStudents()
 
   #Select students under minAllowed
-  flagged <- getCenterData("progress") %>%
+  flagged <- getCenterData(c("student", "progress")) %>%
     filter(
       .data$Enrollment_Status == "Enrolled" &
       !(.data$Student %in% sup$Student)
@@ -24,11 +24,19 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
     ) %>%
     select(
       "Student",
+      "Student_Id",
       "Skills_Currently_Assigned",
       "Skills_Mastered",
       "Attendances"
     ) %>%
     mutate(Pest = .data$Skills_Mastered/.data$Attendances) %>%
+    mutate(.keep = "unused",
+      LP_Link = paste0(
+        "\\href{https://radius.mathnasium.com/Student/Details/",
+        .data$Student_Id,
+        "#learningPlanGrid}{Link}"
+      )
+    ) %>%
     dplyr::arrange(.data$Skills_Currently_Assigned, .data$Student)
 
   return(flagged)
