@@ -45,3 +45,13 @@ dailyReport <- function(knit = TRUE, open = TRUE) {
   if (knit) rmarkdown::render("../mcp-data/daily-report.Rmd")
   if (open) system2("open", "../mcp-data/daily-report.pdf")
 }
+
+cardRaffle <- function(width, seed, num = 3) {
+  cardWidth <- .1
+  numCards <- round(width / cardWidth)
+
+  set.seed(seed)
+  winners <- ceiling(runif(num, min = 0, max = numCards))
+
+  return(winners)
+}
