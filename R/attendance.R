@@ -50,8 +50,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 
   output <- output %>%
     mutate(across(
-      c("Account", "Phone"),
-      ~ifelse(is.na(.data$Link_1), NA_character_, .x)
+      c("Account", "Phone", "Link_1", "Link_2"),
+      ~ifelse(is.na(.data$Link_1), "\\^{}", .x)
     ))
 
 
