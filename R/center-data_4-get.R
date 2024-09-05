@@ -14,6 +14,7 @@
 getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
   # Ensure valid type of Radius data file
   typeChoices = radiusFileRoots("types")
+  stopifnot(lubridate::is.Date(date))
 
   if (length(type) == 1) {
     type <- match.arg(type, c("all", typeChoices))
