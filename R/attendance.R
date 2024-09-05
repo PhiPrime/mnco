@@ -11,8 +11,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
   # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
 
-  # Get list of dates any student attended
-  acceptableDates <- attendanceDates(days = 5)
+  # Get list of dates any student attended, plus today
+  acceptableDates <- c(attendanceDates(days = 5), Sys.Date())
 
   flaggedStudents <-
     getCenterData(c("student", "account")) %>%
@@ -72,6 +72,50 @@ createTextMessageFiles <- function(flaggedStudents) {
   flaggedStudents <- flaggedStudents %>%
     mutate(Link_1 = NA_character_, Link_2 = NA_character_)
 
+  # Cache -----------------
+  # Create cache if it doesn't exist
+  cachePath <- file.path(cacheDir(), "attendanceFlags.rds")
+  if (!file.exists(cachePath)) {
+    cache <- tibble::tibble(
+      Student = character(0),
+      Date_Added = as.Date(integer(0))
+    )
+    saveRDS(cache, cachePath)
+  }
+
+  # Remove students not flagged
+  cache <- readRDS(cachePath) %>%
+    filter(.data$Student %in% flaggedStudents$Student)
+
+  # Add new flagged students using today for Date_Added
+  newFlags <- flaggedStudents %>%
+    filter(!(.data$Student %in% cache$Student)) %>%
+    transmute(
+      Student = .data$Student,
+      Date_Added = Sys.Date()
+    )
+  cache <- cache %>%
+    dplyr::rows_insert(newFlags, by = "Student")
+
+  # Change Date_Added dates that were not business days to today
+  #   This prevents being assigned text 2 if they were added to cache for
+  #   testing or other reasons on a closed day.
+  allAttendanceDates <- attendanceDates("all")
+  cache <- cache %>%
+    mutate(
+      Date_Added = dplyr::case_when(
+        !(.data$Date_Added %in% allAttendanceDates) ~ Sys.Date(),
+        .default = .data$Date_Added
+      )
+    )
+
+  # Save cache
+  saveRDS(cache, cachePath)
+
+  # Join cache to flags to process
+  flaggedFirstNames <- flaggedFirstNames %>%
+    dplyr::left_join(cache, by = "Student")
+
   # Iterate through each account ------------------------------
   for (accountID in unique(flaggedFirstNames$Account_Id)) {
     # Filter students for each account
@@ -114,6 +158,7 @@ createTextMessageFiles <- function(flaggedStudents) {
           dplyr::pull("Student") %>%
           head(1),
 
+        # Create path to message text files
         path1 = file.path(
           getwd(), cacheDir(), "messages", paste0(fileRoot, "-1.txt")
         ),
@@ -121,8 +166,33 @@ createTextMessageFiles <- function(flaggedStudents) {
           getwd(), cacheDir(), "messages", paste0(fileRoot, "-2.txt")
         ),
 
+        # Create latex hyperlinks to files
         Link_1 = paste0("\\href{", .data$path1, "}{Text 1}"),
-        Link_2 = paste0("\\href{", .data$path2, "}{Text 2}")
+        Link_2 = paste0("\\href{", .data$path2, "}{Text 2}"),
+
+        # If new flag, show link 1, else show link 2
+        Date_Added = flaggedFirstNames %>%
+          filter(.data$Account_Id == accountID) %>%
+          dplyr::arrange(.data$Student) %>%
+          dplyr::pull("Date_Added") %>%
+          head(1),
+
+        Link_1 = dplyr::case_when(
+          .data$Date_Added == Sys.Date() ~ .data$Link_1,
+          .default = stringr::str_replace(
+            .data$Link_1,
+            "Text 1",
+            "\\\\phantom{Text 1}"
+          )
+        ),
+        Link_2 = dplyr::case_when(
+          .data$Date_Added == Sys.Date() ~ stringr::str_replace(
+            .data$Link_2,
+            "Text 2",
+            "\\\\phantom{Text 2}"
+          ),
+          .default = .data$Link_2
+        )
       )
 
     # Write messages to text files
@@ -147,8 +217,8 @@ attendanceDates <- function(days) {
     dplyr::pull("Last_Attendance_Date") %>%
     unique() %>%
     sort() %>%
-    tail(days) %>%
-    c(Sys.Date())
+    {if (days == "all") . else tail(., days)} %>%
+    return()
 }
 
 #' Format character strings in sentence list form
