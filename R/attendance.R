@@ -34,13 +34,28 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       )
     ) %>%
     createTextMessageFiles() %>%
+    dplyr::arrange(.data$Last_Attendance, .data$Account, .data$Student)
+
+  # Group students by account
+  output <- NULL
+  for (account in unique(flaggedStudents$Account)) {
+    students <- flaggedStudents %>% filter(.data$Account == account)
+
+    if (is.null(output)) {
+      output <- students
+      next
+    }
+    output <- output %>% dplyr::rows_insert(students, by = "Student")
+  }
+
+  output <- output %>%
     mutate(across(
       c("Account", "Phone"),
       ~ifelse(is.na(.data$Link_1), NA_character_, .x)
-    )) %>%
-    dplyr::arrange(.data$Last_Attendance, .data$Account, .data$Student)
+    ))
 
-  return(flaggedStudents)
+
+  return(output)
 }
 
 #' Format and store attendance text messages
