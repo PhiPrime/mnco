@@ -8,23 +8,14 @@
 #' @examples
 #' attendanceCheck(allowedBdays = 10)
 attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed_Days")) {
-  stu <- getCenterData("student")
-  acc <- getCenterData("account")
-
   # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
 
-  # Get list of dates any student attended
-  acceptableDates <- stu %>%
-    filter(Last_Attendance_Date != Sys.Date()) %>%
-    dplyr::pull("Last_Attendance_Date") %>%
-    unique() %>%
-    sort() %>%
-    tail(5) %>%
-    c(Sys.Date())
+  # Get list of dates any student attended, plus today
+  acceptableDates <- c(attendanceDates(days = 5), Sys.Date())
 
   flaggedStudents <-
-    patchJoin(stu, acc, .by = "Account_Id") %>%
+    getCenterData(c("student", "account")) %>%
     filter(
       .data$Enrollment_Status == "Enrolled" &
       !(.data$Last_Attendance_Date %in% acceptableDates) &
@@ -34,21 +25,15 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
       Last_Attendance = .data$Last_Attendance_Date,
       Days = as.integer(Sys.Date() - .data$Last_Attendance_Date),
       Student = .data$Student,
-      # Reformat account name
-      Account = .data$Account %>%
-        stringr::str_replace("(?:(.+?), (.+))", "\\2 \\1"),
+      Account = .data$Account,
       # Select phone in this order: Mobile, Home, Other
       Phone = dplyr::coalesce(
         .data$Mobile_Phone,
         .data$Home_Phone,
         .data$Other_Phone
-      ),
-      # For first name lookups, should be selected out before kable output
-      Student_Id = .data$Student_Id,
-      Account_Id = .data$Account_Id
+      )
     ) %>%
     createTextMessageFiles() %>%
-    select(-"Student_Id", -"Account_Id") %>%
     mutate(across(
       c("Account", "Phone"),
       ~ifelse(is.na(.data$Link_1), NA_character_, .x)
@@ -69,23 +54,13 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 #'
 #' @return Character string containing the name of the file
 #' @noRd
-createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
+createTextMessageFiles <- function(flaggedStudents) {
   # Get a copy of flaggedStudents with first names
-  studentRawData <-
-    readRawData("student") %>%
-    transmute(
-      Student_Id = .data$Student_Id,
-      Student_First_Name = First_Name
-    )
-  accountRawData <-
-    readRawData("account") %>%
-    transmute(
-      Account_Id = .data$Account_Id,
-      Account_First_Name = First_Name
-    )
+  temp <- getCenterData(c("student", "account")) %>%
+    select("Student", "Student_First", "Account_Id", "Account_First")
+
   flaggedFirstNames <- flaggedStudents %>%
-    dplyr::left_join(studentRawData, by = "Student_Id") %>%
-    dplyr::left_join(accountRawData, by = "Account_Id")
+    dplyr::left_join(temp, by = "Student")
 
   # Get templates to be filled in
   templates <- data.frame(
@@ -97,20 +72,64 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
   flaggedStudents <- flaggedStudents %>%
     mutate(Link_1 = NA_character_, Link_2 = NA_character_)
 
+  # Cache -----------------
+  # Create cache if it doesn't exist
+  cachePath <- file.path(cacheDir(), "attendanceFlags.rds")
+  if (!file.exists(cachePath)) {
+    cache <- tibble::tibble(
+      Student = character(0),
+      Date_Added = as.Date(integer(0))
+    )
+    saveRDS(cache, cachePath)
+  }
+
+  # Remove students not flagged
+  cache <- readRDS(cachePath) %>%
+    filter(.data$Student %in% flaggedStudents$Student)
+
+  # Add new flagged students using today for Date_Added
+  newFlags <- flaggedStudents %>%
+    filter(!(.data$Student %in% cache$Student)) %>%
+    transmute(
+      Student = .data$Student,
+      Date_Added = Sys.Date()
+    )
+  cache <- cache %>%
+    dplyr::rows_insert(newFlags, by = "Student")
+
+  # Change Date_Added dates that were not business days to today
+  #   This prevents being assigned text 2 if they were added to cache for
+  #   testing or other reasons on a closed day.
+  allAttendanceDates <- attendanceDates("all")
+  cache <- cache %>%
+    mutate(
+      Date_Added = dplyr::case_when(
+        !(.data$Date_Added %in% allAttendanceDates) ~ Sys.Date(),
+        .default = .data$Date_Added
+      )
+    )
+
+  # Save cache
+  saveRDS(cache, cachePath)
+
+  # Join cache to flags to process
+  flaggedFirstNames <- flaggedFirstNames %>%
+    dplyr::left_join(cache, by = "Student")
+
   # Iterate through each account ------------------------------
-  for (accountID in unique(flaggedStudents$Account_Id)) {
+  for (accountID in unique(flaggedFirstNames$Account_Id)) {
     # Filter students for each account
     flaggedAccount <- flaggedFirstNames %>%
       filter(.data$Account_Id == accountID)
 
     # Get student and account first names to put in message
     studentFirstNames <- flaggedAccount %>%
-      dplyr::pull("Student_First_Name") %>%
+      dplyr::pull("Student_First") %>%
       pluralizeNames()
-    accountFirstName <- flaggedAccount$Account_First_Name[1]
+    accountFirstName <- flaggedAccount$Account_First[1]
 
     # Create file name root for this account using phone number
-    fileRoot <- flaggedStudents %>%
+    fileRoot <- flaggedFirstNames %>%
       filter(.data$Account_Id == accountID) %>%
       select("Account", "Phone") %>%
       head(1) %>%
@@ -133,12 +152,13 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
       ))) %>%
       mutate(
         # Use first student alphabetically for links
-        Student_Id = flaggedFirstNames %>%
+        Student = flaggedFirstNames %>%
           filter(.data$Account_Id == accountID) %>%
           dplyr::arrange(.data$Student) %>%
-          dplyr::pull("Student_Id") %>%
+          dplyr::pull("Student") %>%
           head(1),
 
+        # Create path to message text files
         path1 = file.path(
           getwd(), cacheDir(), "messages", paste0(fileRoot, "-1.txt")
         ),
@@ -146,8 +166,33 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
           getwd(), cacheDir(), "messages", paste0(fileRoot, "-2.txt")
         ),
 
+        # Create latex hyperlinks to files
         Link_1 = paste0("\\href{", .data$path1, "}{Text 1}"),
-        Link_2 = paste0("\\href{", .data$path2, "}{Text 2}")
+        Link_2 = paste0("\\href{", .data$path2, "}{Text 2}"),
+
+        # If new flag, show link 1, else show link 2
+        Date_Added = flaggedFirstNames %>%
+          filter(.data$Account_Id == accountID) %>%
+          dplyr::arrange(.data$Student) %>%
+          dplyr::pull("Date_Added") %>%
+          head(1),
+
+        Link_1 = dplyr::case_when(
+          .data$Date_Added == Sys.Date() ~ .data$Link_1,
+          .default = stringr::str_replace(
+            .data$Link_1,
+            "Text 1",
+            "\\\\phantom{Text 1}"
+          )
+        ),
+        Link_2 = dplyr::case_when(
+          .data$Date_Added == Sys.Date() ~ stringr::str_replace(
+            .data$Link_2,
+            "Text 2",
+            "\\\\phantom{Text 2}"
+          ),
+          .default = .data$Link_2
+        )
       )
 
     # Write messages to text files
@@ -159,11 +204,21 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
     # Add links to students to return back to attendanceCheck()
     # Only the first student alphabetically for each account is given links
     flaggedStudents <- messages %>%
-      select("Student_Id", "Link_1", "Link_2") %>%
-      dplyr::rows_patch(flaggedStudents, ., by = "Student_Id")
+      select("Student", "Link_1", "Link_2") %>%
+      dplyr::rows_patch(flaggedStudents, ., by = "Student")
   }
 
   return(flaggedStudents)
+}
+
+attendanceDates <- function(days) {
+  getCenterData("student") %>%
+    filter(Last_Attendance_Date != Sys.Date()) %>%
+    dplyr::pull("Last_Attendance_Date") %>%
+    unique() %>%
+    sort() %>%
+    {if (days == "all") . else tail(., days)} %>%
+    return()
 }
 
 #' Format character strings in sentence list form

@@ -22,19 +22,24 @@ tidyRawData <- function(data, type) {
 
 # Individual data tidying functions
 tidyRawData.student <- function(data) {
+  # Create new columns
+  data <- mutate(data, Student = paste(.data$First_Name, .data$Last_Name), .before = "Student_Id")
+
   # Rename columns
-  names(data)[names(data) == "Lead_Id...2"] <- "Lead_Id"
+  data <- data %>%
+    dplyr::rename(
+      Student_First = .data$First_Name,
+      Student_Last  = .data$Last_Name,
+      Lead_Id       = .data$Lead_Id...2
+    )
 
   # Reformat columns
   data <- mutate(data, Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"))
 
-  # Create new columns
-  data <- mutate(data, Student = paste(.data$First_Name, .data$Last_Name), .before = "Student_Id")
-
   # Columns to be removed
   # ORGANIZE rm_cols
   # COULD MAKE FLAG FOR CARD LEVEL UPGRADE
-  rm_cols <- c("First_Name", "Last_Name", "School_Year", "Lead_Id...24",
+  rm_cols <- c("Account", "School_Year", "Lead_Id...24",
                "Created_By", "Stars_on_Current_Card", "Last_Modified_By",
                "Cards_Available", "Student_Notes", "Consent_to_Media_Release",
                "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted",
@@ -55,10 +60,16 @@ tidyRawData.student <- function(data) {
 
 tidyRawData.account <- function(data) {
   # Create new columns
-  data <- mutate(data, Account = paste0(.data$Last_Name, ", ", .data$First_Name), .before = "Account_Id")
+  data <- mutate(data, Account = paste(.data$First_Name, .data$Last_Name), .before = "Account_Id")
+
+  data <- data %>%
+    dplyr::rename(
+      Account_First = .data$First_Name,
+      Account_Last  = .data$Last_Name,
+    )
 
   # Columns to be removed
-  rm_cols <- c("First_Name", "Last_Name", "Last_Modified_By...20",
+  rm_cols <- c("Last_Modified_By...20",
                "Last_Modified_By...33", "Description", "Customer_Comments",
                "Last_Modified_Date", "Emergency_Phone_Number",
                "Emergency_Contact", "Account_Relation")

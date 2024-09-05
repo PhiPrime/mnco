@@ -4,11 +4,7 @@
 \alias{getCenterData}
 \title{Read and tidy Radius data}
 \usage{
-getCenterData(
-  type = c("all", radiusFileRoots("types")),
-  date = Sys.Date(),
-  ignoreMissing = F
-)
+getCenterData(type = "all", date = Sys.Date(), ignoreMissing = F)
 }
 \arguments{
 \item{type}{String of which Radius data to read}
