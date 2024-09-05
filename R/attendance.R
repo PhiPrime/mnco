@@ -8,9 +8,6 @@
 #' @examples
 #' attendanceCheck(allowedBdays = 10)
 attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed_Days")) {
-  stu <- getCenterData("student")
-  acc <- getCenterData("account")
-
   # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
 
@@ -18,7 +15,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
   acceptableDates <- attendanceDates(days = 5)
 
   flaggedStudents <-
-    patchJoin(stu, acc, .by = "Account_Id") %>%
+    getCenterData(c("student", "account")) %>%
     filter(
       .data$Enrollment_Status == "Enrolled" &
       !(.data$Last_Attendance_Date %in% acceptableDates) &
@@ -57,7 +54,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 #'
 #' @return Character string containing the name of the file
 #' @noRd
-createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
+createTextMessageFiles <- function(flaggedStudents) {
   # Get a copy of flaggedStudents with first names
   temp <- getCenterData(c("student", "account")) %>%
     select("Student", "Student_First", "Account_Id", "Account_First")
