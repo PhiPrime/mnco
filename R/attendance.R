@@ -15,13 +15,7 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
   vac <- getStudentsOnVacation()
 
   # Get list of dates any student attended
-  acceptableDates <- stu %>%
-    filter(Last_Attendance_Date != Sys.Date()) %>%
-    dplyr::pull("Last_Attendance_Date") %>%
-    unique() %>%
-    sort() %>%
-    tail(5) %>%
-    c(Sys.Date())
+  acceptableDates <- attendanceDates(days = 5)
 
   flaggedStudents <-
     patchJoin(stu, acc, .by = "Account_Id") %>%
@@ -164,6 +158,16 @@ createTextMessageFiles <- function(flaggedStudents, date = Sys.Date()) {
   }
 
   return(flaggedStudents)
+}
+
+attendanceDates <- function(days) {
+  getCenterData("student") %>%
+    filter(Last_Attendance_Date != Sys.Date()) %>%
+    dplyr::pull("Last_Attendance_Date") %>%
+    unique() %>%
+    sort() %>%
+    tail(days) %>%
+    c(Sys.Date())
 }
 
 #' Format character strings in sentence list form
