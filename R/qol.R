@@ -55,3 +55,31 @@ cardRaffle <- function(width, seed, num = 3) {
 
   return(winners)
 }
+
+getDataSourceSites <- function(){
+  ret <- c("https://radius.mathnasium.com/Student",
+           "https://radius.mathnasium.com/CustomerAccount",
+           "https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail",
+           "https://radius.mathnasium.com/AssessmentReport",
+           "https://radius.mathnasium.com/Enrollment/EnrollmentReport")
+  return(ret)
+}
+
+openDataSources <- function(){
+  system2("open", getDataSourceSites())
+}
+
+initialWorkflow <- function(){
+
+  system2("open", "https://radius.mathnasium.com/Account/Login")
+  ans <- readline("Did you log in? (Y/N): ")
+  if(!stringr::str_detect(toupper(ans), "Y")){
+    stop("Next time do the things and say \"Y\".")}
+
+  openDataSources()
+  readline("Did you download the files from the opened links? (Y/N): ")
+  if(!stringr::str_detect(toupper(ans), "Y")){
+    stop("Next time do the things and say \"Y\".")}
+
+  mnco::dailyReport()
+}
