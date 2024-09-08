@@ -56,6 +56,7 @@ cardRaffle <- function(width, seed, num = 3) {
   return(winners)
 }
 
+#' @export
 getDataSourceSites <- function(){
   ret <- c("https://radius.mathnasium.com/Student",
            "https://radius.mathnasium.com/CustomerAccount",
@@ -65,10 +66,12 @@ getDataSourceSites <- function(){
   return(ret)
 }
 
+
 openDataSources <- function(){
   system2("open", getDataSourceSites())
 }
 
+#' @export
 initialWorkflow <- function(){
 
   system2("open", "https://radius.mathnasium.com/Account/Login")
