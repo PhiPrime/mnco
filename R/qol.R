@@ -71,8 +71,10 @@ openDataSources <- function(){
   system2("open", getDataSourceSites())
 }
 
+#' @param push
+#'
 #' @export
-initialWorkflow <- function(){
+initialWorkflow <- function(push=FALSE){
 
   system2("open", "https://radius.mathnasium.com/Account/Login?ReturnUrl=%2F")
   ans <- readline("Did you log in? (Y/N): ")
@@ -85,4 +87,10 @@ initialWorkflow <- function(){
     stop("Next time do the things and say \"Y\".")}
 
   mnco::dailyReport()
+  if(push){
+    shell(paste0("git add -A",
+                 # " && git commit -m \"",
+                 # Sys.Date(), " Initial Commit (Auto)\"",
+                 ""))
+  }
 }
