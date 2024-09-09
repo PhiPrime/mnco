@@ -74,7 +74,7 @@ openDataSources <- function(){
 #' @export
 initialWorkflow <- function(){
 
-  system2("open", "https://radius.mathnasium.com/Account/Login")
+  system2("open", "https://radius.mathnasium.com/Account/Login?ReturnUrl=%2F")
   ans <- readline("Did you log in? (Y/N): ")
   if(!stringr::str_detect(toupper(ans), "Y")){
     stop("Next time do the things and say \"Y\".")}
