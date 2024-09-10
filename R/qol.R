@@ -65,11 +65,10 @@ dailyReport <- function(knit = TRUE, open = TRUE, push = FALSE) {
 
     if (push) {
       # Commit and push report
-      date <- format(Sys.Date(), format = "%m-%d-%y") %>%
-        stringr::str_replace_all("0", "")
+      date <- format(Sys.Date(), format = "%m-%d-%Y")
 
       git_cd("git add .")
-      git_cd("git commit -m \"", date, " report\"")
+      git_cd("git commit -m \"(Auto) ", date, " report\"")
       git_cd("git push")
     }
   }
@@ -148,11 +147,10 @@ dailyWorkflow <- function(report = TRUE) {
   if (!downloaded) return(FALSE)
 
   # Commit and push data
-  date <- format(Sys.Date(), format = "%m-%d-%y") %>%
-    stringr::str_replace_all("0", "")
+  date <- format(Sys.Date(), format = "%m-%d-%Y")
 
   git_cd("git add .")
-  git_cd("git commit -m \"", date, " data\"")
+  git_cd("git commit -m \"(Auto) ", date, " data\"")
   git_cd("git push")
 
   # Knit and commit report
