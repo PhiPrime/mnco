@@ -41,6 +41,18 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
   for (account in unique(flaggedStudents$Account)) {
     students <- flaggedStudents %>% filter(.data$Account == account)
 
+    link1 <- dplyr::pull(students, "Link_1")
+    if (!stringr::str_detect(link1[1], "phantom")) {
+      link1 <- c(link1[1], rep("\\^{}", length(link1) - 1))
+    }
+    students$Link_1 <- link1
+
+    link2 <- dplyr::pull(students, "Link_2")
+    if (!stringr::str_detect(link2[1], "phantom")) {
+      link2 <- c(link2[1], rep("\\^{}", length(link2) - 1))
+    }
+    students$Link_2 <- link2
+
     if (is.null(output)) {
       output <- students
       next
@@ -50,8 +62,8 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 
   output <- output %>%
     mutate(across(
-      c("Account", "Phone", "Link_1", "Link_2"),
-      ~ifelse(is.na(.data$Link_1), "\\^{}", .x)
+      c("Account", "Phone"),
+      ~ifelse(is.na(.data$Link_1) | is.na(.data$Link_2), "\\^{}", .x)
     ))
 
 
@@ -71,11 +83,9 @@ attendanceCheck <- function(allowedBdays = retrieve_variable("Attendance_Allowed
 #' @noRd
 createTextMessageFiles <- function(flaggedStudents) {
   # Get a copy of flaggedStudents with first names
-  temp <- getCenterData(c("student", "account")) %>%
-    select("Student", "Student_First", "Account_Id", "Account_First")
-
-  flaggedFirstNames <- flaggedStudents %>%
-    dplyr::left_join(temp, by = "Student")
+  flaggedFirstNames <- getCenterData(c("student", "account")) %>%
+    select("Student", "Student_First", "Account_Id", "Account_First") %>%
+    dplyr::right_join(flaggedStudents, by = "Student")
 
   # Get templates to be filled in
   templates <- data.frame(
@@ -99,8 +109,8 @@ createTextMessageFiles <- function(flaggedStudents) {
   }
 
   # Remove students not flagged
-  cache <- readRDS(cachePath) %>%
-    filter(.data$Student %in% flaggedStudents$Student)
+  oldCache <- readRDS(cachePath)
+  cache <- oldCache %>% filter(.data$Student %in% flaggedStudents$Student)
 
   # Add new flagged students using today for Date_Added
   newFlags <- flaggedStudents %>%
@@ -125,7 +135,7 @@ createTextMessageFiles <- function(flaggedStudents) {
     )
 
   # Save cache
-  saveRDS(cache, cachePath)
+  if (!identical(oldCache, cache)) saveRDS(cache, cachePath)
 
   # Join cache to flags to process
   flaggedFirstNames <- flaggedFirstNames %>%
@@ -166,10 +176,9 @@ createTextMessageFiles <- function(flaggedStudents) {
         .x, "\\[AccountFirstName\\]", accountFirstName
       ))) %>%
       mutate(
-        # Use first student alphabetically for links
-        Student = flaggedFirstNames %>%
-          filter(.data$Account_Id == accountID) %>%
-          dplyr::arrange(.data$Student) %>%
+        # Use earlier last attendance date student for links
+        Student = flaggedAccount %>%
+          dplyr::arrange(.data$Last_Attendance, .data$Student) %>%
           dplyr::pull("Student") %>%
           head(1),
 
@@ -186,14 +195,8 @@ createTextMessageFiles <- function(flaggedStudents) {
         Link_2 = paste0("\\href{", .data$path2, "}{Text 2}"),
 
         # If new flag, show link 1, else show link 2
-        Date_Added = flaggedFirstNames %>%
-          filter(.data$Account_Id == accountID) %>%
-          dplyr::arrange(.data$Student) %>%
-          dplyr::pull("Date_Added") %>%
-          head(1),
-
         Link_1 = dplyr::case_when(
-          .data$Date_Added == Sys.Date() ~ .data$Link_1,
+          Sys.Date() %in% flaggedAccount$Date_Added ~ .data$Link_1,
           .default = stringr::str_replace(
             .data$Link_1,
             "Text 1",
@@ -201,7 +204,7 @@ createTextMessageFiles <- function(flaggedStudents) {
           )
         ),
         Link_2 = dplyr::case_when(
-          .data$Date_Added == Sys.Date() ~ stringr::str_replace(
+          Sys.Date() %in% flaggedAccount$Date_Added ~ stringr::str_replace(
             .data$Link_2,
             "Text 2",
             "\\\\phantom{Text 2}"
