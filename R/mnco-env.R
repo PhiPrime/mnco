@@ -38,5 +38,6 @@ the$RADIUS_FILE_ROOTS <- c(
   payment = "Payments.xlsx",
   curriculum = "Curriculum Library Export",
   attendance = "Student Attendance Report Export",
-  template   = "Template Export"
+  template   = "Template Export",
+  lead       = "Lead Export"
 )

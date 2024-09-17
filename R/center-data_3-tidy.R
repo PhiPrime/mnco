@@ -16,6 +16,7 @@ tidyRawData <- function(data, type) {
     "curriculum" = tidyRawData.curriculum(data),
     "attendance" = tidyRawData.attendance(data),
     "template"   = tidyRawData.template(data),
+    "lead"       = tidyRawData.lead(data),
     stop("`type` is not a valid argument: \'", type, "\'")
   )
 }
@@ -212,6 +213,35 @@ tidyRawData.template <- function(data) {
   # TIDYING GOES HERE
 
   invisible(data)
+}
+
+tidyRawData.lead <- function(data) {
+  ret <- dplyr::transmute(data,
+                          Lead_Id = as.character(.data$Lead_Id),
+                          Lead_Name = .data$Lead_Name,
+                          Lead_First_Name = stringr::str_extract(.data$Lead_Name,
+                                                                 "[^ ]+"),
+                          Lead_Last_Name =
+                            stringr::str_sub(stringr::str_extract(.data$Lead_Name,
+                                                                 " .+"),2),
+                          Lead_Creation_Date = as.Date(.data$Created_Date,
+                                                       format = "%m/%d/%Y"),
+                          Phone = .data$Mobile_Phone,
+                          Email = .data$Email,
+                          Status = as.factor(.data$Lead_Status),
+                          Student_Name = .data$Student_Name,
+                          Student_First_Name = stringr::str_extract(.data$Student_Name,
+                                                                 "[^ ]+"),
+                          Student_Last_Name =
+                            stringr::str_sub(stringr::str_extract(.data$Student_Name,
+                                                                 " .+"),2),
+                          Student_Gender = .data$Student_Gender,
+                          Grade = as.factor(.data$Grade),
+                          Source = as.factor(.data$Lead_Source),
+                          Radius_Page = paste0(
+                            "https://radius.mathnasium.com/Leads/Details/",
+                            .data$Lead_Id))
+  return(ret)
 }
 
 #' Delete columns from data frame
