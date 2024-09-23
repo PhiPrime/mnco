@@ -36,9 +36,9 @@ getStudentsOnVacation <- function(){
 #'
 #' @examples
 #' sendOnVacation("John Doe", returnDate = "2024-07-31")
-sendOnVacation <- function(..., returnDate = NULL) {
+sendOnVacation <- function(students, returnDate = NULL) {
   # Allow multiple students to be passed in
-  students <- unlist(list(...))
+  students <- unlist(list(students))
 
   # Handle returnDate argument
   if (is.null(returnDate)) {
@@ -47,7 +47,7 @@ sendOnVacation <- function(..., returnDate = NULL) {
   } else {
     # Test if in Date format when returnDate is given
     returnDate <- tryCatch(
-      as.Date(returnDate),
+      as.Date(returnDate, tryFormats = c("%m-%d-%Y", "%F")),
       error = function(e) {
         stop("`returnDate` cannot be coerced into a Date object: ", returnDate)
       }
