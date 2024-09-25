@@ -52,7 +52,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
 needsDeck.assessment <- function() {
   ## Ways to tell if a deck needs made based on assessments:
   ### 1) Assessment Date is between Last_Attendance_Date and today
-  ### 2) Active_Learning_Plans... == 0 & Pre | == 1 & Post | <2 & NF
+  ### 2) Active_Learning_Plans == 0.
   ### 3) Save data in a cache and keep track of all assessments for each student
 
   ## We will use options 1&2
@@ -66,8 +66,7 @@ needsDeck.assessment <- function() {
       .data$Date_Taken >= .data$Last_Attendance_Date |
       is.na(.data$Last_Attendance_Date) |
       # Option 2
-      .data$Active_Learning_Plans == 0 |
-      (.data$Active_Learning_Plans == 1 & !.data$Pre)
+      .data$Active_Learning_Plans == 0
     ) %>%
     dplyr::pull("Student")
 
