@@ -7,13 +7,13 @@
 #'
 #' @examples
 #' attendanceCheck(allowedBdays = 10)
-attendanceCheck <- function() {
+attendanceCheck <- function(days = 4) {
   # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
 
   # Get list of dates any student attended in past week, plus today
   #   Students are flagged if last attended exactly 1 week ago (usually)
-  acceptableDates <- c(attendanceDates(days = 4), Sys.Date())
+  acceptableDates <- c(attendanceDates(days), Sys.Date())
 
   flaggedStudents <-
     getCenterData(c("student", "account")) %>%
