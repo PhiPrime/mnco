@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' attendanceCheck(allowedBdays = 10)
-attendanceCheck <- function(days = 4) {
+attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_Days")) {
   # Get students on vacation and remove if past return date
   vac <- getStudentsOnVacation()
 
