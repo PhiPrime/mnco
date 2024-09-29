@@ -19,7 +19,7 @@ getStudentRanking <- function(date = Sys.Date()) {
     utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
 
   # Merge and filter the data
-  dat <- progress %>%
+  data <- progress %>%
     merge(differentDurationStudents, all.x = T) %>%
     merge(deliveryKey, all.x = T) %>%
 
@@ -28,9 +28,7 @@ getStudentRanking <- function(date = Sys.Date()) {
            Attendances = .data$Attendances * .data$Duration / 60) %>%
 
     # Subset valid contestants
-    filter(.data$Attendances >= .data$Monthly_Sessions / 2,
-                  .data$Skills_Mastered > 2,
-                  .data$Delivery == "In-Center")
+    filter(.data$Delivery == "In-Center")
 
   #Create statistics for based on CI
   CI <- 95
@@ -38,7 +36,11 @@ getStudentRanking <- function(date = Sys.Date()) {
   roundingDig <- 4
 
   # Calculate ranking
-  dat <- dat %>%
+  ranked <- data %>%
+    filter(
+      .data$Attendances >= .data$Monthly_Sessions / 2,
+      .data$Skills_Mastered > 2
+    ) %>%
     mutate(
       Pest = .data$Skills_Mastered / .data$Attendances,
 
@@ -67,17 +69,23 @@ getStudentRanking <- function(date = Sys.Date()) {
     ) %>%
     select(-"samdev")
 
+  unranked <- data %>%
+    filter(!(.data$Student %in% ranked$Student)) %>%
+    mutate(Pest = .data$Skills_Mastered / .data$Attendances)
+
+  joined <- dplyr::rows_insert(ranked, unranked, by = "Student")
+
   # Reorder columns and sort by rank
   col_order <- union(
     c("Rank", "Student", "LB", "Pest", "UB", "zscore", "Font_Size", "Rank_Display"),
-    names(dat)
+    names(joined)
   )
 
-  dat <- dat %>%
+  output <- joined %>%
     select(tidyselect::all_of(col_order)) %>%
-    dplyr::arrange(.data$Rank)
+    dplyr::arrange(.data$Rank, desc(.data$Pest))
 
-  return(dat)
+  return(output)
 }
 
 #' Assign session length to student
