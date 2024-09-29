@@ -115,8 +115,10 @@ dailyWorkflow <- function(report = TRUE) {
 
   # Open Radius for user to login
   login = FALSE
+  loginURL <- "https://radius.mathnasium.com/Account/UserProfile"
+  #"https://radius.mathnasium.com/Account/Login?ReturnUrl=%2F"
 
-  shell.exec("https://radius.mathnasium.com/Account/Login?ReturnUrl=%2F")
+  shell.exec(loginURL)
   while (!login) {
     ans <- readline("Did you log in? (Y/N): ")
     if(tolower(ans) != "y") {
