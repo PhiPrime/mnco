@@ -11,28 +11,22 @@
 #'
 #' @examples
 #' saveCenterData()
-saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
-  filePath <- file.path(cacheDir(), "center-history.rds")
+saveCenterData <- function(date = Sys.Date(), silent = F) {
+  data <- getCenterData("all", date) %>%
+    mutate(Date_Saved = date, .before = "Account_Id")
 
-  history <- mutate(getCenterData("all", date, ignoreMissing), Date = date,
-                           .before = "Account_Id")
+  filePath <- file.path(cacheDir(), "centerHistory.rds")
 
-  # Remove [ and ] from column names
-  # PUT THIS IN AN UPDATE FUNCTION
-  names(history) <- gsub("[][]", "", names(history))
-
-  if(file.exists(filePath)) {
-    dat <- readRDS(filePath)
-    dat <- rbind(dat[dat$Date != Sys.Date(),], history)
+  if (!file.exists(filePath)) {
+    if (!silent) message("NOTICE: ", filePath, " does not exist.",
+                         "\n\tCreating ", filePath, "...\n", sep="")
+    history <- data
   } else {
-    # ADD SILENT CHECK HERE?
-    # -We should start using message() and warning() in addition to stop()
-    message("NOTICE: ", filePath, " does not exist.",
-                "\n\tCreating ", filePath, "...\n", sep="")
-    dat <- history
+    history <- readRDS(filePath) %>%
+      dplyr::rows_upsert(data, by = c("Student", "Date_Saved"))
   }
 
-  saveRDS(dat, filePath)
+  saveRDS(history, filePath)
 
   if(!silent) message("SUCCESS: Center history saved for ", as.character(date),
                   "!\n", sep="")
@@ -53,18 +47,17 @@ saveCenterData <- function(date = Sys.Date(), ignoreMissing = F, silent = F) {
 #'
 #' @examples
 #' saveAllCenterData()
-saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.Date(),
-                              promptDelete = T) {
-  filePath <- file.path(cacheDir(), "center-history.rds")
-  date <- startDate
+saveAllCenterData <- function(startDate = as.Date("2020-01-01"),
+                              endDate = Sys.Date(),
+                              silent = F) {
+  filePath <- file.path(cacheDir(), "centerHistory.rds")
 
-  # Delete center-history.rds
+  # Delete centerHistory.rds
   if (file.exists(filePath)) {
-    message("CAUTION: \"", filePath,
-                "\" will now be deleted and recreated!\n", sep = "")
-
-    if (promptDelete) {
-      input <- readline(prompt = "\tAre you sure you want to proceed? (y/n): ")
+    if (!silent) {
+      message("CAUTION: \"", filePath,
+                  "\" will now be deleted and recreated!", sep = "")
+      input <- readline(prompt = "Are you sure you want to proceed? (y/n): ")
 
       if (tolower(input) != "y") {
         message("NOTICE: Save aborted!")
@@ -77,9 +70,18 @@ saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.D
   saveCount <- 0
   failCount <- 0
 
-  # VERY HACKY, PLEASE HANDLE PROPERLY LATER
-  while (date <= endDate) {
+  # VERY HACKY, PLEASE HANDLE PROPERLY LATER (MAYBE)
+  fileDates <- list.files(rawDataDir()) %>%
+    stringr::str_extract_all("\\d{1,2}_\\d{1,2}_\\d{4}") %>%
+    unlist() %>%
+    unique() %>%
+    as.Date(format = "%m_%d_%Y") %>%
+    sort()
+
+  for (date in as.list(fileDates)) {
     # TEST ignoreMissing = (date != Sys.Date())
+    if (date < startDate) next
+    if (date > endDate) next
 
     failed <- tryCatch(
       saveCenterData(date, silent = T),
@@ -91,14 +93,14 @@ saveAllCenterData <- function(startDate = as.Date("2020-01-01"), endDate = Sys.D
 
     if (failed) failCount <- failCount + 1
     if (!failed) saveCount <- saveCount + 1
-    date <- date + 1
   }
 
   # PRINT SUCCESS MESSAGE
-  message("SUCCESS: Center data saved for ", saveCount,
-              " dates, ", sep="")
+  if (!silent) {
+    message("SUCCESS: Center data saved for ", saveCount,
+                " dates, ", sep="")
 
-  message(failCount, " dates skipped (incomplete set)\n", sep="")
-
+    message(failCount, " dates skipped (incomplete set)\n", sep="")
+  }
   invisible(NULL)
 }
