@@ -88,6 +88,74 @@ getStudentRanking <- function(date = Sys.Date()) {
   return(output)
 }
 
+getStudentProgress <- function(student) {
+  progressDates <- list.files(rawDataDir()) %>%
+    stringr::str_extract_all(
+      "(?<=Current Batch Detail Export  )\\d{1,2}_\\d{1,2}_\\d{4}(?=\\.xlsx)"
+    ) %>%
+    unlist()
+  enrollmentDates <- list.files(rawDataDir()) %>%
+    stringr::str_extract_all(
+      "(?<=Enrolled Report  )\\d{1,2}_\\d{1,2}_\\d{4}(?=\\.xlsx)"
+    ) %>%
+    unlist()
+  validDates <- intersect(progressDates, enrollmentDates) %>%
+    unique() %>%
+    as.Date(format = "%m_%d_%Y")
+
+  progressHistory <- NULL
+
+  for (date in as.list(validDates)) {
+    data <- getStudentRanking(date = date) %>%
+      mutate(Date = date)
+
+    if (is.null(progressHistory)) {
+      progressHistory <- data
+    } else {
+      progressHistory <- progressHistory %>%
+        dplyr::rows_upsert(data, by = c("Student", "Date"))
+    }
+  }
+
+  if (student == "all") return(progressHistory)
+
+  students <- progressHistory$Student %>%
+    tolower() %>%
+    unique()
+  # MAKE THIS PRINT MATCHES IF MULTIPLE MATCHES - USE str_starts()?
+  matchedStudent <- students[pmatch(tolower(student), students)]
+  if (is.na(matchedStudent)) {
+    stop("\"", student, "\" could not be matched. Recheck spelling or be more specific.")
+  }
+
+  progressHistory %>%
+    filter(tolower(.data$Student) == matchedStudent) %>%
+    mutate(
+      Pest = ifelse(is.finite(.data$Pest), .data$Pest, NA),
+      Pest = ifelse(.data$Skills_Mastered == 0, 0, .data$Pest)
+    )
+}
+
+plotProgress <- function(student, var = "Pest") {
+  progress <- getStudentProgress(student)
+  student <- progress %>%
+    dplyr::pull("Student") %>%
+    head(1)
+
+  graph <- ggplot2::ggplot(progress, ggplot2::aes(.data$Date, !!rlang::data_sym(var))) +
+    ggplot2::geom_point(na.rm = T) +
+    ggplot2::geom_smooth(na.rm = T) +
+    ggplot2::labs(title = paste0(student, " - ", var))
+
+  graph <- switch(
+    var,
+    Pest = graph + ggplot2::ylim(0, max(1, max(progress$Pest, na.rm = T))),
+    Rank = graph + ggplot2::ylim(max(20, max(progress$Rank, na.rm = T)), 0)
+  )
+
+  return(graph)
+}
+
 #' Assign session length to student
 #'
 #' This function is used for assigning a session length other than the default
