@@ -39,7 +39,8 @@ getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
       getCenterData("student", date),
       getCenterData("account", date),
       getCenterData("progress", date),
-      getCenterData("enrollment", date)
+      getCenterData("enrollment", date),
+      getStudentRanking(date)
     )
   } else if (length(type) > 1) {
     data <- lapply(type, getCenterData, date = date)
