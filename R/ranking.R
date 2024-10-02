@@ -35,8 +35,8 @@ getStudentRanking <- function(date = Sys.Date()) {
   outlierThreshold <- 4
   roundingDig <- 4
 
-  # Calculate ranking
-  ranked <- data %>%
+  # Calculate statistics
+  calculated <- data %>%
     filter(
       .data$Attendances >= .data$Monthly_Sessions / 2,
       .data$Skills_Mastered > 2
@@ -51,10 +51,21 @@ getStudentRanking <- function(date = Sys.Date()) {
       UB = round(.data$Pest - stats::qnorm((1 - CI / 100) / 2) *
                    .data$samdev / sqrt(.data$Attendances), roundingDig),
       LB = round(.data$Pest + stats::qnorm((1 - CI / 100) / 2) *
-                   .data$samdev / sqrt(.data$Attendances), roundingDig),
+                   .data$samdev / sqrt(.data$Attendances), roundingDig)
+    ) %>%
+    select(-"samdev")
 
-      Font_Size = round(32 * .data$LB / max(.data$LB), 1),
+  # Filter out pseudo-inactive students for current date's ranking
+  #   This still includes them for std dev - should this be the case?
+  ranked <- calculated
+  if (date == Sys.Date()) {
+    ranked <- ranked %>%
+      filter(.data$Student %in% getActiveStudents())
+  }
 
+  # Calculate rankings
+  ranked <- ranked %>%
+    mutate(
       Rank = rank(-.data$LB, ties.method = "min"),
       Rank_Display = paste0(
         .data$Rank,
@@ -65,15 +76,17 @@ getStudentRanking <- function(date = Sys.Date()) {
           .data$Rank %% 10 == 3 ~ "rd",
           TRUE ~ "th"
         )
-      )
-    ) %>%
-    select(-"samdev")
+      ),
+      Font_Size = round(32 * .data$LB / max(.data$LB), 1)
+    )
 
   unranked <- data %>%
     filter(!(.data$Student %in% ranked$Student)) %>%
     mutate(Pest = .data$Skills_Mastered / .data$Attendances)
 
-  joined <- dplyr::rows_insert(ranked, unranked, by = "Student")
+  joined <- ranked %>%
+    dplyr::rows_insert(unranked, by = "Student") %>%
+    dplyr::rows_patch(calculated, by = "Student")
 
   # Reorder columns and sort by rank
   col_order <- union(

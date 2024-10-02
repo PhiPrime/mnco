@@ -18,7 +18,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
   flaggedStudents <-
     getCenterData(c("student", "account")) %>%
     filter(
-      .data$Enrollment_Status == "Enrolled" &
+      .data$Student %in% getActiveStudents() &
       !(.data$Last_Attendance_Date %in% acceptableDates) &
       !(.data$Student %in% vac$Student)
     ) %>%

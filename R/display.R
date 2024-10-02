@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' # write later
-kablize <- function(todisplay, headerWidth = 12) {
+kablize <- function(todisplay, headerWidth = 13) {
   # Format headers for display
   names(todisplay) <- names(todisplay) %>%
     stringr::str_replace("_", " ") %>%
