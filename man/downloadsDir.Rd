@@ -4,7 +4,7 @@
 \alias{downloadsDir}
 \title{Get downloads directory}
 \usage{
-downloadsDir()
+downloadsDir(file = NULL)
 }
 \value{
 A character string
