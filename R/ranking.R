@@ -88,7 +88,7 @@ getStudentRanking <- function(date = Sys.Date()) {
   return(output)
 }
 
-getStudentProgress <- function(student) {
+getProgressHistory <- function(student = "all") {
   progressDates <- list.files(rawDataDir()) %>%
     stringr::str_extract_all(
       "(?<=Current Batch Detail Export  )\\d{1,2}_\\d{1,2}_\\d{4}(?=\\.xlsx)"
@@ -103,22 +103,37 @@ getStudentProgress <- function(student) {
     unique() %>%
     as.Date(format = "%m_%d_%Y")
 
-  progressHistory <- NULL
+  # Read cache and check if resave is needed
+  cachePath <- file.path(cacheDir(), "progressHistory.rds")
 
-  for (date in as.list(validDates)) {
-    data <- getStudentRanking(date = date) %>%
-      mutate(Date = date)
+  if (!file.exists(cachePath)) {
+    progressHistory <- NULL
+  } else {
+    progressHistory <- readRDS(cachePath)
 
-    if (is.null(progressHistory)) {
-      progressHistory <- data
-    } else {
-      progressHistory <- progressHistory %>%
-        dplyr::rows_upsert(data, by = c("Student", "Date"))
+    if (!all(validDates %in% progressHistory$Date)) {
+      progressHistory <- NULL
     }
   }
 
+  if (is.null(progressHistory)) {
+    for (date in as.list(validDates)) {
+      data <- getStudentRanking(date = date) %>%
+        mutate(Date = date)
+
+      if (is.null(progressHistory)) {
+        progressHistory <- data
+      } else {
+        progressHistory <- progressHistory %>%
+          dplyr::rows_upsert(data, by = c("Student", "Date"))
+      }
+    }
+  }
+
+  # Return all data
   if (student == "all") return(progressHistory)
 
+  # Filter for student
   students <- progressHistory$Student %>%
     tolower() %>%
     unique()
@@ -137,7 +152,7 @@ getStudentProgress <- function(student) {
 }
 
 plotProgress <- function(student, var = "Pest") {
-  progress <- getStudentProgress(student)
+  progress <- getProgressHistory(student)
   student <- progress %>%
     dplyr::pull("Student") %>%
     head(1)
