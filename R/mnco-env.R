@@ -39,5 +39,6 @@ the$RADIUS_FILE_ROOTS <- c(
   curriculum = "Curriculum Library Export",
   attendance = "Student Attendance Report Export",
   template   = "Template Export",
-  lead       = "Lead Export"
+  lead       = "Lead Export",
+  student2   = "Student Report"
 )

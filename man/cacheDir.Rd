@@ -4,7 +4,7 @@
 \alias{cacheDir}
 \title{Get cache directory}
 \usage{
-cacheDir()
+cacheDir(file = NULL)
 }
 \value{
 A character string

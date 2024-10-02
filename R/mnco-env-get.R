@@ -8,13 +8,18 @@
 #'
 #' @examples
 #' rawDataDir()
-rawDataDir <- function() {
+rawDataDir <- function(file = NULL) {
   path <- the$RAW_DATA_DIR
   if (!file.exists(path)) {
     stop("`RAW_DATA_DIR` does not exist: ", path, ".\n",
          "Call setRawDataDir() to set a valid directory.")
   }
-  path
+
+  if (is.null(file)) {
+    return(path)
+  } else {
+    return(file.path(path, file))
+  }
 }
 
 #' Get cache directory
@@ -27,13 +32,18 @@ rawDataDir <- function() {
 #'
 #' @examples
 #' cacheDir()
-cacheDir <- function() {
+cacheDir <- function(file = NULL) {
   path <- the$CACHE_DIR
   if (!file.exists(path)) {
     stop("`CACHE_DIR` does not exist: ", path, ".\n",
          "Call setCacheDir() to set a valid directory.")
   }
-  path
+
+  if (is.null(file)) {
+    return(path)
+  } else {
+    return(file.path(path, file))
+  }
 }
 
 #' Get downloads directory
@@ -47,7 +57,7 @@ cacheDir <- function() {
 #'
 #' @examples
 #' downloadsDir()
-downloadsDir <- function() {
+downloadsDir <- function(file = NULL) {
   path <- the$DOWNLOADS_DIR
   if (is.na(path)) {
     stop("`DOWNLOADS_DIR` has not been set.\n",
@@ -56,7 +66,12 @@ downloadsDir <- function() {
     stop("`DOWNLOADS_DIR` does not exist: ", path, ".\n",
          "Call setDownloadsDir() to set a directory.")
   }
-  path
+
+  if (is.null(file)) {
+    return(path)
+  } else {
+    return(file.path(path, file))
+  }
 }
 
 #' Retrieve Radius file roots

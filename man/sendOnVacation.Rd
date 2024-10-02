@@ -4,7 +4,7 @@
 \alias{sendOnVacation}
 \title{Send student on vacation}
 \usage{
-sendOnVacation(..., returnDate = NULL)
+sendOnVacation(students, returnDate = NULL)
 }
 \arguments{
 \item{returnDate}{Date of return}

@@ -3,6 +3,9 @@
 # do NOT use these in a package function. use otherwise at risk of them being
 #   removed at any time
 gcd  <- function(...) getCenterData(...)
+gsr  <- function(...) getStudentRanking(...)
+gph  <- function(...) getProgressHistory(...)
+pp   <- function(...) plotProgress(...)
 cstu <- function() getCenterData("student")
 cacc <- function() getCenterData("account")
 cenr <- function() getCenterData("enrollment")
@@ -12,6 +15,7 @@ cpay <- function() getCenterData("payment")
 ccur <- function() getCenterData("curriculum")
 catt <- function() getCenterData("attendance")
 ctem <- function() getCenterData("template")
+cstu2 <- function() getCenterData("student2")
 
 cardRaffle <- function(width, seed, num = 3) {
   cardWidth <- .1
@@ -167,7 +171,8 @@ getDataSources <- function() {
     "https://radius.mathnasium.com/CustomerAccount",
     "https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail",
     "https://radius.mathnasium.com/Enrollment/EnrollmentReport",
-    "https://radius.mathnasium.com/AssessmentReport"
+    "https://radius.mathnasium.com/AssessmentReport",
+    "https://radius.mathnasium.com/StudentReport"
   )
   return(ret)
 }

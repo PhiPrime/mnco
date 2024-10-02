@@ -4,7 +4,7 @@
 \alias{rawDataDir}
 \title{Get raw data directory}
 \usage{
-rawDataDir()
+rawDataDir(file = NULL)
 }
 \value{
 A character string
