@@ -3,6 +3,9 @@
 # do NOT use these in a package function. use otherwise at risk of them being
 #   removed at any time
 gcd  <- function(...) getCenterData(...)
+gsr  <- function(...) getStudentRanking(...)
+gph  <- function(...) getProgressHistory(...)
+pp   <- function(...) plotProgress(...)
 cstu <- function() getCenterData("student")
 cacc <- function() getCenterData("account")
 cenr <- function() getCenterData("enrollment")
