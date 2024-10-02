@@ -4,7 +4,7 @@
 \alias{kablize}
 \title{Format data frame as LaTeX table for .Rmd knit}
 \usage{
-kablize(todisplay, headerWidth = 12)
+kablize(todisplay, headerWidth = 13)
 }
 \arguments{
 \item{todisplay}{A data frame}
