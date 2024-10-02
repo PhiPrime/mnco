@@ -7,7 +7,7 @@
 saveAllCenterData(
   startDate = as.Date("2020-01-01"),
   endDate = Sys.Date(),
-  promptDelete = T
+  silent = F
 )
 }
 \arguments{

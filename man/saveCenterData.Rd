@@ -4,15 +4,15 @@
 \alias{saveCenterData}
 \title{Store center data in .csv file}
 \usage{
-saveCenterData(date = Sys.Date(), ignoreMissing = F, silent = F)
+saveCenterData(date = Sys.Date(), silent = F)
 }
 \arguments{
 \item{date}{Date to save data for}
 
+\item{silent}{\code{logical}. Determines if messages should be printed.}
+
 \item{ignoreMissing}{\code{logical} indicating if data should be saved if there
 is missing data}
-
-\item{silent}{\code{logical}. Determines if messages should be printed.}
 }
 \value{
 None (invisible \code{NULL})

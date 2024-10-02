@@ -4,7 +4,7 @@
 \alias{attendanceCheck}
 \title{Check which students have not attended}
 \usage{
-attendanceCheck(allowedBdays = retrieve_variable("Attendance_Allowed_Days"))
+attendanceCheck(days = mnco::retrieve_variable("Attendance_Allowed_Days"))
 }
 \arguments{
 \item{allowedBdays}{Minimum number of days not attended to flag}
