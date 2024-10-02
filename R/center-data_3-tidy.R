@@ -32,11 +32,18 @@ tidyRawData.student <- function(data) {
     dplyr::rename(
       Student_First = .data$First_Name,
       Student_Last  = .data$Last_Name,
-      Lead_Id       = .data$Lead_Id...2
+      Lead_Id       = .data$Lead_Id...2,
+      Student_Created_Date = Created_Date
     )
 
   # Reformat columns
-  data <- mutate(data, Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"))
+  data <- data %>%
+    mutate(
+      Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"),
+      Date_of_Birth = as.Date(.data$Date_of_Birth, format = "%m/%d/%Y"),
+      Card_Level = as.integer(.data$Card_Level),
+      Student_Created_Date = as.Date(.data$Student_Created_Date)
+    )
 
   # Columns to be removed
   # ORGANIZE rm_cols
@@ -68,6 +75,10 @@ tidyRawData.account <- function(data) {
     dplyr::rename(
       Account_First = .data$First_Name,
       Account_Last  = .data$Last_Name,
+      Account_Created_Date = Created_Date
+    ) %>%
+    mutate(
+      Account_Created_Date = as.Date(Account_Created_Date)
     )
 
   # Columns to be removed
