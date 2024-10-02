@@ -15,7 +15,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
   #Select students under minAllowed
   flagged <- getCenterData(c("student", "progress")) %>%
     filter(
-      .data$Enrollment_Status == "Enrolled" &
+      .data$Student %in% getActiveStudents() &
       !(.data$Student %in% sup$Student)
     ) %>%
     filter(
