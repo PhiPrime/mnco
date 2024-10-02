@@ -17,6 +17,7 @@ tidyRawData <- function(data, type) {
     "attendance" = tidyRawData.attendance(data),
     "template"   = tidyRawData.template(data),
     "lead"       = tidyRawData.lead(data),
+    "student2"   = tidyRawData.student2(data),
     stop("`type` is not a valid argument: \'", type, "\'")
   )
 }
@@ -242,6 +243,15 @@ tidyRawData.lead <- function(data) {
                             "https://radius.mathnasium.com/Leads/Details/",
                             .data$Lead_Id))
   return(ret)
+}
+
+tidyRawData.student2 <- function(data) {
+  data <- data %>%
+    dplyr::rename(
+      Student = .data$Student_Name
+    )
+
+  invisible(data)
 }
 
 #' Delete columns from data frame
