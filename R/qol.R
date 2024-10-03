@@ -27,33 +27,7 @@ cardRaffle <- function(width, seed, num = 3) {
   return(winners)
 }
 
-#' Knits daily-report.Rmd and opens it
-#'
-#' @description
-#' Recommended workflow in mnco:
-#'   edit code
-#'   load_all/ctrl+shift+L  (check output interactively, can be skipped)
-#'   [repeat above]
-#'   install()/ctrl+shift+B
-#'   dailyReport()          (can choose whether to knit and/or open)
-#'   [repeat from edit]
-#'
-#' Recommend workflow in mcp-data:
-#'   install()/ctrl+shift+B from mnco.Rproj (if changes are needed)
-#'   library(mnco)
-#'   [once above]
-#'   edit .Rmd
-#'   dailyReport()
-#'   [repeat from edit]
-#'
-#' New data and updated reports still have to be committed and pushed using
-#'   terminal or rstudio gui in mcp-data
-#'
-#' @param knit Whether to knit
-#' @param open Whether to open
-#'
 #' @export
-#' @noRd
 dailyReport <- function(knit = TRUE, open = TRUE, push = FALSE) {
   if (knit) {
     knitTry <- try(rmarkdown::render("../mcp-data/daily-report.Rmd"))
