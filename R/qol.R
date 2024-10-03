@@ -144,13 +144,13 @@ dailyWorkflow <- function(report = TRUE) {
 
     if(tolower(ans) != "y") {
       message("Next time do the things and say \"Y\".")
+      missing <- TRUE
     } else if (missing) {
       message("There are still missing files. Make sure they are downloaded. (Justin will figure out how to print which are missing)")
     } else {
       downloaded = TRUE
     }
   }
-  if (!downloaded) return(FALSE)
 
   # Commit and push data
   date <- format(Sys.Date(), format = "%m-%d-%Y")
@@ -161,8 +161,6 @@ dailyWorkflow <- function(report = TRUE) {
 
   # Knit and commit report
   if (report) dailyReport(push = TRUE)
-
-  return(TRUE)
 }
 
 getDataSources <- function() {
