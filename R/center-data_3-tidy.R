@@ -122,18 +122,15 @@ tidyRawData.enrollment <- function (data) {
   names(data)[names(data) == "Primary_Enrollment_End"] <- "Contract_End_Date"
 
   # Reformat columns
-  data <- data %>%
-    mutate(Membership_Type =
-             gsub("^\\* ", "", .data$Membership_Type)) %>%
-    mutate(Enrollment_Contract_Length =
-             gsub(" months?", "", .data$Enrollment_Contract_Length)) %>%
-    mutate(Enrollment_Length_of_Stay =
-             gsub(" months?", "", .data$Enrollment_Length_of_Stay)) %>%
-    mutate(Student_Length_of_Stay =
-             gsub(" months?", "", .data$Student_Length_of_Stay)) %>%
+  data <- data %>% mutate(
+    Membership_Type = gsub("^\\* ", "", .data$Membership_Type),
+    Enrollment_Contract_Length = gsub(" months?", "", .data$Enrollment_Contract_Length) %>% as.numeric(),
+    Enrollment_Length_of_Stay  = gsub(" months?", "", .data$Enrollment_Length_of_Stay)  %>% as.numeric(),
+    Student_Length_of_Stay     = gsub(" months?", "", .data$Student_Length_of_Stay)     %>% as.numeric(),
 
-    mutate(Monthly_Sessions = as.numeric(.data$Monthly_Sessions)) %>%
-    mutate(Delivery = as.factor(.data$Delivery))
+    Monthly_Sessions = as.numeric(.data$Monthly_Sessions),
+    Delivery = as.factor(.data$Delivery)
+  )
 
   # Create new columns
   data <- mutate(data, Student = paste(.data$Student_First_Name, .data$Student_Last_Name),
