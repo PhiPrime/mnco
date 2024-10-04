@@ -1,39 +1,56 @@
 #' @export
-dailyWorkflow <- function(report = TRUE) {
+dailyWorkflow <- function(update = TRUE) {
   # Make sure git config user.name and user.email are set in repo for rebase
   #   and push to work
-  git_config()
+  git_config(path = "../mnco")
+  git_config(path = "../mcp-data")
 
+  # Update mnco
+  if (update) {
+    mnco_updated <- update_mnco()
+
+    if (mnco_updated) {
+      restart <- c(
+        "install.packages(\"../mnco\", repos = NULL, type = \"source\")",
+        "writeClipboard(\"mnco::dailyWorkflow(update = F)\")",
+        "message(\"Hit Ctrl+V and Enter to continue.\")"
+      )
+      rstudioapi::restartSession(restart)
+    }
+  }
+
+  # Download and commit data
   dailyData()
 
   # Knit and commit report
-  if (report) dailyReport(push = TRUE)
+  dailyReport(push = TRUE)
 }
 
 dailyData <- function() {
   # Ensure working tree is clean (no uncommitted changes)
-  status <- git_cd("git status", intern = T)
+  status <- git_cd("git status", path = "../mcp-data", intern = T)
   if (!("nothing to commit, working tree clean" %in% status)) {
     stop(
       "You have uncommitted changes in mcp-data. ",
-      "Please commit or stash them before trying again:\n    ",
-      paste0(status, collapse = "\n    ")
+      "Please commit or stash them before trying again:\n",
+      tab_message(status), "\n"
     )
   }
 
   # Fetch and pull with rebase
-  git_cd("git fetch")
-  rebase <- git_cd("git rebase origin/main main", intern = T)
-  rebase_success <- rebase[1] %>%
-    stringr::str_detect("(up to date|Successfully rebased)")
+  git_cd("git fetch", path = "../mcp-data")
+  rebase <- git_cd("git rebase origin/main main", path = "../mcp-data", intern = T)
+  rebase_success <- rebase %>%
+    stringr::str_detect("(up to date|Successfully rebased)") %>%
+    any()
 
   # Handle rebase failure
   if (!rebase_success) {
     git_cd("git rebase --abort", path = "../mnco")
     stop(
       "Conflicts arose when attemping to pull with rebase for mcp-data.\n",
-      "The rebase has been aborted:\n    ",
-      paste0(rebase, collapse = "\n    "), "\n",
+      "The rebase has been aborted:\n",
+      tab_message(rebase), "\n\n",
       "Please manually pull (with rebase) and resolve conflicts before trying again."
     )
   }
@@ -108,9 +125,9 @@ dailyData <- function() {
   # Commit and push data
   date <- format(Sys.Date(), format = "%m-%d-%Y")
 
-  git_cd("git add .")
-  git_cd("git commit -m \"(Auto) ", date, " data\"")
-  git_cd("git push")
+  git_cd("git add .", path = "../mcp-data")
+  git_cd("git commit -m \"(Auto) ", date, " data\"", path = "../mcp-data")
+  git_cd("git push", path = "../mcp-data")
 }
 
 #' @export
@@ -131,9 +148,9 @@ dailyReport <- function(knit = TRUE, open = TRUE, push = FALSE) {
       # Commit and push report
       date <- format(Sys.Date(), format = "%m-%d-%Y")
 
-      git_cd("git add .")
-      git_cd("git commit -m \"(Auto) ", date, " report\"")
-      git_cd("git push")
+      git_cd("git add .", path = "../mcp-data")
+      git_cd("git commit -m \"(Auto) ", date, " report\"", path = "../mcp-data")
+      git_cd("git push", path = "../mcp-data")
     }
   }
 
@@ -168,8 +185,8 @@ update_mnco <- function() {
     if (!("Switched to branch 'main'" %in% switch)) {
       stop(
         "Conflicts arose when attemping to switch to branch 'main' in mnco. ",
-        "Please resolve before trying again:\n    ",
-        paste0(switch, collapse = "\n    ")
+        "Please resolve before trying again:\n",
+        tab_message(switch)
       )
     }
   }
@@ -179,75 +196,105 @@ update_mnco <- function() {
   status <- git_cd("git status", path = "../mnco", intern = T)[c(2, 3)]
   change <- status[1] %>% stringr::str_extract("(behind|diverged)")
 
+  # 0 - no updates, 1 - update request, 2 - update denied, 3 - stop program
+  update <- 0
+
+  # Prompt user if update available
   if (!is.na(change)) {
     # Get git message for behind or diverged
     if (change == "behind") status <- status[1]
 
-    # Prompt user on how to proceed
-    choices <- c(
+    update_options <- c(
       "1. Update mnco and continue",
       "2. Don't update mnco and continue",
       "3. Stop the program"
     )
 
     message(
-      "There are updates to mnco:\n    ",
-      paste0(status, collapse = "\n    ")
+      "There are updates to mnco:\n",
+      tab_message(status), "\n"
     )
 
-    confirm = "n"
-    while (confirm != "y") {
+    update <- prompt_user(
+      choices = c(1, 2, 3),
+      msg = c(
+        "How would you like to proceed?\n",
+        tab_message(update_options)
+      ),
+      prompt1 = "Your choice: ",
+      prompt2 = "Please select a valid choice: "
+    )
+  }
+
+  # Ensure working tree is clean (no uncommitted changes)
+  if (update == 1) {
+    status <- git_cd("git status", intern = T, path = "../mnco")
+    while (!("nothing to commit, working tree clean" %in% status) && update == 1) {
       message(
-        "How would you like to proceed?\n    ",
-        paste0(choices, collapse = "\n    ")
+        "You have uncommitted changes in mnco. ",
+        "They must be committed or stashed before continuing:\n",
+        tab_message(status), "\n"
       )
-      update <- readline("Your choice: ")
 
-      while (!(update %in% c(1, 2, 3))) {
-        update <- readline("Please select a valid choice: ")
-      }
-
-      message(
-        "Please confirm your choice:\n    ",
-        choices[as.integer(update)]
+      uncommitted_options <- c(
+        "1. Open mnco.Rproj to commit/stash then continue (tell Justin if you want it to stash automatically)",
+        "2. Don't update mnco and continue",
+        "3. Stop the program"
       )
-      confirm <- readline("Confirm (y/n): ")
 
-      while (!(confirm %in% c("y", "n"))) {
-        confirm <- readline("Please enter 'y' or 'n': ")
-      }
-    }
+      update <- prompt_user(
+        choices = c(1, 2, 3),
+        msg = c(
+          "How would you like to proceed?\n",
+          tab_message(uncommitted_options)
+        ),
+        prompt1 = "Your choice: ",
+        prompt2 = "Please select a valid choice: "
+      )
 
-    # Proceed with user choice
-    if (update == 1) {
-      # Pull with rebase
-      rebase <- git_cd("git rebase origin/main main", path = "../mnco", intern = T)
-      rebase_success <- rebase[1] %>%
-        stringr::str_detect("Successfully rebased")
+      if (update == 1) {
+        message("Return to this window to confirm after committing or stashing your changes.")
+        Sys.sleep(1.5)
+        system2("open", "../mnco/mnco.Rproj")
 
-      # Handle rebase failure
-      if (!rebase_success) {
-        git_cd("git rebase --abort", path = "../mnco")
-        message(
-          "Conflicts arose when attemping to pull with rebase for mnco.\n",
-          "The rebase has been aborted:\n    ",
-          paste0(rebase, collapse = "\n    "), "\n",
-          "Consider manually pulling (with rebase) to resolve conflicts."
+        prompt_user(
+          choices = "y",
+          prompt1 = "Confirm (y): ",
+          prompt2 = "Please enter 'y': "
         )
 
-        # Prompt user on how to proceed
-        while (!(update %in% c(2, 3))) {
-          message(
-            "How would you like to proceed?\n    ",
-            paste0(choices[c(2, 3)], collapse = "\n    ")
-          )
-          update <- readline("Your choice: ")
-
-          while (!(update %in% c(2, 3))) {
-            update <- readline("Please select a valid choice: ")
-          }
-        }
+        status <- git_cd("git status", path = "../mnco", intern = T)
       }
+    }
+  }
+
+  # Attempt to pull with rebase
+  if (update == 1) {
+    rebase <- git_cd("git rebase origin/main main", path = "../mnco", intern = T)
+    rebase_success <- rebase %>%
+      stringr::str_detect("Successfully rebased") %>%
+      any()
+
+    # Handle rebase failure
+    if (!rebase_success) {
+      git_cd("git rebase --abort", path = "../mnco")
+      message(
+        "Conflicts arose when attemping to pull with rebase for mnco.\n",
+        "The rebase has been aborted:\n",
+        tab_message(rebase), "\n\n",
+        "Consider manually pulling (with rebase) to resolve conflicts."
+      )
+
+      # Prompt user on how to proceed
+      update <- prompt_user(
+        choices = c(2, 3),
+        msg = c(
+          "How would you like to proceed?\n",
+          tab_message(update_options[c(2, 3)])
+        ),
+        prompt1 = "Your choice: ",
+        prompt2 = "Please select a valid choice: "
+      )
     }
   }
 
@@ -263,13 +310,19 @@ update_mnco <- function() {
     }
   }
 
-  # Stop program on user choice
-  if (update == 3) {
+  if (update == 0 || update == 2) {
+    # Continue without updates
+    return(FALSE)
+  } else if (update == 1) {
+    # Reinstall mnco and continue
+    return(TRUE)
+  } else if (update == 3) {
+    # Stop program on user choice
     stop("The program has been stopped.")
   }
 }
 
-git_cd <- function(..., path = "../mcp-data", intern = F) {
+git_cd <- function(..., path, intern = F) {
   command <- paste(..., sep = "")
 
   stringr::str_replace(command, "git ", paste0("git -C ", path, " ")) %>%
@@ -277,18 +330,42 @@ git_cd <- function(..., path = "../mcp-data", intern = F) {
     return()
 }
 
-git_config <- function() {
-  config <- git_cd("git config --list", intern = T)
+git_config <- function(path) {
+  config <- git_cd("git config --list", path = path, intern = T)
+  repo <- path %>% stringr::str_replace("../", "")
+
   missing_name <- !any(stringr::str_detect(config, "^user\\.name"))
   missing_email <- !any(stringr::str_detect(config, "^user\\.email"))
 
   if (missing_name) {
-    name <- readline("git config user.name needs to be set locally for this repository. Enter your GitHub username: ")
-    git_cd("git config user.name ", name)
+    name <- paste0("git config user.name needs to be set locally for ", repo, ". Enter your GitHub username: ") %>%
+      readline()
+    git_cd("git config user.name ", path = path, name)
   }
   if (missing_email) {
-    email <- readline("git config user.email needs to be set locally for this repository. Enter your GitHub email: ")
-    git_cd("git config user.email ", email)
+    email <- paste0("git config user.email needs to be set locally for ", repo, ". Enter your GitHub email: ") %>%
+      readline()
+    git_cd("git config user.email ", path = path, email)
   }
   invisible()
+}
+
+tab_message <- function(message) {
+  paste0(
+    "    ",
+    paste0(message, collapse = "\n    ")
+  )
+
+}
+
+prompt_user <- function(choices, msg = NULL, prompt1 = NULL, prompt2 = NULL) {
+  if (!is.null(msg)) message(msg)
+
+  input <- readline(prompt1)
+  while(!(input %in% choices)) {
+    validation_prompt = if (!is.null(prompt2)) prompt2 else prompt1
+    input <- readline(validation_prompt)
+  }
+
+  return(input)
 }

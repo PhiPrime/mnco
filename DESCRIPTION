@@ -20,6 +20,7 @@ Imports:
     outliers,
     pdftools,
     readxl,
+    rstudioapi,
     stats,
     stringr,
     tidygeocoder,
