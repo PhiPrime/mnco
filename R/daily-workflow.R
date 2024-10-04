@@ -12,7 +12,7 @@ dailyWorkflow <- function(update = TRUE) {
     if (mnco_updated) {
       restart <- c(
         "install.packages(\"../mnco\", repos = NULL, type = \"source\")",
-        "writeClipboard(\"mnco::dailyWorkflow(update = F)\")",
+        "writeLines(\"mnco::dailyWorkflow(update = F)\", con = \"clipboard\", sep = \"\")",
         "message(\"Hit Ctrl+V and Enter to continue.\")"
       )
       rstudioapi::restartSession(restart)
@@ -20,10 +20,32 @@ dailyWorkflow <- function(update = TRUE) {
   }
 
   # Download and commit data
-  dailyData()
+  data_pushed <- dailyData()
 
   # Knit and commit report
-  dailyReport(push = TRUE)
+  push_report <- TRUE
+  if (!data_pushed) {
+    push_report <- prompt_user(
+      msg = c(
+        "Does the daily report still need to be knitted, committed, and pushed?\n",
+        tab_message(c(
+          "1. Push (check git log first!)",
+          "2. Don't push"
+        ))
+      ),
+      choices = c(1, 2),
+      prompt1 = "Your choice: ",
+      prompt2 = "Please select a valid choice: "
+    )
+
+    if (push_report == 1) {
+      push_report <- TRUE
+    } else {
+      push_report <- FALSE
+    }
+  }
+
+  dailyReport(push = push_report)
 }
 
 dailyData <- function() {
@@ -65,69 +87,96 @@ dailyData <- function() {
     silent = T
   ) %>% inherits("try-error")
 
+  push = TRUE
   if (!missing) {
-    message("The daily data is already downloaded. Justin will handle this case later. Please manually commit and push if needed.")
-    return(invisible(NULL))
-  }
+    push <- prompt_user(
+      msg = c(
+        "The daily data is already downloaded. Does it still need to be committed and pushed?\n",
+        tab_message(c(
+          "1. Push (check git log first!)",
+          "2. Don't push"
+        ))
+      ),
+      choices = c(1, 2),
+      prompt1 = "Your choice: ",
+      prompt2 = "Please select a valid choice: "
+    )
 
-  # Open Radius for user to login
-  loginURL <- "https://radius.mathnasium.com/Account/UserProfile"
-  shell.exec(loginURL)
-
-  login = FALSE
-  while (!login) {
-    ans <- readline("Did you log in? (y/n): ")
-
-    while (!(ans %in% c("y", "n"))) {
-      ans <- readline("Please enter 'y' or 'n': ")
-    }
-
-    if (ans != "y") {
-      message("Please log in to Radius.")
+    if (push == 1) {
+      push = TRUE
     } else {
-      login = TRUE
+      push = FALSE
     }
   }
 
-  # Open Radius for user to download data
-  downloaded = FALSE
+  # Download daily data from Radius
+  if (missing) {
+    # Open Radius for user to login
+    loginURL <- "https://radius.mathnasium.com/Account/UserProfile"
+    shell.exec(loginURL)
 
-  system2("open", getDataSources())
-  while (missing) {
-    ans <- readline("Did you download the files from the opened links? (y/n): ")
+    login = FALSE
+    while (!login) {
+      ans <- readline("Did you log in? (y/n): ")
 
-    while (!(ans %in% c("y", "n"))) {
-      ans <- readline("Please enter 'y' or 'n': ")
+      while (!(ans %in% c("y", "n"))) {
+        ans <- readline("Please enter 'y' or 'n': ")
+      }
+
+      if (ans != "y") {
+        message("Please log in to Radius.")
+      } else {
+        login = TRUE
+      }
     }
 
-    moveDataDownloads()
-    missing = try(
-      {
-        getCenterData()
-        getCenterData("assessment")
-      },
-      silent = T
-    ) %>% inherits("try-error")
+    # Open Radius for user to download data
+    system2("open", getDataSources())
+    while (missing) {
+      ans <- readline("Did you download the files from the opened links? (y/n): ")
 
-    if(ans != "y") {
-      message("Please download the files.")
-      missing <- TRUE
-    } else if (missing) {
-      message(
-        "There are still missing files. Make sure they are downloaded. ",
-        "(Justin will figure out how to print which are missing)"
-      )
-    } else {
-      downloaded = TRUE
+      while (!(ans %in% c("y", "n"))) {
+        ans <- readline("Please enter 'y' or 'n': ")
+      }
+
+      if (ans == "y") {
+        moveDataDownloads()
+        missing = try(
+          {
+            getCenterData()
+            getCenterData("assessment")
+          },
+          silent = T
+        ) %>% inherits("try-error")
+
+        if (missing) {
+          message(
+            "There are still missing files. Make sure they are downloaded. ",
+            "(Justin will figure out how to print which are missing)"
+          )
+        }
+      } else if (ans == "n") {
+        message("Please download the files.")
+        missing <- TRUE
+      }
     }
   }
 
   # Commit and push data
-  date <- format(Sys.Date(), format = "%m-%d-%Y")
+  if (push) {
+    date <- format(Sys.Date(), format = "%m-%d-%Y")
 
-  git_cd("git add .", path = "../mcp-data")
-  git_cd("git commit -m \"(Auto) ", date, " data\"", path = "../mcp-data")
-  git_cd("git push", path = "../mcp-data")
+    git_cd("git add .", path = "../mcp-data")
+    commit = git_cd("git commit -m \"(Auto) ", date, " data\"", path = "../mcp-data", intern = T)
+
+    if ("nothing to commit, working tree clean" %in% commit) {
+      message("There is no new data to commit and push to mcp-data.")
+      push <- FALSE
+    }
+  }
+  if (push) git_cd("git push", path = "../mcp-data")
+
+  return(push)
 }
 
 #' @export
@@ -355,7 +404,6 @@ tab_message <- function(message) {
     "    ",
     paste0(message, collapse = "\n    ")
   )
-
 }
 
 prompt_user <- function(choices, msg = NULL, prompt1 = NULL, prompt2 = NULL) {
