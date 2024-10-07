@@ -11,14 +11,17 @@
 kablize <- function(todisplay, headerWidth = 13) {
   # Format headers for display
   names(todisplay) <- names(todisplay) %>%
-    stringr::str_replace("_", " ") %>%
+    stringr::str_replace_all("_", " ") %>%
     stringr::str_trunc(headerWidth)
 
   todisplay <- todisplay %>%
+    # Format certain columns for display
     mutate(dplyr::across(
       where(lubridate::is.Date),
       ~format(.x, "%m-%d-%Y")
     )) %>%
+
+    # LaTeX formatting
     kableExtra::kbl(
       format = "latex",
       row.names = F,
