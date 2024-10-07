@@ -8,13 +8,15 @@
 #'
 #' @examples
 #' readRawData("student")
-readRawData <- function(type = radiusFileRoots("types"), date = Sys.Date()) {
+readRawData <- function(type = radiusFileRoots("types"), path = NULL, date = Sys.Date()) {
   # Ensure valid type of Radius data file
-  type <- match.arg(type)
+  if (type != "path") {
+    type <- match.arg(type)
 
-  # Create path to raw data file
-  path <- matchRegexRoot(radiusFileRoots(type), date) %>%
-    file.path(rawDataDir(), .)
+    # Create path to raw data file
+    path <- matchRegexRoot(radiusFileRoots(type), date) %>%
+      file.path(rawDataDir(), .)
+  }
 
   # Read and clean column names
   data <- readxl::read_excel(path, .name_repair = "unique_quiet")
