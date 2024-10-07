@@ -36,18 +36,18 @@ getCenterData <- function(type = "all", date = Sys.Date(), ignoreMissing = F) {
   if (identical(type, "all")) {
     # Get all data and merge
     data <- list(
-      getCenterData("student", date),
-      getCenterData("account", date),
-      getCenterData("progress", date),
-      getCenterData("enrollment", date),
-      getStudentRanking(date),
-      getCenterData("student2", date)
+      getCenterData("student", date = date),
+      getCenterData("account", date = date),
+      getCenterData("progress", date = date),
+      getCenterData("enrollment", date = date),
+      getStudentRanking(date = date),
+      getCenterData("student2", date = date)
     )
   } else if (length(type) > 1) {
     data <- lapply(type, getCenterData, date = date)
   } else {
     # Read and tidy data
-    data <- readRawData(type, date) %>% tidyRawData(type)
+    data <- readRawData(type, date = date) %>% tidyRawData(type)
   }
 
   # Join and return data frames

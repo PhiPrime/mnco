@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' readRawData("student")
-readRawData <- function(type = radiusFileRoots("types"), path = NULL, date = Sys.Date()) {
+readRawData <- function(type = radiusFileRoots("types"), date = Sys.Date(), path = NULL) {
   # Ensure valid type of Radius data file
   if (type != "path") {
     type <- match.arg(type)
