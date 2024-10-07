@@ -22,7 +22,8 @@ readRawData <- function(type = radiusFileRoots("types"), path = NULL, date = Sys
   data <- readxl::read_excel(path, .name_repair = "unique_quiet")
   names(data) <- names(data) %>%
     stringr::str_trim() %>%
-    stringr::str_replace_all(" ", "_")
+    stringr::str_replace_all(" ", "_") %>%
+    stringr::str_replace_all("[()]", "")
   # ADD CHECK FOR DUPLICATE COLUMNS
 
   invisible(data)
