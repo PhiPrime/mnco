@@ -201,19 +201,23 @@ tidyRawData.curriculum <- function(data) {
 }
 
 tidyRawData.attendance <- function(data) {
+  # Reformat columns
   data <- data %>%
     mutate(
-      date      = as.Date(.data$Attendance_Date, format = "%m/%d/%y"),
-      accountID = .data$Account_Id,
-      name      = paste(.data$First_Name,.data$Last_Name),
-      startTime = strptime(.data$Arrival_Time, "%I:%M %p"),
-      endTime   = strptime(.data$Departure_Time, "%I:%M %p"),
-      totalVisits       = .data$Total_Visits,
-      membershipType    = as.factor(.data$Membership_Type),
-      sessionsPerMonth  = as.factor(.data$Sessions_Per_Month),
-      sessionsRemaining = .data$Sessions_Remaining,
-      delivery          = as.factor(.data$Delivery)
+      .keep = "unused",
+      Student = paste(.data$First_Name, .data$Last_Name)
+    ) %>%
+    mutate(
+      Attendance_Date   = as.Date(.data$Attendance_Date, format = "%m/%d/%Y"),
+      Arrival_Time      = strptime(.data$Arrival_Time, "%I:%M %p"),
+      Departure_Time    = strptime(.data$Departure_Time, "%I:%M %p")
     )
+
+  # Remove columns
+  rm_cols <- c("Total_Hours")
+
+  data <- data %>%
+    removeRawCols(rm_cols)
 
   invisible(data)
 }
