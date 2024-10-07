@@ -83,6 +83,7 @@ dailyData <- function() {
     {
       getCenterData()
       getCenterData("assessment")
+      getCenterData("attendance")
     },
     silent = T
   ) %>% inherits("try-error")
@@ -145,6 +146,7 @@ dailyData <- function() {
           {
             getCenterData()
             getCenterData("assessment")
+            getCenterData("attendance")
           },
           silent = T
         ) %>% inherits("try-error")
@@ -213,7 +215,8 @@ getDataSources <- function() {
     "https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail",
     "https://radius.mathnasium.com/Enrollment/EnrollmentReport",
     "https://radius.mathnasium.com/AssessmentReport",
-    "https://radius.mathnasium.com/StudentReport"
+    "https://radius.mathnasium.com/StudentReport",
+    "https://radius.mathnasium.com/StudentAttendanceMonthlyReport"
   )
 }
 
