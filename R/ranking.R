@@ -124,6 +124,14 @@ getProgressHistory <- function(student = "all") {
   } else {
     progressHistory <- readRDS(cachePath)
 
+    if (!(Sys.Date() %in% progressHistory$Date)) {
+      data <- getStudentRanking() %>%
+        mutate(Date = date)
+
+      progressHistory <- progressHistory %>%
+        dplyr::rows_insert(data, by = c("Student", "Date"))
+    }
+
     if (!all(validDates %in% progressHistory$Date)) {
       progressHistory <- NULL
     }
@@ -142,6 +150,8 @@ getProgressHistory <- function(student = "all") {
       }
     }
   }
+
+  saveRDS(progressHistory, cachePath)
 
   # Return all data
   if (student == "all") return(progressHistory)
