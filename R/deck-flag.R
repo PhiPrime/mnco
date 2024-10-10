@@ -11,33 +11,51 @@
 #' # write later
 needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold")) {
   sup <- getSuppressedStudents()
+  assessmentFlags = needsDeck.assessment()
 
-  #Select students under minAllowed
-  flagged <- getCenterData(c("student", "progress")) %>%
+  flagged <- getCenterData() %>%
+    dplyr::left_join(assessmentFlags, by = "Student") %>%
     filter(
       .data$Student %in% getActiveStudents() &
       !(.data$Student %in% sup$Student)
     ) %>%
+    # No learning plan, assigned < allowed, recent assessment, or no last attendance
     filter(
+      .data$Active_Learning_Plans == 0 |
       .data$Skills_Currently_Assigned < minAllowed |
-      .data$Student %in% needsDeck.assessment()
+      .data$Student %in% assessmentFlags$Student |
+      is.na(.data$Last_Attendance_Date)
     ) %>%
-    select(
-      "Student",
-      "Student_Id",
-      "Skills_Currently_Assigned",
-      "Skills_Mastered",
-      "Attendances"
-    ) %>%
-    mutate(Pest = .data$Skills_Mastered/.data$Attendances) %>%
-    mutate(.keep = "unused",
+    mutate(
+      Assessment = dplyr::if_else(.data$Student %in% assessmentFlags$Student, .data$Date_Taken, NA),
       LP_Link = paste0(
         "\\href{https://radius.mathnasium.com/Student/Details/",
         .data$Student_Id,
         "#learningPlanGrid}{Link}"
       )
     ) %>%
-    dplyr::arrange(.data$Skills_Currently_Assigned, .data$Student)
+    select(
+      "Student",
+      "Skills_Currently_Assigned",
+      "Assessment",
+      "Pest",
+      "Skills_Mastered",
+      "Attendances",
+      "Delivery",
+      "LP_Link"
+    ) %>%
+    dplyr::arrange(
+      !is.na(.data$Skills_Currently_Assigned),
+
+      !is.na(.data$Assessment),
+      .data$Assessment,
+
+
+      .data$Skills_Currently_Assigned,
+
+      desc(.data$Pest),
+      .data$Student
+    )
 
   return(flagged)
 }
@@ -52,23 +70,22 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
 needsDeck.assessment <- function() {
   ## Ways to tell if a deck needs made based on assessments:
   ### 1) Assessment Date is between Last_Attendance_Date and today
-  ### 2) Active_Learning_Plans == 0.
+  ### 2) No last attendance date (new student)
   ### 3) Save data in a cache and keep track of all assessments for each student
+  stu <- getCenterData("student") %>%
+    select("Student", "Last_Attendance_Date")
 
-  ## We will use options 1&2
-  stu <- getCenterData("student") %>% select("Student", "Last_Attendance_Date")
-  pro <- getCenterData("progress") %>% select("Student", "Active_Learning_Plans")
-
+  ## We will use option 1 and 2
   flagged <- getCenterData("assessment") %>%
-    patchJoin(stu, pro, .by = "Student") %>%
+    dplyr::left_join(stu, by = "Student") %>%
     filter(
-      # Option 1
       .data$Date_Taken >= .data$Last_Attendance_Date |
-      is.na(.data$Last_Attendance_Date) |
-      # Option 2
-      .data$Active_Learning_Plans == 0
+      is.na(.data$Last_Attendance_Date)
     ) %>%
-    dplyr::pull("Student")
+    dplyr::group_by(.data$Student) %>%
+    dplyr::slice_max(.data$Date_Taken, with_ties = F) %>%
+    dplyr::ungroup() %>%
+    select("Student", "Date_Taken")
 
   return(flagged)
 }
