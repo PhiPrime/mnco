@@ -13,6 +13,8 @@
 #' moveDataDownloads()
 moveDataDownloads <- function() {
   # MAKE DEFAULT ARGUMENTS FOR src and dest DIRECTORIES
+
+  # Move all files with radius date format
   files <- list.files(
     downloadsDir(),
     pattern = "\\d{1,2}_\\d{1,2}_\\d{4}.xlsx$"
@@ -22,16 +24,26 @@ moveDataDownloads <- function() {
   dest <- file.path(rawDataDir(), files)
   filesMoved <- !identical(file.rename(src, dest), logical(0))
 
+  # Print list of files that were moved
   if (filesMoved) {
-    message("NOTICE: The following files have been moved from ",
-            "\"", downloadsDir(), "\" to \"", rawDataDir(), "\".\n",
-            "\t", paste0(files, collapse = "\n\t")
-    )
+    sprintf(
+      "NOTICE: The following files have been moved from '%s' to '%s'.\n",
+      downloadsDir(),
+      rawDataDir()
+    ) %>%
+      paste0(tab_message(files)) %>%
+      message()
   } else {
     message("NOTICE: No raw data files were found in \"", downloadsDir(), "\".")
+  }
+
+  # Update progressHistory cache if today's progress data is available
+  if (!(try(getStudentRanking(), silent = T) %>% inherits("try-error"))) {
+    # SEPARATE CACHE SAVING TO SEPARATE FUNCTION FOR CLARITY?
+    getProgressHistory()
   }
 
   invisible(filesMoved)
 }
 
-# ADD FUNCTION TO AUTOMATICALLY UPDATE CACHE FILeS
+# ADD FUNCTION TO AUTOMATICALLY UPDATE CACHE FILES
