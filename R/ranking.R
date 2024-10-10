@@ -126,7 +126,7 @@ getProgressHistory <- function(student = "all") {
 
     if (!(Sys.Date() %in% progressHistory$Date)) {
       data <- getStudentRanking() %>%
-        mutate(Date = date)
+        mutate(Date = Sys.Date())
 
       progressHistory <- progressHistory %>%
         dplyr::rows_insert(data, by = c("Student", "Date"))
@@ -137,6 +137,7 @@ getProgressHistory <- function(student = "all") {
     }
   }
 
+  # If null, resave cache with all progress data
   if (is.null(progressHistory)) {
     for (date in as.list(validDates)) {
       data <- getStudentRanking(date = date) %>%
@@ -190,6 +191,9 @@ plotProgress <- function(student, var = "Pest") {
     Pest = graph + ggplot2::ylim(0, max(1, max(progress$Pest, na.rm = T))),
     Rank = graph + ggplot2::ylim(max(20, max(progress$Rank, na.rm = T)), 0)
   )
+
+  sprintf("Plotting '%s' for '%s'...", var, student) %>%
+    message()
 
   return(graph)
 }
