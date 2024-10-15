@@ -89,7 +89,7 @@ create_new_pdf <- function(vector) {
 #'
 #' @examples
 #' shuffle_blue_cards("1.pdf","2.pdf")
-shuffle_blue_cards <- function(visual_pdf, mental_pdf) {
+shuffle_blue_cards <- function(visual_pdf, mental_pdf, seed = Sys.time()) {
   #open and move into one vector
   full_png_vector <- c(open_pdf(visual_pdf), open_pdf(mental_pdf))
 
@@ -106,7 +106,7 @@ shuffle_blue_cards <- function(visual_pdf, mental_pdf) {
   }
 
   #Output
-  create_new_pdf(pi_shuffle(reassemble))
+  create_new_pdf(pi_shuffle(reassemble, seed))
   message("Output created")
 
   invisible(NULL)
