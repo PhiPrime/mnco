@@ -65,7 +65,8 @@ stack_images <- function(image1,image2) {
 }
 
 #Will shuffle based on Pi algorithm in the future
-pi_shuffle <- function(vector) {
+pi_shuffle <- function(vector, 
+seed = as.numeric(Sys.time())) {
   vector2 <- sample(vector, size = length(vector))
 }
 
