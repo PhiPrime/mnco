@@ -205,6 +205,7 @@ tidyRawData.attendance <- function(data) {
   data <- data %>%
     mutate(
       .keep = "unused",
+      .after = "Account_Id",
       Student = paste(.data$First_Name, .data$Last_Name)
     ) %>%
     mutate(
