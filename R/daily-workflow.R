@@ -1,5 +1,5 @@
 #' @export
-dailyWorkflow <- function(update = TRUE) {
+dailyWorkflow <- function(update = TRUE, report = TRUE) {
   # Make sure git config user.name and user.email are set in repo for rebase
   #   and push to work
   git_config(path = "../mnco")
@@ -24,7 +24,7 @@ dailyWorkflow <- function(update = TRUE) {
 
   # Knit and commit report
   push_report <- TRUE
-  if (!data_pushed) {
+  if (!data_pushed && report) {
     push_report <- prompt_user(
       msg = c(
         "Does the daily report still need to be knitted, committed, and pushed?\n",
@@ -45,7 +45,7 @@ dailyWorkflow <- function(update = TRUE) {
     }
   }
 
-  dailyReport(push = push_report)
+  if (report) dailyReport(push = push_report)
 }
 
 dailyData <- function() {
