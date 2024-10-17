@@ -246,16 +246,6 @@ createTextMessageFiles <- function(flaggedStudents) {
   return(flaggedStudents)
 }
 
-attendanceDates <- function(days) {
-  getCenterData("student") %>%
-    filter(Last_Attendance_Date != Sys.Date()) %>%
-    dplyr::pull("Last_Attendance_Date") %>%
-    unique() %>%
-    sort() %>%
-    {if (days == "all") . else tail(., days)} %>%
-    return()
-}
-
 #' Format character strings in sentence list form
 #'
 #' @param ... Character strings or vectors
