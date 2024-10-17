@@ -13,7 +13,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
 
   # Get list of dates any student attended in past week, plus today
   #   Students are flagged if last attended exactly 1 week ago (usually)
-  acceptableDates <- c(attendanceDates(days), Sys.Date())
+  acceptableDates <- c(getAttendanceDates(days), Sys.Date())
 
   flaggedStudents <-
     getCenterData(c("student", "account")) %>%
@@ -142,7 +142,7 @@ createTextMessageFiles <- function(flaggedStudents) {
   # Change Date_Added dates that were not business days to today
   #   This prevents being assigned text 2 if they were added to cache for
   #   testing or other reasons on a closed day.
-  allAttendanceDates <- attendanceDates("all")
+  allAttendanceDates <- getAttendanceDates("all")
   cache <- cache %>%
     mutate(
       Date_Added = dplyr::case_when(
