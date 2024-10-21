@@ -27,6 +27,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
       is.na(.data$Last_Attendance_Date)
     ) %>%
     mutate(
+      Pest = round(.data$Pest, 4),
       Assessment = dplyr::if_else(.data$Student %in% assessmentFlags$Student, .data$Date_Taken, NA),
       LP_Link = paste0(
         "\\href{https://radius.mathnasium.com/Student/Details/",
@@ -38,20 +39,18 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
       "Student",
       "Skills_Currently_Assigned",
       "Assessment",
+      "Last_Attendance_Date",
       "Pest",
-      "Skills_Mastered",
       "Attendances",
       "Delivery",
       "LP_Link"
     ) %>%
     dplyr::arrange(
       !is.na(.data$Skills_Currently_Assigned),
+      .data$Skills_Currently_Assigned,
 
       !is.na(.data$Assessment),
       .data$Assessment,
-
-
-      .data$Skills_Currently_Assigned,
 
       desc(.data$Pest),
       .data$Student
