@@ -110,7 +110,8 @@ tidyRawData.progress <- function(data) {
       ~tidyr::replace_na(.x, 0)
     ))
 
-  rm_cols <- c("Guardian")
+  # Do not use Skills_Currently_Assigned. Skills_Assigned from student2 data is the accurate one.
+  rm_cols <- c("Guardian", "Skills_Currently_Assigned")
   na_cols <- c("BPR_Comment")
 
   maybe_cols <- c("Email_Opt_Out")
@@ -276,7 +277,8 @@ tidyRawData.lead <- function(data) {
 tidyRawData.student2 <- function(data) {
   data <- data %>%
     dplyr::rename(
-      Student = .data$Student_Name
+      Student = .data$Student_Name,
+      Active_Skills_Mastered = .data$Skills_Mastered
     ) %>%
     mutate(
       Grade = dplyr::case_when(
