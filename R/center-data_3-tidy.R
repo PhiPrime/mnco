@@ -42,7 +42,14 @@ tidyRawData.student <- function(data) {
       Last_Attendance_Date = as.Date(.data$Last_Attendance_Date, format = "%m/%d/%Y"),
       Date_of_Birth = as.Date(.data$Date_of_Birth, format = "%m/%d/%Y"),
       Card_Level = as.integer(.data$Card_Level),
-      Student_Created_Date = as.Date(.data$Student_Created_Date)
+      Student_Created_Date = as.Date(.data$Student_Created_Date),
+      Grade = dplyr::case_when(
+        .data$Grade == "Pre K"   ~ "-1",
+        .data$Grade == "K"       ~ "0",
+        .data$Grade == "College" ~ "13",
+        .default = .data$Grade
+      ),
+      Grade = as.integer(.data$Grade)
     )
 
   # Columns to be removed
@@ -129,7 +136,15 @@ tidyRawData.enrollment <- function (data) {
     Student_Length_of_Stay     = gsub(" months?", "", .data$Student_Length_of_Stay)     %>% as.numeric(),
 
     Monthly_Sessions = as.numeric(.data$Monthly_Sessions),
-    Delivery = as.factor(.data$Delivery)
+    Delivery = as.factor(.data$Delivery),
+
+    Grade = dplyr::case_when(
+      .data$Grade == "Pre K"   ~ "-1",
+      .data$Grade == "K"       ~ "0",
+      .data$Grade == "College" ~ "13",
+      .default = .data$Grade
+    ),
+    Grade = as.integer(.data$Grade)
   )
 
   # Create new columns
