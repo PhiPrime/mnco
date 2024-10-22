@@ -230,6 +230,14 @@ tidyRawData.attendance <- function(data) {
       Departure_Time    = strptime(.data$Departure_Time, "%I:%M %p")
     )
 
+  # Remove duplicate attendances
+  # REVIEW THIS METHOD LATER
+  data <- data %>%
+    dplyr::group_by(.data$Student, .data$Attendance_Date) %>%
+    dplyr::arrange(is.na(.data$Departure_Time)) %>%
+    dplyr::slice_max(.data$Duration_Minutes, with_ties = F) %>%
+    dplyr::ungroup()
+
   # Remove columns
   rm_cols <- c("Total_Hours")
 
