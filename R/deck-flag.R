@@ -160,9 +160,7 @@ suppressDeckWarning <- function(..., duration = retrieve_variable("Deck_Warning_
   }
   sup <- readRDS(supFilePath)
 
-  newSup <- getCenterData("student") %>%
-    list(getCenterData("progress")) %>%
-    patchJoin(.by = "Student") %>%
+  newSup <- getCenterData() %>%
     filter(.data$Student %in% students) %>%
     select(
       "Student",
