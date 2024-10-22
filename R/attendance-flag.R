@@ -23,9 +23,9 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
       !(.data$Student %in% vac$Student)
     ) %>%
     transmute(
+      Student = .data$Student,
       Last_Attendance = .data$Last_Attendance_Date,
       Days = as.integer(Sys.Date() - .data$Last_Attendance_Date),
-      Student = .data$Student,
       Account = .data$Account,
       # Select phone in this order: Mobile, Home, Other
       Phone = dplyr::coalesce(
@@ -35,7 +35,23 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
       )
     ) %>%
     createTextMessageFiles() %>%
-    dplyr::arrange(.data$Last_Attendance, .data$Account, .data$Student)
+    dplyr::arrange(
+      !is.na(.data$Last_Attendance),
+      .data$Last_Attendance,
+
+      .data$Account,
+      .data$Student
+    )
+
+  newStudentAssessmentDates <- getCenterData("assessment") %>%
+    dplyr::group_by(.data$Student) %>%
+    dplyr::slice_max(.data$Date_Taken, with_ties = F) %>%
+    dplyr::ungroup() %>%
+    select("Student", "Date_Taken") %>%
+    dplyr::rename(Last_Attendance = .data$Date_Taken)
+
+  flaggedStudents <- flaggedStudents %>%
+    dplyr::rows_patch(newStudentAssessmentDates, by = "Student", unmatched = "ignore")
 
   # Group students by account
   output <- NULL
