@@ -154,17 +154,17 @@ tidyRawData.enrollment <- function (data) {
 tidyRawData.assessment <- function(data) {
   data <-  data %>%
     transmute(
-      Lead_Id    = as.character(.data$Lead_Id),
+      Lead_Id    = .data$Lead_Id,
       Account_Id = .data$Account_Id,
       Student    = paste(.data$Student_First_Name, .data$Student_Last_Name),
       Enrollment_Status = as.factor(.data$Enrollment_Status),
-      Grade      = dplyr::case_when(
-       .data$Grade == "Pre K" ~ "-1",
-       .data$Grade == "K" ~ "0",
-       .data$Grade == "College" ~ "13",
-       grepl("[0-9]", .data$Grade) ~ .data$Grade,
-       .default = "NaN"
+      Grade = dplyr::case_when(
+        .data$Grade == "Pre K"   ~ "-1",
+        .data$Grade == "K"       ~ "0",
+        .data$Grade == "College" ~ "13",
+        .default = .data$Grade
       ),
+      Grade = as.integer(.data$Grade),
       Assessment = .data$Assessment_Title,
       Level      = dplyr::case_when(
         !(grepl("[A-Z]", toupper(.data$Assessment_Level)) &
@@ -261,6 +261,15 @@ tidyRawData.student2 <- function(data) {
   data <- data %>%
     dplyr::rename(
       Student = .data$Student_Name
+    ) %>%
+    mutate(
+      Grade = dplyr::case_when(
+        .data$Grade == "Pre K"   ~ "-1",
+        .data$Grade == "K"       ~ "0",
+        .data$Grade == "College" ~ "13",
+        .default = .data$Grade
+      ),
+      Grade = as.integer(.data$Grade)
     )
 
   invisible(data)
