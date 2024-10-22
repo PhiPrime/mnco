@@ -42,6 +42,10 @@ moveDataDownloads <- function() {
     # SEPARATE CACHE SAVING TO SEPARATE FUNCTION FOR CLARITY?
     getProgressHistory()
   }
+  if (!(try(getCenterData("attendance"), silent = T) %>% inherits("try-error"))) {
+    # CHANGE TO all = F AFTER SAVE FUNCTION IS FINISHED
+    saveAttendanceHistory(all = T)
+  }
 
   invisible(filesMoved)
 }
