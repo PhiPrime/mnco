@@ -99,7 +99,7 @@ tidyRawData.account <- function(data) {
 tidyRawData.progress <- function(data) {
   data <- data %>%
     mutate(dplyr::across(
-      c("Skills_Mastered", "Skills_Currently_Assigned"),
+      "Skills_Mastered",
       ~tidyr::replace_na(.x, 0)
     ))
 

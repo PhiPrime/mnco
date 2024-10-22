@@ -22,7 +22,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
     # No learning plan, assigned < allowed, recent assessment, or no last attendance
     filter(
       .data$Active_Learning_Plans == 0 |
-      .data$Skills_Currently_Assigned < minAllowed |
+      .data$Skills_Assigned < minAllowed |
       .data$Student %in% assessmentFlags$Student |
       is.na(.data$Last_Attendance_Date)
     ) %>%
@@ -37,7 +37,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
     ) %>%
     select(
       "Student",
-      "Skills_Currently_Assigned",
+      "Skills_Assigned",
       "Assessment",
       "Last_Attendance_Date",
       "Pest",
@@ -46,8 +46,8 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
       "LP_Link"
     ) %>%
     dplyr::arrange(
-      !is.na(.data$Skills_Currently_Assigned),
-      .data$Skills_Currently_Assigned,
+      !is.na(.data$Skills_Assigned),
+      .data$Skills_Assigned,
 
       !is.na(.data$Assessment),
       .data$Assessment,
@@ -102,7 +102,7 @@ getSuppressedStudents <- function() {
   if(!file.exists(supFilePath)){
     sup <- data.frame(
       Student = character(0),
-      Skills_Currently_Assigned = integer(0),
+      Skills_Assigned = integer(0),
       Pest = numeric(0),
       Skills_Mastered = integer(0),
       Attendances = integer(0),
@@ -149,7 +149,7 @@ suppressDeckWarning <- function(..., duration = retrieve_variable("Deck_Warning_
   if(!file.exists(supFilePath)) {
     sup <- data.frame(
       Student = character(0),
-      Skills_Currently_Assigned = integer(0),
+      Skills_Assigned = integer(0),
       Pest = numeric(0),
       Skills_Mastered = integer(0),
       Attendances = integer(0),
@@ -166,7 +166,7 @@ suppressDeckWarning <- function(..., duration = retrieve_variable("Deck_Warning_
     filter(.data$Student %in% students) %>%
     select(
       "Student",
-      "Skills_Currently_Assigned",
+      "Skills_Assigned",
       "Skills_Mastered",
       "Attendances"
     ) %>%
