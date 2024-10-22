@@ -24,7 +24,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
     ) %>%
     transmute(
       Student = .data$Student,
-      Last_Attendance = .data$Last_Attendance_Date,
+      Last_Attendance_Date = .data$Last_Attendance_Date,
       Days = as.integer(Sys.Date() - .data$Last_Attendance_Date),
       Account = .data$Account,
       # Select phone in this order: Mobile, Home, Other
@@ -36,8 +36,8 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
     ) %>%
     createTextMessageFiles() %>%
     dplyr::arrange(
-      !is.na(.data$Last_Attendance),
-      .data$Last_Attendance,
+      !is.na(.data$Last_Attendance_Date),
+      .data$Last_Attendance_Date,
 
       .data$Account,
       .data$Student
@@ -48,7 +48,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
     dplyr::slice_max(.data$Date_Taken, with_ties = F) %>%
     dplyr::ungroup() %>%
     select("Student", "Date_Taken") %>%
-    dplyr::rename(Last_Attendance = .data$Date_Taken)
+    dplyr::rename(Last_Attendance_Date = .data$Date_Taken)
 
   flaggedStudents <- flaggedStudents %>%
     dplyr::rows_patch(newStudentAssessmentDates, by = "Student", unmatched = "ignore")
@@ -195,7 +195,7 @@ createTextMessageFiles <- function(flaggedStudents) {
       mutate(
         # Use earlier last attendance date student for links
         Student = flaggedAccount %>%
-          dplyr::arrange(.data$Last_Attendance, .data$Student) %>%
+          dplyr::arrange(.data$Last_Attendance_Date, .data$Student) %>%
           dplyr::pull("Student") %>%
           head(1),
 

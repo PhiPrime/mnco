@@ -10,7 +10,7 @@ getStudentsOnVacation <- function(){
   if(!file.exists(fileLoc)) {
     vac <- data.frame(
       Student = character(0),
-      Last_Attendance = as.Date(integer(0)),
+      Last_Attendance_Date = as.Date(integer(0)),
       returnDate = as.Date(integer(0))
     )
     saveRDS(vac, fileLoc)
@@ -21,7 +21,7 @@ getStudentsOnVacation <- function(){
 
   # Order the values
   vac <- readRDS(fileLoc) %>%
-    dplyr::arrange(.data$returnDate, .data$Last_Attendance)
+    dplyr::arrange(.data$returnDate, .data$Last_Attendance_Date)
 
   return(vac)
 }
@@ -60,7 +60,7 @@ sendOnVacation <- function(students, returnDate = NULL) {
   if(!file.exists(vacFilePath)) {
     vac <- data.frame(
       Student = character(0),
-      Last_Attendance = as.Date(integer(0)),
+      Last_Attendance_Date = as.Date(integer(0)),
       returnDate = as.Date(integer(0))
     )
     saveRDS(vac, vacFilePath)
@@ -71,7 +71,7 @@ sendOnVacation <- function(students, returnDate = NULL) {
   stu <- getCenterData("student") %>%
     select("Student", "Last_Attendance_Date") %>%
     # UNRENAME THIS LATER
-    dplyr::rename(Last_Attendance = "Last_Attendance_Date") %>%
+    dplyr::rename(Last_Attendance_Date = "Last_Attendance_Date") %>%
     filter(tolower(.data$Student) %in% tolower(students)) %>%
     mutate(returnDate = returnDate)
 
@@ -115,7 +115,7 @@ returnFromVacation <- function(studentName = NULL) {
     newVac <- vac %>%
       dplyr::left_join(stu, by = "Student") %>%
       filter(Sys.Date() <= .data$returnDate) %>%
-      filter(.data$stu_last_attendance <= .data$Last_Attendance) %>%
+      filter(.data$stu_last_attendance <= .data$Last_Attendance_Date) %>%
       select(-"stu_last_attendance")
 
     if (!identical(newVac, vac)) {
