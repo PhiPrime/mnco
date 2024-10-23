@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' getStudentRanking()
-getStudentRanking <- function(date = Sys.Date()) {
+getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
   # Get the relevant data
   progress <- getCenterData("progress", date) %>%
     select("Student", "Skills_Mastered", "Attendances")
@@ -39,7 +39,6 @@ getStudentRanking <- function(date = Sys.Date()) {
   calculated <- data %>%
     filter(
       .data$Attendances >= .data$Monthly_Sessions / 2,
-      .data$Attendances > 3,
       .data$Skills_Mastered > 2
     ) %>%
     mutate(
@@ -57,11 +56,15 @@ getStudentRanking <- function(date = Sys.Date()) {
     select(-"samdev")
 
   # Filter out pseudo-inactive students for current date's ranking
-  #   This still includes them for std dev - should this be the case?
+  # Also filter out students passed into exclude parameter
   ranked <- calculated
   if (date == Sys.Date()) {
     ranked <- ranked %>%
-      filter(.data$Student %in% getActiveStudents())
+      filter(
+        .data$Student %in% getActiveStudents(),
+        !(.data$Student %in% exclude),
+        .data$Monthly_Sessions != 5
+      )
   }
 
   # Calculate rankings
