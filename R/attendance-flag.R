@@ -51,7 +51,14 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
     dplyr::rename(Last_Attendance_Date = .data$Date_Taken)
 
   flaggedStudents <- flaggedStudents %>%
-    dplyr::rows_patch(newStudentAssessmentDates, by = "Student", unmatched = "ignore")
+    dplyr::rows_patch(newStudentAssessmentDates, by = "Student", unmatched = "ignore") %>%
+    # REORDER LOGIC LATER
+    # FILTER OUT NA HERE? - ASSESSMENT NOT ENTERED
+    filter(
+      .data$Student %in% getActiveStudents() &
+        !(.data$Last_Attendance_Date %in% acceptableDates) &
+        !(.data$Student %in% vac$Student)
+    )
 
   # Group students by account
   output <- NULL
