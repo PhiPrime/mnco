@@ -163,12 +163,21 @@ getProgressHistory <- function(student = "all") {
 
   # Filter for student
   students <- progressHistory$Student %>%
-    tolower() %>%
-    unique()
-  # MAKE THIS PRINT MATCHES IF MULTIPLE MATCHES - USE str_starts()?
-  matchedStudent <- students[pmatch(tolower(student), students)]
-  if (is.na(matchedStudent)) {
-    stop("\"", student, "\" could not be matched. Recheck spelling or be more specific.")
+    unique() %>%
+    sort()
+
+  matches <- students %>%
+    stringr::str_subset(paste0("(?i)^", student))
+
+  if (length(matches) == 1) {
+    matchedStudent <- matches
+  } else if (length(matches) == 0) {
+    stop("\"", student, "\" could not be matched. Recheck spelling and try again.")
+  } else {
+    stop(
+      "\"", student, "\" could not be matched. Possible matches:\n",
+      tab_message(matches)
+    )
   }
 
   progressHistory %>%
