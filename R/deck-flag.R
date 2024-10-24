@@ -10,9 +10,14 @@
 #' @examples
 #' # write later
 needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold")) {
-  sup <- getSuppressedStudents()
-  assessmentFlags = needsDeck.assessment()
+  # Get flags from recent assessment and remove suppression if needed
+  assessmentFlags <- needsDeck.assessment()
+  removeDeckSuppression(students = assessmentFlags$Student)
 
+  # Get suppressions
+  sup <- getSuppressedStudents()
+
+  # Main logic for deck flags
   flagged <- getCenterData() %>%
     dplyr::left_join(assessmentFlags, by = "Student") %>%
     filter(
@@ -133,17 +138,14 @@ getSuppressedStudents <- function() {
 #'
 #' @examples
 #' # write later
-suppressDeckWarning <- function(..., duration = retrieve_variable("Deck_Warning_Duration")) {
-  # Allow multiple students to be passed in
-  students <- unlist(list(...))
-
+suppressDeckWarning <- function(students, duration = retrieve_variable("Deck_Warning_Duration")) {
   # Don't allow suppression longer than `maxTime` days
   maxDuration <- retrieve_variable("Deck_Suppression_Maximum_Time")
   if (duration > maxDuration) duration <- maxDuration
 
   expDate <- Sys.Date() + lubridate::days(duration)
 
-  # Read vacation cache file, create if it doesn't exist
+  # Read suppression cache file, create if it doesn't exist
   supFilePath <- file.path(cacheDir(), "suppressions.rds")
 
   if(!file.exists(supFilePath)) {
@@ -197,23 +199,41 @@ suppressDeckWarning <- function(..., duration = retrieve_variable("Deck_Warning_
 #'
 #' @examples
 #' # write later
-removeDeckSuppression <- function(student = NULL) {
+removeDeckSuppression <- function(students = NULL) {
+  # Read suppression cache file, create if it doesn't exist
   supFilePath <- file.path(cacheDir(), "suppressions.rds")
+
+  if(!file.exists(supFilePath)) {
+    sup <- data.frame(
+      Student = character(0),
+      Skills_Assigned = integer(0),
+      Pest = numeric(0),
+      Skills_Mastered = integer(0),
+      Attendances = integer(0),
+      creation = as.Date(integer(0)),
+      expDate = as.Date(integer(0))
+    )
+    saveRDS(sup, supFilePath)
+  }
   sup <- readRDS(supFilePath)
 
-  removed <- FALSE
-
-  if (is.null(student)) {
+  if (is.null(students)) {
     # Default behavior: remove students whose expiration dates have passed
     newSup <- sup %>% filter(Sys.Date() <= .data$expDate)
-  } else if (student %in% sup$Student) {
+  } else {
     # Remove only student if name passed into function
-    newSup <- sup %>% filter(.data$Student != student)
+    newSup <- sup %>% filter(!(.data$Student %in% students))
   }
 
+  removed <- FALSE
   if (!identical(newSup, sup)) {
     saveRDS(newSup, supFilePath)
-    removed <- TRUE
+
+    if (is.null(students)) {
+      removed <- TRUE
+    }
   }
+  if (!is.null(students)) removed <- (students %in% sup$Student & !(students %in% newSup$Student))
+
   return(removed)
 }
