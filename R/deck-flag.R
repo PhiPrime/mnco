@@ -108,20 +108,28 @@ getSuppressedStudents <- function() {
     sup <- data.frame(
       Student = character(0),
       Skills_Assigned = integer(0),
-      Pest = numeric(0),
-      Skills_Mastered = integer(0),
-      Attendances = integer(0),
+      Reason = character(0),
       creation = as.Date(integer(0)),
       expDate = as.Date(integer(0))
     )
     saveRDS(sup, supFilePath)
   }
 
-  # Update before returning
+  # Remove expired suppressions
   removeDeckSuppression()
 
+  # Update Skills_Assigned
+  skillsAssigned <- getCenterData() %>%
+    select("Student", "Skills_Assigned")
+
   # Order the values
-  sup <- readRDS(supFilePath) %>% dplyr::arrange(.data$expDate)
+  sup <- readRDS(supFilePath) %>%
+    dplyr::rows_update(skillsAssigned, by = "Student", unmatched = "ignore") %>%
+    dplyr::arrange(
+      .data$expDate,
+      .data$creation,
+      .data$Student
+    )
 
   return(sup)
 }
@@ -138,7 +146,7 @@ getSuppressedStudents <- function() {
 #'
 #' @examples
 #' # write later
-suppressDeckWarning <- function(students, duration = retrieve_variable("Deck_Warning_Duration")) {
+suppressDeckWarning <- function(students, duration = retrieve_variable("Deck_Warning_Duration"), reason = NA_character_) {
   # Don't allow suppression longer than `maxTime` days
   maxDuration <- retrieve_variable("Deck_Suppression_Maximum_Time")
   if (duration > maxDuration) duration <- maxDuration
@@ -152,9 +160,7 @@ suppressDeckWarning <- function(students, duration = retrieve_variable("Deck_War
     sup <- data.frame(
       Student = character(0),
       Skills_Assigned = integer(0),
-      Pest = numeric(0),
-      Skills_Mastered = integer(0),
-      Attendances = integer(0),
+      Reason = character(0),
       creation = as.Date(integer(0)),
       expDate = as.Date(integer(0))
     )
@@ -166,15 +172,10 @@ suppressDeckWarning <- function(students, duration = retrieve_variable("Deck_War
     filter(.data$Student %in% students) %>%
     select(
       "Student",
-      "Skills_Assigned",
-      "Skills_Mastered",
-      "Attendances"
+      "Skills_Assigned"
     ) %>%
     mutate(
-      .before = "Skills_Mastered",
-      Pest = .data$Skills_Mastered/.data$Attendances
-    ) %>%
-    mutate(
+      Reason = reason,
       creation = Sys.Date(),
       expDate = expDate
     ) %>%
@@ -207,9 +208,7 @@ removeDeckSuppression <- function(students = NULL) {
     sup <- data.frame(
       Student = character(0),
       Skills_Assigned = integer(0),
-      Pest = numeric(0),
-      Skills_Mastered = integer(0),
-      Attendances = integer(0),
+      Reason = character(0),
       creation = as.Date(integer(0)),
       expDate = as.Date(integer(0))
     )
