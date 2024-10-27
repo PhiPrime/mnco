@@ -10,6 +10,11 @@
 #' @examples
 #' # write later
 needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold")) {
+  # Remove suppressions for students with sufficient number of skills assigned
+  removeSup <- getSuppressedStudents() %>%
+    filter(.data$Skills_Assigned >= minAllowed)
+  removeDeckSuppression(students = removeSup$Student)
+
   # Get flags from recent assessment and remove suppression if needed
   assessmentFlags <- needsDeck.assessment()
   removeDeckSuppression(students = assessmentFlags$Student)
