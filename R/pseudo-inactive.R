@@ -27,8 +27,14 @@ getPseudoInactiveStudents <- function() {
     saveRDS(pseu, pseuFilePath)
   }
 
-  # Order the values
+  # Get updated enrollment status to update
+  enrollment <- getCenterData("student") %>%
+    select("Student", "Enrollment_Status")
+
+  # Order the values and remove inactive students
   pseu <- readRDS(pseuFilePath) %>%
+    dplyr::rows_update(enrollment, by = "Student", unmatched = "ignore") %>%
+    filter(.data$Enrollment_Status == "Enrolled") %>%
     dplyr::arrange(.data$Date_Added, .data$Student)
 
   return(pseu)
