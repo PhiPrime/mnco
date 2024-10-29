@@ -1,0 +1,93 @@
+---
+title: "notebook"
+author: "Luke"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This file is used to save partially developed code to the git without fully organizing and implementing it.  
+
+---  
+Reward Card Raffle
+```{r}
+getRewardCardWidth <- function(){
+  ret <- mean(6.5/194,
+              1.95/60,
+              3.2/96,
+              10.2/310,
+              3.41/94,
+              6.35/176,
+              8.8/241)
+  return(ret)
+}
+
+get.seed <- function(date = Sys.Date()){
+  return(as.numeric(paste0(#Data type change
+    #Reformat date as a number
+    strsplit(as.character(date), "-")[[1]], collapse = "")) %%
+           #Mod with max integer value so value is accepted in set.seed()
+           .Machine$integer.max) 
+}
+
+getRandomCard <- function(centimetersInStack, rerolls = 0){
+  cardCount <- centimetersInStack/getRewardCardWidth() 
+  set.seed(get.seed(lubridate::rollback(
+    lubridate::rollback(Sys.Date()),
+    TRUE)))
+  return(sample(1:cardCount)[rerolls+1])
+}
+interactiveDraw <- function() {
+  h <- (readline(
+    "How many centimeters tall is the stack of cards (To the nearest 0.01)? "))
+  win <- FALSE
+  n <- 0
+  while(!win){
+    cardN <- getRandomCard(as.numeric(h), n)
+    w <- readline(paste0("Card number ", cardN, 
+                         " is the winner, are they eligible (Y/N)? "))
+    win <- grepl("[Yy]", w)
+    n <- n+1
+  }
+  print(paste0("Congratulations, card number ", cardN, " is the winner!"))
+}
+interactiveDraw()
+```
+
+
+---
+
+# 24 Game  
+```{r}
+play24 <- function(){
+  url <- "https://hub.oxen.ai/api/repos/datasets/Game-of-24/file/main/24.csv"
+  filename <- paste0(mnco::cacheDir(), "/24game.csv")
+  if(!file.exists(filename)) download.file(url, filename)
+  
+  set <- read.csv(filename)
+  continue <- TRUE
+  while(continue){
+    starttime <- as.integer(Sys.time())
+    set.seed(starttime)
+    row <- set[sample(1:dim(set)[1], 1),]
+    solution <- 0
+    while(solution!=24){
+      valid <- FALSE
+      while(!valid){
+        cin <- readline(paste0("How can you use:\n\t", row$Puzzles,
+                             "\n\nTo create 24 using + - * / ()\n\n"))
+      solution <- eval(parse(text = cin))
+      valid <- TRUE
+      }
+    }
+    endtime <- as.integer(Sys.time())
+    print(paste0("Solved in ", endtime-starttime, " seconds."))
+    cin <- readline("Continue (Y/N)? ")
+    continue <- grepl("[Yy]", cin)
+  }
+}
+```
+
