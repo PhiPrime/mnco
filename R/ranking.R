@@ -181,7 +181,7 @@ getProgressHistory <- function(student = "all") {
   }
 
   progressHistory %>%
-    filter(tolower(.data$Student) == matchedStudent) %>%
+    filter(.data$Student == matchedStudent) %>%
     mutate(
       Pest = ifelse(is.finite(.data$Pest), .data$Pest, NA),
       Pest = ifelse(.data$Skills_Mastered == 0, 0, .data$Pest)
