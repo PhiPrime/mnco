@@ -8,3 +8,4 @@
 ^\.Rprofile$
 
 ^sandbox\..*$
+^notebook\..*$
