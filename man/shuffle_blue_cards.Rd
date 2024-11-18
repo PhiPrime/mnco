@@ -4,7 +4,7 @@
 \alias{shuffle_blue_cards}
 \title{Takes in and shuffles demo pdfs}
 \usage{
-shuffle_blue_cards(visual_pdf, mental_pdf)
+shuffle_blue_cards(visual_pdf, mental_pdf, seed = Sys.time())
 }
 \arguments{
 \item{visual_pdf}{Variable for Visual Demo Pdf}
