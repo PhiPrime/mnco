@@ -10,10 +10,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 This file is used to save partially developed code to the git without fully organizing and implementing it.  
-
----  
-Reward Card Raffle
 ```{r}
+toc <- c("Reward Card Raffle",     #Ready to implement
+         "24 Game",               #Needs developed
+         "Prime Functions")      #Developing
+```
+
+
+--- 
+`r toc[1]`
+```{r}
+# Reward Card Raffle
 getRewardCardWidth <- function(){
   ret <- mean(6.5/194,
               1.95/60,
@@ -60,8 +67,9 @@ interactiveDraw()
 
 ---
 
-# 24 Game  
+`r toc[2]`
 ```{r}
+#24 Game
 play24 <- function(){
   url <- "https://hub.oxen.ai/api/repos/datasets/Game-of-24/file/main/24.csv"
   filename <- paste0(mnco::cacheDir(), "/24game.csv")
@@ -88,6 +96,34 @@ play24 <- function(){
     cin <- readline("Continue (Y/N)? ")
     continue <- grepl("[Yy]", cin)
   }
+}
+```
+
+---
+
+`r toc[3]`
+```{r}
+# Prime Functions
+primeList <- function(){
+  #From a list of primes I found
+  return(readRDS("./primeList.rds"))
+  }
+is.prime <- function(x){
+  posPrimes <- primeList()
+  if(x<=1|x%%1!=0)(return(FALSE))
+  if(x>posPrimes[length(posPrimes)]^2){
+    stop(x, " is too large for is.prime() to check.")
+  }
+  posPrimes <- posPrimes[posPrimes<=ceiling(sqrt(x))]
+  return(all(x%%posPrimes!=0))
+}
+subsetTwinPrimes <- function(primeList){
+  twins <- c(primeList-2, primeList+2)
+  ret <- primeList[primeList %in% twins]
+  if(is.prime(primeList[1]-2)){
+    ret <- c(ret,primeList[1])
+  }
+  return(ret)
 }
 ```
 
