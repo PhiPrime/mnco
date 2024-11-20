@@ -125,5 +125,34 @@ subsetTwinPrimes <- function(primeList){
   }
   return(ret)
 }
+
+getPrimeFactorization <- function(den){
+  posPrimes <- 2:floor(sqrt(den))
+  i <- 1
+  while(i<=length(posPrimes)){
+    posPrimes <- sort(c(posPrimes[i], 
+                  posPrimes[which(posPrimes%%posPrimes[i]!=0, 
+                               arr.ind = TRUE)]))
+    i <- i+1
+  }
+  primes <- posPrimes[which(den%%posPrimes==0)]
+  multiplicity <- sapply(primes, function(x){
+                                    val <- den
+                                    multi <- 0
+                                    while(val%%x==0){
+                                      multi <- multi+1
+                                      val <- val/x
+                                    }
+                                    return(multi)
+                                  })
+  ret <- data.frame(primes, multiplicity)
+  divs <- ret[den%%ret[,1]==0,1]
+  den_new <- den
+  for (div in divs) den_new <- den_new/div
+  
+  return(ret)
+}
+getPrimeFactorization(144)
+getPrimeFactorization(144*269) #269 is prime
 ```
 
