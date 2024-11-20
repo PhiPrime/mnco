@@ -105,6 +105,7 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
   return(output)
 }
 
+#' @export
 getProgressHistory <- function(student = "all") {
   progressDates <- list.files(rawDataDir()) %>%
     stringr::str_extract_all(
@@ -188,6 +189,7 @@ getProgressHistory <- function(student = "all") {
     )
 }
 
+#' @export
 plotProgress <- function(student, var = "Pest") {
   progress <- getProgressHistory(student)
   student <- progress %>%

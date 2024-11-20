@@ -1,3 +1,4 @@
+#' @export
 attendanceDates <- function(days) {
   getCenterData("student") %>%
     filter(Last_Attendance_Date != Sys.Date()) %>%

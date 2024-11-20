@@ -4,7 +4,7 @@
 \alias{getStudentRanking}
 \title{Get student ranking data}
 \usage{
-getStudentRanking(date = Sys.Date())
+getStudentRanking(date = Sys.Date(), exclude = NULL)
 }
 \arguments{
 \item{date}{Date to calculate rankings for}
