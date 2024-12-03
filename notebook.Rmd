@@ -11,14 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This file is used to save partially developed code to the git without fully organizing and implementing it.  
 ```{r}
-toc <- c("Reward Card Raffle",     #Ready to implement
-         "24 Game",               #Needs developed
-         "Prime Functions")      #Developing
+toc <- c("Reward Card Raffle",        #Ready to implement
+         "24 Game",                  #Needs developed
+         "Prime Functions",         #Developing
+         "Predicting Cancellations")#Could implement, but technique isn't sound
 ```
 
 
 --- 
-`r toc[1]`
+# `r toc[1]`
 ```{r}
 # Reward Card Raffle
 getRewardCardWidth <- function(){
@@ -46,6 +47,7 @@ getRandomCard <- function(centimetersInStack, rerolls = 0){
     lubridate::rollback(Sys.Date()),
     TRUE)))
   return(sample(1:cardCount)[rerolls+1])
+  #November - Nicholas - 5 total, won 3
 }
 interactiveDraw <- function() {
   h <- (readline(
@@ -55,19 +57,22 @@ interactiveDraw <- function() {
   while(!win){
     cardN <- getRandomCard(as.numeric(h), n)
     w <- readline(paste0("Card number ", cardN, 
-                         " is the winner, are they eligible (Y/N)? "))
+                         " out of ", as.numeric(h)/getRewardCardWidth()," is the winner, are they eligible (Y/N)? "))
     win <- grepl("[Yy]", w)
     n <- n+1
   }
   print(paste0("Congratulations, card number ", cardN, " is the winner!"))
 }
+```
+
+``` {r eval = FALSE}
 interactiveDraw()
 ```
 
 
 ---
 
-`r toc[2]`
+# `r toc[2]`
 ```{r}
 #24 Game
 play24 <- function(){
@@ -101,7 +106,7 @@ play24 <- function(){
 
 ---
 
-`r toc[3]`
+# `r toc[3]`
 ```{r}
 # Prime Functions
 primeList <- function(){
@@ -154,5 +159,106 @@ getPrimeFactorization <- function(den){
 }
 getPrimeFactorization(144)
 getPrimeFactorization(144*269) #269 is prime
+```
+
+
+---
+
+# `r toc[4]`
+
+```{r}
+########################### Predicting Cancellations ########################
+
+#The following function uses the caret package to bootstrap who might 
+#   cancel by training a random forest model using current data,
+#   then predicting on the enrolled accounts in that current data,
+#   any of those enrolled accounts that get predicted to be Inactive are 
+#   returned along with a manually selected set of variables- which were 
+#   chosen based on their importance in a model that was generated during 
+#   development.
+
+whoMightCancel <- function(){
+  library(caret)
+  library(dplyr)
+  library(lubridate)
+  
+  if(grepl("Sandbox",getwd()))
+  {setwd('..')}else if (grepl("mnco$", getwd())){
+    mnco::setRawDataDir("../mcp-data/mnco-raw-data")
+    mnco::setCacheDir("../mcp-data/mnco-cache")
+    }
+  DAT <- mnco::getCenterData()
+  
+  ndat <- dplyr::transmute(dplyr::filter(DAT, 
+                                  .data$Enrollment_Status %in% 
+                                    c("Enrolled", "Inactive")),
+                    Student_Id = as.numeric(.data$Student_Id),
+                    Zip = as.factor(ifelse(is.na(.data$Mailing_Zip_Code), 
+                                        "NONE", .data$Mailing_Zip_Code)),
+                    Grade = .data$Grade,
+                    Enrollment_Status = as.factor(ifelse(
+                      is.na(.data$Enrollment_Status), 
+                                        "NONE", .data$Enrollment_Status)),
+                    Gender = as.factor(ifelse(
+                      is.na(.data$Gender), 
+                                        "NONE", .data$Gender)),
+                    Delivery = as.factor(ifelse(
+                      is.na(.data$Delivery), 
+                                        "NONE", .data$Delivery)),
+                    Email_Domain = as.factor(ifelse(
+                      is.na(.data$Email_Address), "NONE",
+                      gsub(".*@", "", .data$Email_Address))),
+                    Referred = !is.na(.data$Referral_Account),
+                    Account_Created_Date = .data$Account_Created_Date,
+                    Student_Created_Date = .data$Student_Created_Date,
+                    Date_of_Birth = ifelse(is.na(.data$Date_of_Birth),
+                                      lubridate::today()-lubridate::years(12),
+                                      .data$Date_of_Birth),
+                    Hold_Count = as.factor(ifelse(is.na(.data$Hold_Count), 
+                                        0, .data$Hold_Count)),
+                    Total_Hold_Length = ifelse(is.na(.data$Total_Hold_Length),
+                                        0, .data$Total_Hold_Length),
+                    Active_LPs = ifelse(is.na(.data$Active_LPs), 
+                                        0, .data$Active_LPs),
+                    Skills_Assigned = ifelse(is.na(.data$Skills_Assigned), 
+                                        0, .data$Skills_Assigned),
+                    Active_Skills_Mastered = ifelse(is.na(
+                      .data$Active_Skills_Mastered), 
+                                        0, .data$Active_Skills_Mastered),
+                    Media_Release = !is.na(.data$Media_Release_Signature),
+                    Teacher_Consent = !is.na(.data$Teacher_Consent_Signature),
+                    Leave_Unescorted = !is.na(
+                      .data$Leave_Unescorted_Consent_Signature))
+  
+  
+  
+  #Caret time
+  set.seed(1618)
+  inTrain <- caret::createDataPartition(ndat$Enrollment_Status,
+                                        p = 0.8,
+                                        list = FALSE)
+  training <- ndat[inTrain,]
+  testing <- ndat[-inTrain,]
+##Probably should cache the model  
+  model <- caret::train(Enrollment_Status ~ ., data = training, 
+                        method = "rf", prox=TRUE)
+  predictions <- predict(model, newdata = testing)
+  confusionMatrix(predictions, testing$Enrollment_Status)
+            
+  rtn <- dplyr::filter(ndat, .data$Enrollment_Status == "Enrolled")
+  rtn <- cbind(rtn, prediction = predict(model, newdata = rtn))
+  rtn <- dplyr::filter(rtn, prediction == "Inactive")
+  rtn <- merge(rtn, DAT, by = "Student_Id", all.x = TRUE)
+  rtn <- select(rtn, Student, Account_Created_Date.x, Total_Hold_Length.x,
+                Student_Id, Student_Created_Date.x, Delivery.x, Date_of_Birth.x,
+                Active_Skills_Mastered.x, Zip,Hold_Count.x, Grade.x,
+                Email_Domain,Active_LPs.x, Gender.x, Referred, Leave_Unescorted,
+                Teacher_Consent)
+  return(rtn)
+}
+start <- lubridate::now()
+whoMightCancel()
+end <- lubridate::now()
+lubridate::as.difftime(round(end-start,2))
 ```
 
