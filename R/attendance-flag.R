@@ -63,6 +63,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
   # Group students by account
   output <- NULL
   for (account in unique(flaggedStudents$Account)) {
+    if (account == "Geeta Gurung") next
     students <- flaggedStudents %>% filter(.data$Account == account)
 
     link1 <- dplyr::pull(students, "Link_1")
