@@ -13,7 +13,7 @@ This file is used to save partially developed code to the git without fully orga
 ```{r}
 toc <- c("Reward Card Raffle",        #Ready to implement
          "24 Game",                  #Needs developed
-         "Prime Functions",         #Developing
+         "Prime Functions",         #Needs developed
          "Predicting Cancellations")#Could implement, but technique isn't sound
 ```
 
@@ -230,8 +230,7 @@ whoMightCancel <- function(){
                     Leave_Unescorted = !is.na(
                       .data$Leave_Unescorted_Consent_Signature))
   
-  
-  
+
   #Caret time
   set.seed(1618)
   inTrain <- caret::createDataPartition(ndat$Enrollment_Status,
@@ -243,7 +242,7 @@ whoMightCancel <- function(){
   model <- caret::train(Enrollment_Status ~ ., data = training, 
                         method = "rf", prox=TRUE)
   predictions <- predict(model, newdata = testing)
-  confusionMatrix(predictions, testing$Enrollment_Status)
+  #confusionMatrix(predictions, testing$Enrollment_Status)
             
   rtn <- dplyr::filter(ndat, .data$Enrollment_Status == "Enrolled")
   rtn <- cbind(rtn, prediction = predict(model, newdata = rtn))
