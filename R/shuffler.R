@@ -9,7 +9,7 @@ open_pdf <- function(file_name, png_names = c(),
 
   #render the next page
   bitmap <- pdftools::pdf_render_page("holder_copy.pdf", page = current_page, dpi = 300)
-  png::writePNG(bitmap, paste0(current_page,file_name,".png"))
+  png::writePNG(bitmap, paste0(file_name,current_page,".png"))
 
   #add file name to vector list
   png_names[current_page] <- paste0(current_page,file_name,".png")
@@ -65,7 +65,7 @@ stack_images <- function(image1,image2) {
 }
 
 #Will shuffle based on Pi algorithm in the future
-pi_shuffle <- function(vector, 
+pi_shuffle <- function(vector,
 seed = as.numeric(Sys.time())) {
   vector2 <- sample(vector, size = length(vector))
 }
