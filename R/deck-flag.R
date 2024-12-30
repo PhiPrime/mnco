@@ -9,7 +9,8 @@
 #'
 #' @examples
 #' # write later
-needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold")) {
+needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"),
+                         activeAllowed = 2) {
   # Remove suppressions for students with sufficient number of skills assigned
   removeSup <- getSuppressedStudents() %>%
     filter(.data$Skills_Assigned >= minAllowed)
@@ -30,11 +31,13 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
       !(.data$Student %in% sup$Student)
     ) %>%
     # No learning plan, assigned < allowed, recent assessment, or no last attendance
+    # More than 1 learning plan
     filter(
-      .data$Active_Learning_Plans == 0 |
+      .data$Active_LPs == 0 |
       .data$Skills_Assigned < minAllowed |
       .data$Student %in% assessmentFlags$Student |
-      is.na(.data$Last_Attendance_Date)
+      is.na(.data$Last_Attendance_Date) |
+      .data$Active_LPs > activeAllowed
     ) %>%
     mutate(
       Pest = round(.data$Pest, 4),
@@ -49,6 +52,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
       "Student",
       "Skills_Assigned",
       "Assessment",
+      "Active_LPs",
       "Last_Attendance_Date",
       "Pest",
       "Attendances",
