@@ -14,7 +14,10 @@ This file is used to save partially developed code to the git without fully orga
 toc <- c("Reward Card Raffle",        #Ready to implement
          "24 Game",                  #Needs developed
          "Prime Functions",         #Needs developed
-         "Predicting Cancellations")#Could implement, but technique isn't sound
+         "Predicting Cancellations",#Could implement, but technique isn't sound
+         "Workflow Automation - Daily File Download", 
+              #Needs tested across devices & networks
+         "")
 ```
 
 
@@ -259,5 +262,120 @@ start <- lubridate::now()
 whoMightCancel()
 end <- lubridate::now()
 lubridate::as.difftime(round(end-start,2))
+```
+
+---
+
+`r toc[5]`  
+```{r}
+downloadFiles <- function(){
+  closeTab <- function(buffer = 0.5){
+    KeyboardSimulator::keybd.press("Ctrl+w")
+    Sys.sleep(buffer)
+  }
+  tab <- function(tabs=1){
+    n <- 0
+    while(n<tabs){
+      KeyboardSimulator::keybd.press("tab")
+      n <- n+1
+    }
+  }
+  tabEnter <- function(tabs=1){
+    tab(tabs)
+    KeyboardSimulator::keybd.press("enter")
+  }
+  
+  
+  exStuAttendReport <- function()
+  {
+    browseURL("https://radius.mathnasium.com/StudentAttendanceMonthlyReport")
+    Sys.sleep(2.5)
+    tabEnter(14)
+    Sys.sleep(3)
+    tabEnter(2)
+    Sys.sleep(3)
+    closeTab()
+  }
+  
+  exStuReport <- function()
+  {
+    browseURL("https://radius.mathnasium.com/StudentReport")
+    Sys.sleep(3)
+    tabEnter(10)
+    Sys.sleep(10)
+    tabEnter(1)
+    Sys.sleep(4)
+    closeTab()
+  }
+  
+  exAssessmentReport <- function()
+  {
+    browseURL("https://radius.mathnasium.com/AssessmentReport")
+    Sys.sleep(2.5)
+    tab(9)
+    Sys.sleep(0.1)
+    KeyboardSimulator::keybd.press("up")
+    Sys.sleep(0.5)
+    tabEnter(9)
+    Sys.sleep(4)
+    tabEnter(1)
+    Sys.sleep(3.5)
+    closeTab()
+  }
+  
+  exEnrollReport <- function(){
+    browseURL("https://radius.mathnasium.com/Enrollment/EnrollmentReport")
+    Sys.sleep(3)
+    tabEnter(13)
+    Sys.sleep(2)
+    tabEnter(1)
+    Sys.sleep(3)
+    closeTab()
+  }
+  
+  exCurrentBatchDetails <- function(){
+    browseURL("https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail")
+    Sys.sleep(10)
+    tabEnter(6)
+    Sys.sleep(5)
+    closeTab()
+  }
+  
+  exAccountManagement <- function(){
+    browseURL("https://radius.mathnasium.com/CustomerAccount")
+    Sys.sleep(3)
+    tabEnter(7)
+    Sys.sleep(3)
+    tabEnter(1)
+    Sys.sleep(5)
+    closeTab()
+  }
+  
+  exStuManagement <- function(){
+    browseURL("https://radius.mathnasium.com/Student")
+    Sys.sleep(3)
+    tabEnter(8)
+    Sys.sleep(3)
+    tabEnter(2)
+    Sys.sleep(3)
+    closeTab()
+  }
+  
+  exStuAttendReport()
+  exStuReport()
+  exAssessmentReport()
+  exEnrollReport()
+  exCurrentBatchDetails()
+  exAccountManagement()
+  exStuManagement()
+  
+  Sys.sleep(0.5)
+  KeyboardSimulator::keybd.press("Alt", hold = TRUE)
+  Sys.sleep(0.1)
+  KeyboardSimulator::keybd.press("Tab")
+  Sys.sleep(0.1)
+  KeyboardSimulator::keybd.release("Alt")
+  Sys.sleep(0.1)
+}
 ```
 
