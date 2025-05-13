@@ -1,5 +1,5 @@
 #' @export
-dailyWorkflow <- function(update = TRUE, report = TRUE) {
+dailyWorkflow <- function(update = TRUE, report = TRUE, autoDownload = TRUE) {
   # Make sure git config user.name and user.email are set in repo for rebase
   #   and push to work
   git_config(path = "../mnco")
@@ -48,7 +48,7 @@ dailyWorkflow <- function(update = TRUE, report = TRUE) {
   if (report) dailyReport(push = push_report)
 }
 
-dailyData <- function() {
+dailyData <- function(autoDownload = TRUE) {
   # Ensure working tree is clean (no uncommitted changes)
   status <- git_cd("git status", path = "../mcp-data", intern = T)
   if (!("nothing to commit, working tree clean" %in% status)) {
@@ -110,15 +110,69 @@ dailyData <- function() {
     }
   }
 
-  # Download daily data from Radius
-  if (missing) {
+  closeTab <- function(buffer = 1){
+    KeyboardSimulator::keybd.press("Ctrl+w")
+    Sys.sleep(buffer)
+  }
+  tab <- function(tabs=1){
+    n <- 0
+
+    while(n<tabs){
+      KeyboardSimulator::keybd.press("tab")
+      n <- n+1
+    }
+  }
+  tabEnter <- function(tabs=1){
+    tab(tabs)
+    KeyboardSimulator::keybd.press("enter")
+  }
+  altTab <- function(){
+    Sys.sleep(0.5)
+    KeyboardSimulator::keybd.press("Alt", hold = TRUE)
+    Sys.sleep(0.1)
+    KeyboardSimulator::keybd.press("Tab")
+    Sys.sleep(0.1)
+    KeyboardSimulator::keybd.release("Alt")
+    Sys.sleep(0.1)
+  }
+  findAndSelect <- function(phrase){
+    KeyboardSimulator::keybd.press("ctrl+f")
+    Sys.sleep(0.2)
+    KeyboardSimulator::keybd.type_string(phrase)
+    Sys.sleep(0.2)
+    KeyboardSimulator::keybd.press("esc")
+    Sys.sleep(0.2)
+    KeyboardSimulator::keybd.press("enter")
+    Sys.sleep(0.2)
+  }
+  searchAndExport <- function(pause = 3.5){
+    getLastXLSX <- function(){
+      fileInfo <- file.info(list.files(mnco::downloadsDir(),
+                                       pattern = "*.xlsx", full.names=TRUE))
+      row.names(fileInfo[order(as.POSIXct(fileInfo$mtime), decreasing=TRUE),][1,])
+    }
+
+    findAndSelect("Search")
+    Sys.sleep(pause)
+
+    lastXLSX <- getLastXLSX()
+    ogXLSX <- lastXLSX
+    findAndSelect("Export to Excel")
+
+    while(ogXLSX==lastXLSX){
+      lastXLSX <- getLastXLSX()
+      Sys.sleep(0.2)
+    }
+  }
+  radiusLogin <- function(returnWhoIAm = FALSE){
     # Open Radius for user to login
     loginURL <- "https://radius.mathnasium.com/Account/UserProfile"
     shell.exec(loginURL)
 
     login = FALSE
     while (!login) {
-      ans <- readline("Did you log in? (y/n): ")
+      ans <- strsplit(tolower(
+        readline("Did you log in? (y/n): ")), "")[[1]][1]
 
       while (!(ans %in% c("y", "n"))) {
         ans <- readline("Please enter 'y' or 'n': ")
@@ -130,6 +184,60 @@ dailyData <- function() {
         login = TRUE
       }
     }
+    if(returnWhoIAm){
+      checkURL <- function(URL, wait = 3){
+        coptxt <- "Not Found"
+        writeClipboard(coptxt)
+        browseURL(URL)
+        Sys.sleep(wait)
+        KeyboardSimulator::keybd.press("Ctrl+f")
+        Sys.sleep(wait/10)
+        KeyboardSimulator::keybd.type_string("You are not authorized")
+        Sys.sleep(wait/10)
+        KeyboardSimulator::keybd.press("Esc")
+        Sys.sleep(wait/10)
+        KeyboardSimulator::keybd.press("Ctrl+c")
+        Sys.sleep(wait/10)
+        coptxt <- as.character(readClipboard())
+        Sys.sleep(wait/10)
+        KeyboardSimulator::keybd.press("Ctrl+w")
+        altTab()
+
+        return(coptxt == "Not Found")
+      }
+      is.instructor <- function(){
+        checkURL("https://radius.mathnasium.com/Account/UserProfile")}
+      is.leadInstructor <- function(){
+        checkURL("https://radius.mathnasium.com/StudentAttendanceMonthlyReport")}
+      is.assistantCenterDirector <- function(){
+        checkURL("https://radius.mathnasium.com/CustomerAccount")}
+      is.centerDirector <- function(){
+        checkURL("https://radius.mathnasium.com/EmployeeManagement/Index")}
+      is.franchiseOwner <- function(){
+        checkURL ("https://radius.mathnasium.com/CenterSettings")
+      }
+
+
+
+      whoAmI <- function(){
+        #Figures out who is currently logged in and what their role is
+        role <- 1
+        role <- role + is.instructor()
+        role <- role + is.leadInstructor()
+        role <-  role + is.assistantCenterDirector()
+        role <-  role + is.centerDirector()
+        role <-  role + is.franchiseOwner()
+        return(c("Not Logged In", "Instructor", "Lead Instructor",
+                 "Assistant Center Director", "Center Director",
+                 "Franchise Owner")[role])
+      }
+      return(whoAmI())
+    }
+  }
+  # Download daily data from Radius
+  if (missing&&!autoDownload) {
+
+    radiusLogin()
 
     # Open Radius for user to download data
     system2("open", getDataSources())
@@ -162,6 +270,84 @@ dailyData <- function() {
         missing <- TRUE
       }
     }
+  } else if (missing&&autoDownload){
+    downloadFiles <- function(){
+
+
+
+      exStuAttendReport <- function()
+      {
+        browseURL("https://radius.mathnasium.com/StudentAttendanceMonthlyReport")
+        Sys.sleep(4)
+        searchAndExport(3)
+        Sys.sleep(3)
+        closeTab()
+      }
+
+      exStuReport <- function()
+      {
+        browseURL("https://radius.mathnasium.com/StudentReport")
+        Sys.sleep(5)
+        searchAndExport(12)
+        Sys.sleep(6)
+        closeTab()
+      }
+
+      exAssessmentReport <- function()
+      {
+        browseURL("https://radius.mathnasium.com/AssessmentReport")
+        Sys.sleep(4.5)
+        findAndSelect("Pre/Post")
+        tab(1)
+        KeyboardSimulator::keybd.press("up")
+        Sys.sleep(1.5)
+        searchAndExport(6)
+        closeTab()
+      }
+
+      exEnrollReport <- function(){
+        browseURL("https://radius.mathnasium.com/Enrollment/EnrollmentReport")
+        Sys.sleep(3)
+        searchAndExport(2)
+        closeTab()
+      }
+
+      exCurrentBatchDetails <- function(){
+        browseURL("https://radius.mathnasium.com/ProgressReportManager/CurrentBatchDetail")
+        Sys.sleep(14)
+        tabEnter(6)
+        Sys.sleep(5)
+        closeTab()
+      }
+
+      exAccountManagement <- function(){
+        browseURL("https://radius.mathnasium.com/CustomerAccount")
+        Sys.sleep(5)
+        searchAndExport(7)
+        closeTab()
+      }
+
+      exStuManagement <- function(){
+        browseURL("https://radius.mathnasium.com/Student")
+        Sys.sleep(3.5)
+        searchAndExport(5)
+        closeTab()
+      }
+
+      altTab()
+
+      Sys.sleep(2)
+      exStuAttendReport()
+      exStuReport()
+      exAssessmentReport()
+      exEnrollReport()
+      exCurrentBatchDetails()
+      exAccountManagement()
+      exStuManagement()
+
+      altTab()
+    }
+    downloadFiles()
   }
 
   # Commit and push data

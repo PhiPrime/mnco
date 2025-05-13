@@ -53,7 +53,7 @@ mnco relies on exported files from Radius, Mathnasium's internal operations webs
 * Used to update curriculum database  
 [Email Templates](https://radius.mathnasium.com/EmailTemplate)  
 [Attendance](https://radius.mathnasium.com/StudentAttendanceMonthlyReport)  
-* Not in regular routine  
+* Used to find who has not been attending
 
 
 ## Package develoment notes  

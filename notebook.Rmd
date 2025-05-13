@@ -32,7 +32,8 @@ getRewardCardWidth <- function(){
               10.2/310,
               3.41/94,
               6.35/176,
-              8.8/241)
+              8.8/241,
+              3.20/90)
   return(ret)
 }
 
@@ -259,14 +260,15 @@ whoMightCancel <- function(){
   return(rtn)
 }
 start <- lubridate::now()
-whoMightCancel()
+foo <- whoMightCancel()
 end <- lubridate::now()
 lubridate::as.difftime(round(end-start,2))
+foo
 ```
 
 ---
 
-`r toc[5]`  
+# `r toc[5]`
 ```{r}
 downloadFiles <- function(){
   closeTab <- function(buffer = 0.5){
