@@ -15,7 +15,7 @@ You can install the development version of mnco from
 
 ``` r
 # install.packages("pak")
-pak::pak("PhiPrime/centerOverview")
+pak::pak("PhiPrime/mnco")
 ```
 
 ## Required Data Collection
