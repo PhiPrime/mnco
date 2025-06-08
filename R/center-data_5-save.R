@@ -15,7 +15,7 @@ saveCenterData <- function(date = Sys.Date(), silent = F) {
   data <- getCenterData("all", date) %>%
     mutate(Date_Saved = date, .before = "Account_Id")
 
-  filePath <- file.path(cacheDir(), "centerHistory.rds")
+  filePath <- file.path(mnco::cacheDir(), "centerHistory.rds")
 
   if (!file.exists(filePath)) {
     if (!silent) message("NOTICE: ", filePath, " does not exist.",
@@ -50,7 +50,7 @@ saveCenterData <- function(date = Sys.Date(), silent = F) {
 saveAllCenterData <- function(startDate = as.Date("2020-01-01"),
                               endDate = Sys.Date(),
                               silent = F) {
-  filePath <- file.path(cacheDir(), "centerHistory.rds")
+  filePath <- file.path(mnco::cacheDir(), "centerHistory.rds")
 
   # Delete centerHistory.rds
   if (file.exists(filePath)) {

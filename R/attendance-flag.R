@@ -8,17 +8,18 @@
 #' @examples
 #' attendanceCheck(allowedBdays = 10)
 attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_Days")) {
+  require(dplyr)
   # Get students on vacation and remove if past return date
-  vac <- getStudentsOnVacation()
+  vac <- mnco::getStudentsOnVacation()
 
   # Get list of dates any student attended in past week, plus today
   #   Students are flagged if last attended exactly 1 week ago (usually)
-  acceptableDates <- c(attendanceDates(days), Sys.Date())
+  acceptableDates <- c(mnco::attendanceDates(days), Sys.Date())
 
   flaggedStudents <-
-    getCenterData(c("student", "account")) %>%
+    mnco::getCenterData(c("student", "account")) %>%
     filter(
-      .data$Student %in% getActiveStudents() &
+      .data$Student %in% mnco::getActiveStudents() &
       !(.data$Last_Attendance_Date %in% acceptableDates) &
       !(.data$Student %in% vac$Student)
     ) %>%
@@ -43,7 +44,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
       .data$Student
     )
 
-  newStudentAssessmentDates <- getCenterData("assessment") %>%
+  newStudentAssessmentDates <- mnco::getCenterData("assessment") %>%
     dplyr::group_by(.data$Student) %>%
     dplyr::slice_max(.data$Date_Taken, with_ties = F) %>%
     dplyr::ungroup() %>%
@@ -55,7 +56,7 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
     # REORDER LOGIC LATER
     # FILTER OUT NA HERE? - ASSESSMENT NOT ENTERED
     filter(
-      .data$Student %in% getActiveStudents() &
+      .data$Student %in% mnco::getActiveStudents() &
         !(.data$Last_Attendance_Date %in% acceptableDates) &
         !(.data$Student %in% vac$Student)
     )
@@ -63,8 +64,6 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
   # Group students by account
   output <- NULL
   for (account in unique(flaggedStudents$Account)) {
-    # DEBUG 12/9 DATA
-    # if (account == "Geeta Gurung") next
     students <- flaggedStudents %>% filter(.data$Account == account)
 
     link1 <- dplyr::pull(students, "Link_1")
@@ -109,14 +108,14 @@ attendanceCheck <- function(days = mnco::retrieve_variable("Attendance_Allowed_D
 #' @noRd
 createTextMessageFiles <- function(flaggedStudents) {
   # Get a copy of flaggedStudents with first names
-  flaggedFirstNames <- getCenterData(c("student", "account")) %>%
+  flaggedFirstNames <- mnco::getCenterData(c("student", "account")) %>%
     select("Student", "Student_First", "Account_Id", "Account_First") %>%
     dplyr::right_join(flaggedStudents, by = "Student")
 
   # Get templates to be filled in
   templates <- data.frame(
-    message1 = getTemplate(name = "!TEXT - Attendance Reminder"),
-    message2 = getTemplate(name = "!TEXT - Attendance Reminder 2")
+    message1 = mnco::getTemplate(name = "!TEXT - Attendance Reminder"),
+    message2 = mnco::getTemplate(name = "!TEXT - Attendance Reminder 2")
   )
 
   # Create message columns to be filled in
@@ -125,7 +124,7 @@ createTextMessageFiles <- function(flaggedStudents) {
 
   # Cache -----------------
   # Create cache if it doesn't exist
-  cachePath <- file.path(cacheDir(), "attendanceFlags.rds")
+  cachePath <- file.path(mnco::cacheDir(), "attendanceFlags.rds")
   if (!file.exists(cachePath)) {
     cache <- tibble::tibble(
       Student = character(0),
@@ -151,7 +150,7 @@ createTextMessageFiles <- function(flaggedStudents) {
   # Change Date_Added dates that were not business days to today
   #   This prevents being assigned text 2 if they were added to cache for
   #   testing or other reasons on a closed day.
-  allAttendanceDates <- attendanceDates("all")
+  allAttendanceDates <- mnco::attendanceDates("all")
   cache <- cache %>%
     mutate(
       Date_Added = dplyr::case_when(
@@ -210,10 +209,10 @@ createTextMessageFiles <- function(flaggedStudents) {
 
         # Create path to message text files
         path1 = file.path(
-          getwd(), cacheDir(), "messages", paste0(fileRoot, "-1.txt")
+          getwd(), mnco::cacheDir(), "messages", paste0(fileRoot, "-1.txt")
         ),
         path2 = file.path(
-          getwd(), cacheDir(), "messages", paste0(fileRoot, "-2.txt")
+          getwd(), mnco::cacheDir(), "messages", paste0(fileRoot, "-2.txt")
         ),
 
         # Create latex hyperlinks to files
@@ -287,5 +286,5 @@ pluralizeNames <- function(...) {
 #' @return A data frame
 #' @export
 getAttendanceTrainingSet <- function() {
-  readRDS(file.path(cacheDir(), "attendance-training-data.rds"))
+  readRDS(file.path(mnco::cacheDir(), "attendance-training-data.rds"))
 }
