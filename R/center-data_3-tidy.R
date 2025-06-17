@@ -110,8 +110,8 @@ tidyRawData.progress <- function(data) {
       ~tidyr::replace_na(.x, 0)
     ))
 
-  # Do not use Skills_Currently_Assigned. Skills_Assigned from student2 data is the accurate one.
-  rm_cols <- c("Guardian", "Skills_Currently_Assigned")
+
+  rm_cols <- c("Guardian")
   na_cols <- c("BPR_Comment")
 
   maybe_cols <- c("Email_Opt_Out")
