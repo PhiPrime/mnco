@@ -38,7 +38,7 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
   # Calculate statistics
   calculated <- data %>%
     filter(
-      .data$Attendances >= .data$Monthly_Sessions / 2,
+      .data$Attendances >= 5,#Arbitary
       .data$Skills_Mastered > 2
     ) %>%
     mutate(
