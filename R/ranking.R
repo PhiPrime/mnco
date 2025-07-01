@@ -18,6 +18,15 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
   differentDurationStudents <-
     utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
 
+  getStudentPestSD <- function(student){
+    history <- mnco::getProgressHistory(student)
+    if(any(is.na(history$Pest))){
+      history <- history[-is.na(history$Pest),]
+    }
+    n <- dim(history)[1]
+    return(sd(history$Pest)/sqrt(n))
+  }
+
   # Merge and filter the data
   data <- progress %>%
     merge(differentDurationStudents, all.x = T) %>%
@@ -49,9 +58,9 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
       samdev = stats::sd(.data$Pest[abs(.data$zscore) < outlierThreshold]),
 
       UB = round(.data$Pest - stats::qnorm((1 - CI / 100) / 2) *
-                   .data$samdev / sqrt(.data$Attendances), roundingDig),
+                   getStudentPestSD(.data$Student), roundingDig),
       LB = round(.data$Pest + stats::qnorm((1 - CI / 100) / 2) *
-                   .data$samdev / sqrt(.data$Attendances), roundingDig)
+                   getStudentPestSD(.data$Student), roundingDig)
     ) %>%
     select(-"samdev")
 
@@ -326,3 +335,5 @@ showcaseRegularizeScore <- function() {
   gridExtra::grid.arrange(p1,p2,p3,ncol=1)
   #return(dat)
 }
+
+
