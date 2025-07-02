@@ -19,12 +19,18 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
     utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
 
   getStudentPestSD <- function(student){
-    history <- mnco::getProgressHistory(student)
-    if(any(is.na(history$Pest))){
-      history <- history[-is.na(history$Pest),]
-    }
-    n <- dim(history)[1]
-    return(sd(history$Pest)/sqrt(n))
+    if(length(student)>1){
+      ret <- sapply(student, getStudentPestSD)
+    }else{
+      history <- mnco::getProgressHistory(student)
+      if(any(is.na(history$Pest))){
+        history <- history[-which(is.na(history$Pest)),]
+      }
+      n <- dim(history)[1]
+      ret <- sd(history$Pest)/sqrt(n)
+      }
+
+    return(ret)
   }
 
   # Merge and filter the data
@@ -49,18 +55,24 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
     filter(
       .data$Attendances >= 5,#Arbitary
       .data$Skills_Mastered > 2
-    ) %>%
-    mutate(
+    )
+  stuSDs <- getStudentPestSD(calculated$Student)
+  stuMean <- sapply(calculated$Student, function(x){
+    mean(getProgressHistory(x)$Pest, na.rm=TRUE)})
+  calculated <- mutate(calculated,
       Pest = .data$Skills_Mastered / .data$Attendances,
 
       #Outlier test
       zscore = (mean(.data$Pest) - .data$Pest) / (stats::sd(.data$Pest) / sqrt(.data$Attendances)),
       samdev = stats::sd(.data$Pest[abs(.data$zscore) < outlierThreshold]),
-
-      UB = round(.data$Pest - stats::qnorm((1 - CI / 100) / 2) *
-                   getStudentPestSD(.data$Student), roundingDig),
-      LB = round(.data$Pest + stats::qnorm((1 - CI / 100) / 2) *
-                   getStudentPestSD(.data$Student), roundingDig)
+      stuSD = stuSDs,
+      stuPMean = stuMean,
+      UB = round(.data$stuPMean - stats::qnorm((1 - CI / 100) / 2) *
+                   .data$stuSD,
+                 roundingDig),
+      LB = round(.data$stuPMean + stats::qnorm((1 - CI / 100) / 2) *
+                   .data$stuSD,
+                 roundingDig)
     ) %>%
     select(-"samdev")
 
