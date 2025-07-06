@@ -1,7 +1,19 @@
+#' Perform daily workflow and organization
+#'
+#' @param update Flag for updating mnco (default = TRUE)
+#' @param report Flag for generating the daily report (default = TRUE)
+#' @param autoDownload Flag for performing routine downloads (default = TRUE)
+#'
+#' @return null
 #' @export
+#'
+#' @examples
+#' dailyWorkflow(FALSE, FALSE, FALSE)
 dailyWorkflow <- function(update = TRUE, report = TRUE, autoDownload = TRUE) {
-  # Make sure git config user.name and user.email are set in repo for rebase
-  #   and push to work
+
+  # Make sure git config user.name and user.email
+  # are set in repo for rebase
+  # and push to work
   git_config(path = "../mnco")
   git_config(path = "../mcp-data")
 
@@ -21,6 +33,8 @@ dailyWorkflow <- function(update = TRUE, report = TRUE, autoDownload = TRUE) {
 
   # Download and commit data
   data_pushed <- dailyData()
+
+  print("Daily data complete")
 
   # Knit and commit report
   push_report <- TRUE
@@ -45,10 +59,100 @@ dailyWorkflow <- function(update = TRUE, report = TRUE, autoDownload = TRUE) {
     }
   }
 
+  print("Report push section complete")
+
   if (report) dailyReport(push = push_report)
 }
 
+#' Forces login, returns identity/role of user
+#'
+#' @param returnWhoIAm if TRUE, return the role of the user (default = FALSE)
+#'
+#' @return user role
+#' @export
+#'
+radiusLogin <- function(returnWhoIAm = FALSE){
+  # Open Radius for user to login
+  loginURL <- "https://radius.mathnasium.com/Account/UserProfile"
+  shell.exec(loginURL)
+
+  login = FALSE
+  while (!login) {
+    ans <- strsplit(tolower(
+      readline("Did you log in? (y/n): ")), "")[[1]][1]
+
+    while (!(ans %in% c("y", "n"))) {
+      ans <- readline("Please enter 'y' or 'n': ")
+    }
+
+    if (ans != "y") {
+      message("Please log in to Radius.")
+    } else {
+      login = TRUE
+    }
+  }
+
+  if(returnWhoIAm){
+    checkURL <- function(URL, wait = 3){
+      coptxt <- "Not Found"
+      writeClipboard(coptxt)
+      browseURL(URL)
+      Sys.sleep(wait)
+      KeyboardSimulator::keybd.press("Ctrl+f")
+      Sys.sleep(wait/10)
+      KeyboardSimulator::keybd.type_string("You are not authorized")
+      Sys.sleep(wait/10)
+      KeyboardSimulator::keybd.press("Esc")
+      Sys.sleep(wait/10)
+      KeyboardSimulator::keybd.press("Ctrl+c")
+      Sys.sleep(wait/10)
+      coptxt <- as.character(readClipboard())
+      Sys.sleep(wait/10)
+      KeyboardSimulator::keybd.press("Ctrl+w")
+      altTab()
+
+      return(coptxt == "Not Found")
+    }
+
+    is.instructor <- function(){
+      checkURL("https://radius.mathnasium.com/Account/UserProfile")}
+
+    is.leadInstructor <- function(){
+      checkURL("https://radius.mathnasium.com/StudentAttendanceMonthlyReport")}
+
+    is.assistantCenterDirector <- function(){
+      checkURL("https://radius.mathnasium.com/CustomerAccount")}
+
+    is.centerDirector <- function(){
+      checkURL("https://radius.mathnasium.com/EmployeeManagement/Index")}
+
+    is.franchiseOwner <- function(){
+      checkURL ("https://radius.mathnasium.com/CenterSettings")
+    }
+
+    whoAmI <- function(){
+      #Figures out who is currently logged in and what their role is
+      role <- 1
+      role <- role + is.instructor()
+      role <- role + is.leadInstructor()
+      role <-  role + is.assistantCenterDirector()
+      role <-  role + is.centerDirector()
+      role <-  role + is.franchiseOwner()
+      return(c("Not Logged In", "Instructor", "Lead Instructor",
+               "Assistant Center Director", "Center Director",
+               "Franchise Owner")[role])
+    }
+    return(whoAmI())
+  }
+}
+
+#' Procedure for downloading and returning the daily data
+#'
+#' @param autoDownload Flag for performing downloads (default = TRUE)
+#' @export
+#'
 dailyData <- function(autoDownload = TRUE) {
+
   # Ensure working tree is clean (no uncommitted changes)
   status <- git_cd("git status", path = "../mcp-data", intern = T)
   if (!("nothing to commit, working tree clean" %in% status)) {
@@ -89,6 +193,7 @@ dailyData <- function(autoDownload = TRUE) {
   ) %>% inherits("try-error")
 
   push = TRUE
+  # Message for data already present
   if (!missing) {
     push <- prompt_user(
       msg = c(
@@ -110,10 +215,13 @@ dailyData <- function(autoDownload = TRUE) {
     }
   }
 
+  # Utility functions
+  # Close tab
   closeTab <- function(buffer = 1){
     KeyboardSimulator::keybd.press("Ctrl+w")
     Sys.sleep(buffer)
   }
+  # Tab a given number of times
   tab <- function(tabs=1){
     n <- 0
 
@@ -122,10 +230,13 @@ dailyData <- function(autoDownload = TRUE) {
       n <- n+1
     }
   }
+  #Combine a tab with an enter
   tabEnter <- function(tabs=1){
     tab(tabs)
     KeyboardSimulator::keybd.press("enter")
   }
+
+  # Alt + tab
   altTab <- function(){
     Sys.sleep(0.5)
     KeyboardSimulator::keybd.press("Alt", hold = TRUE)
@@ -135,6 +246,8 @@ dailyData <- function(autoDownload = TRUE) {
     KeyboardSimulator::keybd.release("Alt")
     Sys.sleep(0.1)
   }
+
+  # Select the given text within the page
   findAndSelect <- function(phrase){
     KeyboardSimulator::keybd.press("ctrl+f")
     Sys.sleep(0.2)
@@ -145,8 +258,10 @@ dailyData <- function(autoDownload = TRUE) {
     KeyboardSimulator::keybd.press("enter")
     Sys.sleep(0.2)
   }
+
+  # Export the excels
   searchAndExport <- function(pause = 3.5){
-    getLastXLSX <- function(){
+    getLastXLSX <- function() {
       fileInfo <- file.info(list.files(mnco::downloadsDir(),
                                        pattern = "*.xlsx", full.names=TRUE))
       row.names(fileInfo[order(as.POSIXct(fileInfo$mtime), decreasing=TRUE),][1,])
@@ -164,78 +279,14 @@ dailyData <- function(autoDownload = TRUE) {
       Sys.sleep(0.2)
     }
   }
-  radiusLogin <- function(returnWhoIAm = FALSE){
-    # Open Radius for user to login
-    loginURL <- "https://radius.mathnasium.com/Account/UserProfile"
-    shell.exec(loginURL)
 
-    login = FALSE
-    while (!login) {
-      ans <- strsplit(tolower(
-        readline("Did you log in? (y/n): ")), "")[[1]][1]
+  #alternative search and export
+  altSearchAndExport <- function() {
 
-      while (!(ans %in% c("y", "n"))) {
-        ans <- readline("Please enter 'y' or 'n': ")
-      }
-
-      if (ans != "y") {
-        message("Please log in to Radius.")
-      } else {
-        login = TRUE
-      }
-    }
-    if(returnWhoIAm){
-      checkURL <- function(URL, wait = 3){
-        coptxt <- "Not Found"
-        writeClipboard(coptxt)
-        browseURL(URL)
-        Sys.sleep(wait)
-        KeyboardSimulator::keybd.press("Ctrl+f")
-        Sys.sleep(wait/10)
-        KeyboardSimulator::keybd.type_string("You are not authorized")
-        Sys.sleep(wait/10)
-        KeyboardSimulator::keybd.press("Esc")
-        Sys.sleep(wait/10)
-        KeyboardSimulator::keybd.press("Ctrl+c")
-        Sys.sleep(wait/10)
-        coptxt <- as.character(readClipboard())
-        Sys.sleep(wait/10)
-        KeyboardSimulator::keybd.press("Ctrl+w")
-        altTab()
-
-        return(coptxt == "Not Found")
-      }
-      is.instructor <- function(){
-        checkURL("https://radius.mathnasium.com/Account/UserProfile")}
-      is.leadInstructor <- function(){
-        checkURL("https://radius.mathnasium.com/StudentAttendanceMonthlyReport")}
-      is.assistantCenterDirector <- function(){
-        checkURL("https://radius.mathnasium.com/CustomerAccount")}
-      is.centerDirector <- function(){
-        checkURL("https://radius.mathnasium.com/EmployeeManagement/Index")}
-      is.franchiseOwner <- function(){
-        checkURL ("https://radius.mathnasium.com/CenterSettings")
-      }
-
-
-
-      whoAmI <- function(){
-        #Figures out who is currently logged in and what their role is
-        role <- 1
-        role <- role + is.instructor()
-        role <- role + is.leadInstructor()
-        role <-  role + is.assistantCenterDirector()
-        role <-  role + is.centerDirector()
-        role <-  role + is.franchiseOwner()
-        return(c("Not Logged In", "Instructor", "Lead Instructor",
-                 "Assistant Center Director", "Center Director",
-                 "Franchise Owner")[role])
-      }
-      return(whoAmI())
-    }
   }
+
   # Download daily data from Radius
-  if (missing&&!autoDownload) {
+  if (missing && !autoDownload) {
 
     radiusLogin()
 
@@ -270,10 +321,10 @@ dailyData <- function(autoDownload = TRUE) {
         missing <- TRUE
       }
     }
-  } else if (missing&&autoDownload){
-    downloadFiles <- function(){
+  } else if (missing && autoDownload){
 
-
+    # Execution removed
+    downloadFiles <- function() {
 
       exStuAttendReport <- function()
       {
@@ -347,9 +398,56 @@ dailyData <- function(autoDownload = TRUE) {
 
       altTab()
     }
-    downloadFiles()
-  }
+    # Commenting out execution
+    #downloadFiles()
 
+    # New procedure
+    # For now, needs RStudio, then browser in tabbing order
+    newProcedure <- function() {
+      browseURL("https://radius.mathnasium.com/")
+      Sys.sleep(2)
+      KeyboardSimulator::keybd.press("F12")
+      Sys.sleep(0.5)
+      KeyboardSimulator::keybd.type_string("allow pasting")
+      KeyboardSimulator::keybd.press("enter")
+      Sys.sleep(0.5)
+      writeClipboard(readr::read_file("./JS/accessFunction.js"))
+      Sys.sleep(0.5)
+      KeyboardSimulator::keybd.press("ctrl+v")
+      KeyboardSimulator::keybd.press("enter")
+      Sys.sleep(3)
+      KeyboardSimulator::keybd.type_string("accessData()")
+      KeyboardSimulator::keybd.press("enter")
+      Sys.sleep(30)
+
+      # Temp data edit
+      fixDate <- function() {
+        dateList <- strsplit(as.character(Sys.Date()),'-0')[[1]]
+        holder <- dateList[2]
+        dateList[2] <- dateList[3]
+        dateList[3] <- holder
+        output <- ""
+        for (i in 3:1) {
+          output <- paste0(output, dateList[i])
+          if (i != 1)
+            output <- paste0(output, "_")
+        }
+        output <- paste0(output, ".xlsx")
+
+        return(output[1])
+      }
+
+      # Move the files from fs::path_home("Downloads") to "../mcp-data/mnco-raw-data"
+      temp_list <- list.files(fs::path_home("Downloads"), full.names = TRUE)
+      xlsxList <- temp_list[grepl(paste0(".*",fixDate()),temp_list)]
+      for (i in 1:5) {
+        if (!file.exists(gsub(fs::path_home("Downloads"),"../mcp-data/mnco-raw-data",xlsxList[i]))) {
+          file.rename(from = xlsxList[i], to = gsub(fs::path_home("Downloads"),"../mcp-data/mnco-raw-data",xlsxList[i]))
+        }
+      }
+    }
+    newProcedure()
+  }
   # Commit and push data
   if (push) {
     date <- format(Sys.Date(), format = "%m-%d-%Y")
@@ -364,10 +462,18 @@ dailyData <- function(autoDownload = TRUE) {
   }
   if (push) git_cd("git push", path = "../mcp-data")
 
+  closeTab()
   return(push)
 }
 
+#' Creates the daily report document as dailyReport.pdf
+#'
+#' @param knit Flag for rendering document (default = TRUE)
+#' @param open Flag for opening document upon completion (default = TRUE)
+#' @param push Flag for automatically pushing document to the repo (default = FALSE)
+#'
 #' @export
+#'
 dailyReport <- function(knit = TRUE, open = TRUE, push = FALSE) {
   if (knit) {
     knitTry <- try(rmarkdown::render("../mcp-data/daily-report.Rmd"))
@@ -394,6 +500,8 @@ dailyReport <- function(knit = TRUE, open = TRUE, push = FALSE) {
   if (open) system2("open", "../mcp-data/daily-report.pdf")
 }
 
+# Return the data sources as a list of links
+# Possibly move to configuration?
 getDataSources <- function() {
   c(
     "https://radius.mathnasium.com/Student",
@@ -406,13 +514,21 @@ getDataSources <- function() {
   )
 }
 
+#' Updates mnco to current version
+#'
+#' @return boolean stating if mnco was updated
+#' @export
+#'
 update_mnco <- function() {
+
   # Ensure on branch main
   branch <- git_cd("git status", path = "../mnco", intern = T) %>%
     head(1) %>%
     stringr::str_extract("(?<=On branch ).*")
 
   orig_branch <- NULL
+
+  # Check if mnco branch exists
   if (is.na(branch)) {
     stop("Could not find current mnco branch using git status. Please debug.")
   } else if (branch != "main") {
@@ -560,6 +676,7 @@ update_mnco <- function() {
   }
 }
 
+# Run commands in the specified path
 git_cd <- function(..., path, intern = F) {
   command <- paste(..., sep = "")
 
@@ -568,18 +685,28 @@ git_cd <- function(..., path, intern = F) {
     return()
 }
 
+#' Handles the git user information in R
+#'
+#' @param path String with location in file system of repository
+#'
+#' @return null
+#' @export
+#' @example git_config("../mnco")
 git_config <- function(path) {
+
   config <- git_cd("git config --list", path = path, intern = T)
   repo <- path %>% stringr::str_replace("../", "")
 
   missing_name <- !any(stringr::str_detect(config, "^user\\.name"))
   missing_email <- !any(stringr::str_detect(config, "^user\\.email"))
 
+  # Get username input
   if (missing_name) {
     name <- paste0("git config user.name needs to be set locally for ", repo, ". Enter your GitHub username: ") %>%
       readline()
     git_cd("git config user.name ", path = path, name)
   }
+  # Get email input
   if (missing_email) {
     email <- paste0("git config user.email needs to be set locally for ", repo, ". Enter your GitHub email: ") %>%
       readline()
@@ -588,6 +715,7 @@ git_config <- function(path) {
   invisible()
 }
 
+# tab the message
 tab_message <- function(message) {
   paste0(
     "    ",
@@ -595,6 +723,10 @@ tab_message <- function(message) {
   )
 }
 
+#' Display a prompt for the user in the terminal
+#'
+#' @export
+#'
 prompt_user <- function(choices, msg = NULL, prompt1 = NULL, prompt2 = NULL) {
   if (!is.null(msg)) message(msg)
 
