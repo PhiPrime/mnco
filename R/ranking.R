@@ -20,15 +20,14 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
 
   getStudentPestSD <- function(student){
     if(length(student)>1){
-      ret <- sapply(student, getStudentPestSD)
+      history <- sapply(student, function(x){
+        mnco::getProgressHistory(x, cacheDataOnly=TRUE)})
     }else{
-      history <- mnco::getProgressHistory(student)
+      history <- mnco::getProgressHistory(student, cacheDataOnly=TRUE)}
       if(any(is.na(history$Pest))){
         history <- history[-which(is.na(history$Pest)),]
       }
-      n <- dim(history)[1]
-      ret <- sd(history$Pest)/sqrt(n)
-      }
+      ret <- sd(history$Pest)
 
     return(ret)
   }
@@ -57,8 +56,9 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
       .data$Skills_Mastered > 2
     )
   stuSDs <- getStudentPestSD(calculated$Student)
-  stuMean <- sapply(calculated$Student, function(x){
-    mean(getProgressHistory(x)$Pest, na.rm=TRUE)})
+  # stuMean <- sapply(calculated$Student, function(x){
+  #   print("getting student mean progress")
+  #   mean(getProgressHistory(x)$Pest, na.rm=TRUE)})
   calculated <- mutate(calculated,
       Pest = .data$Skills_Mastered / .data$Attendances,
 
@@ -66,15 +66,14 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
       zscore = (mean(.data$Pest) - .data$Pest) / (stats::sd(.data$Pest) / sqrt(.data$Attendances)),
       samdev = stats::sd(.data$Pest[abs(.data$zscore) < outlierThreshold]),
       stuSD = stuSDs,
-      stuPMean = stuMean,
-      UB = round(.data$stuPMean - stats::qnorm((1 - CI / 100) / 2) *
+      UB = round(.data$Pest - stats::qnorm((1 - CI / 100) / 2) *
                    .data$stuSD,
                  roundingDig),
-      LB = round(.data$stuPMean + stats::qnorm((1 - CI / 100) / 2) *
+      LB = round(.data$Pest + stats::qnorm((1 - CI / 100) / 2) *
                    .data$stuSD,
                  roundingDig)
     ) %>%
-    select(-"samdev")
+    select(-"samdev", -"stuSD")
 
   # Filter out pseudo-inactive students for current date's ranking
   # Also filter out students passed into exclude parameter
@@ -127,7 +126,7 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
 }
 
 #' @export
-getProgressHistory <- function(student = "all") {
+getProgressHistory <- function(student = "all",cacheDataOnly=FALSE) {
   progressDates <- list.files(rawDataDir()) %>%
     stringr::str_extract_all(
       "(?<=Current Batch Detail Export  )\\d{1,2}_\\d{1,2}_\\d{4}(?=\\.xlsx)"
@@ -149,7 +148,7 @@ getProgressHistory <- function(student = "all") {
     progressHistory <- NULL
   } else {
     progressHistory <- readRDS(cachePath)
-
+if(cacheDataOnly){return(progressHistory)}
     if (!(Sys.Date() %in% progressHistory$Date)) {
       data <- getStudentRanking() %>%
         mutate(Date = Sys.Date())
@@ -212,6 +211,7 @@ getProgressHistory <- function(student = "all") {
 
 #' @export
 plotProgress <- function(student, var = "Pest") {
+  print("Plot progress calling")
   progress <- getProgressHistory(student)
   student <- progress %>%
     dplyr::pull("Student") %>%
