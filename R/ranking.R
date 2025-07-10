@@ -24,10 +24,10 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
         mnco::getProgressHistory(x, cacheDataOnly=TRUE)})
     }else{
       history <- mnco::getProgressHistory(student, cacheDataOnly=TRUE)}
-      if(any(is.na(history$Pest))){
-        history <- history[-which(is.na(history$Pest)),]
-      }
-      ret <- sd(history$Pest)
+    if(any(is.na(history$Pest))){
+      history <- history[-which(is.na(history$Pest)),]
+    }
+    ret <- sd(history$Pest)
 
     return(ret)
   }
