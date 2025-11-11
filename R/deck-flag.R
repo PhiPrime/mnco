@@ -119,7 +119,8 @@ getSuppressedStudents <- function() {
       Skills_Assigned = integer(0),
       Reason = character(0),
       creation = as.Date(integer(0)),
-      expDate = as.Date(integer(0))
+      expDate = as.Date(integer(0)),
+      Student_Id = integer(0)
     )
     saveRDS(sup, supFilePath)
   }
@@ -129,11 +130,11 @@ getSuppressedStudents <- function() {
 
   # Update Skills_Assigned
   skillsAssigned <- getCenterData() %>%
-    select("Student", "Skills_Assigned")
+    select("Student", "Skills_Assigned", "Student_Id")
 
   # Order the values
   sup <- readRDS(supFilePath) %>%
-    dplyr::rows_update(skillsAssigned, by = "Student", unmatched = "ignore") %>%
+    dplyr::rows_update(skillsAssigned, by = "Student_Id", unmatched = "ignore") %>%
     dplyr::arrange(
       .data$expDate,
       .data$creation,
