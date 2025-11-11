@@ -19,6 +19,14 @@ getStudentRanking <- function(date = Sys.Date(), exclude = NULL) {
     utils::read.csv(file.path(cacheDir(), "differentDurationStudents.csv"))
 
   getStudentPestSD <- function(student){
+    TEMP_RECURSIVE_ERROR_FIX <- 1
+    # Ok, so the last one that tried to fix this error ended up giving up
+    #   and tossing this here. I don't fully recall what they discovered but
+    #   I reckon it was something about getProgressHistory calling
+    #   getStudentPestSD and so the recursion begins. I think the solutions
+    #   were either to write better code for the full function, or
+    #   insert flags so the recursion is noticed and skipped.
+    return(TEMP_RECURSIVE_ERROR_FIX)
     if(length(student)>1){
       history <- sapply(student, function(x){
         mnco::getProgressHistory(x, cacheDataOnly=TRUE)})
