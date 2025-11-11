@@ -55,7 +55,8 @@ tidyRawData.student <- function(data) {
   # Columns to be removed
   # ORGANIZE rm_cols
   # COULD MAKE FLAG FOR CARD LEVEL UPGRADE
-  rm_cols <- c("Account", "School_Year", "Lead_Id...24",
+  rm_cols <- c("Account", "School_Year",
+               #"Lead_Id...24", 11/11/25, seems its removed from input
                "Created_By", "Stars_on_Current_Card", "Last_Modified_By",
                "Cards_Available", "Student_Notes", "Consent_to_Media_Release",
                "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted",
