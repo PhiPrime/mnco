@@ -58,7 +58,7 @@ tidyRawData.student <- function(data) {
   rm_cols <- c("Account", "School_Year",
                #Next line is from new items as of 11/11/2025 that are not
                # accessible from radius
-               "Preferred_Name", "Lead Id...25",   "Pronouns",
+               "Preferred_Name", "Lead_Id...25",   "Pronouns",
                "Created_By", "Stars_on_Current_Card", "Last_Modified_By",
                "Cards_Available", "Student_Notes", "Consent_to_Media_Release",
                "Consent_to_Contact_Teacher", "Consent_to_Leave_Unescorted",
