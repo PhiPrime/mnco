@@ -33,11 +33,11 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
     # No learning plan, assigned < allowed, recent assessment, or no last attendance
     # More than 1 learning plan
     filter(
-      #.data$Active_LPs == 0 |
+      .data$Active_LPs == 0 |
       .data$Skills_Assigned < minAllowed |
       .data$Student %in% assessmentFlags$Student |
       is.na(.data$Last_Attendance_Date) |
-      TRUE#.data$Active_LPs > activeAllowed
+      .data$Active_LPs > activeAllowed
     ) %>%
     mutate(
       Pest = round(.data$Pest, 4),
@@ -52,7 +52,7 @@ needsNewDeck <- function(minAllowed = retrieve_variable("Deck_Minimum_Threshold"
       "Student",
       "Skills_Assigned",
       "Assessment",
-      #"Active_LPs",
+      "Active_LPs",
       "Last_Attendance_Date",
       "Pest",
       "Attendances",

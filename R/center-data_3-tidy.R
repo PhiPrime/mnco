@@ -107,6 +107,46 @@ tidyRawData.account <- function(data) {
 }
 
 tidyRawData.progress <- function(data) {
+  {#The following is a hot fix to make the updated export be converted into
+    # the old output so production can continue without a full fix being
+    # implemented
+
+    # Get These:
+    #
+    # [1] "Student"                   "Guardian"
+    # [3] "Account"                   "LP Name"
+    # [5] "Attendances"               "Skills Mastered"
+    # [7] "Skills Currently Assigned" "Total Skills Mastered"
+    # [9] "Total Skills"              "% Skills Mastered"
+    # [11] "Enrollment Status"         "BPR Comment"
+    # [13] "BPR Include LP Report"     "Last Student PR Send Date"
+    # [15] "Last PR Send Date"         "Exclude from This Batch"
+    # [17] "Email Opt Out"
+
+    # And make them into These:
+
+    # [1] "Student"                  "Guardian"                 "Account"
+    # [4] "Active Learning Plans"    "Attendances"              "Skills Mastered"
+    # [7] "Total LP Skills"          "Total LP Skills Mastered" "Enrollment Status"
+    # [10] "BPR Comment"              "Last PR Send Date"        "Email Opt Out"
+    sret <- t(sapply(unique(data$Student), function(s){
+      sdat <- filter(data, Student == s)
+      ret <- data.frame(Student = sdat$Student[1],
+                        Guardian = sdat$Guardian[1],
+                        Account = sdat$Account[1],
+                        Active_Learning_Plans = dim(sdat)[1],
+                        Attendances = sdat$Attendances[1],
+                        Skills_Mastered = sum(sdat$Skills_Mastered),
+                        Total_LP_Skills = sum(sdat$Total_Skills),
+                        Total_LP_Skills_Mastered = sum(sdat$Total_Skills_Mastered),
+                        Enrollment_Status = sdat$Enrollment_Status[1],
+                        BPR_Comment = sdat$BPR_Comment[1],
+                        Last_PR_Send_Date = sdat$Last_PR_Send_Date[1],
+                        Email_Opt_Out = sdat$Email_Opt_Out[1])
+      return(ret)}))
+    data <- sret
+    }
+
   data <- data %>%
     mutate(dplyr::across(
       "Skills_Mastered",
