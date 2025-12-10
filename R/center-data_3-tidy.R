@@ -129,9 +129,11 @@ tidyRawData.progress <- function(data) {
     # [4] "Active Learning Plans"    "Attendances"              "Skills Mastered"
     # [7] "Total LP Skills"          "Total LP Skills Mastered" "Enrollment Status"
     # [10] "BPR Comment"              "Last PR Send Date"        "Email Opt Out"
-    sret <- t(sapply(unique(data$Student), function(s){
-      sdat <- filter(data, Student == s)
-      ret <- data.frame(Student = sdat$Student[1],
+
+
+    for(s in unique(data$Student)){
+      sdat <- dplyr::filter(data, Student == s)
+      newline <- data.frame(Student = sdat$Student[1],
                         Guardian = sdat$Guardian[1],
                         Account = sdat$Account[1],
                         Active_Learning_Plans = dim(sdat)[1],
@@ -143,8 +145,15 @@ tidyRawData.progress <- function(data) {
                         BPR_Comment = sdat$BPR_Comment[1],
                         Last_PR_Send_Date = sdat$Last_PR_Send_Date[1],
                         Email_Opt_Out = sdat$Email_Opt_Out[1])
-      return(ret)}))
-    data <- sret
+      if(s==unique(data$Student)[1]){
+        fret <- newline
+      } else {
+        fret <- rbind(fret,newline)
+      }
+
+    }
+
+    data <- tibble::as_tibble(fret)
     }
 
   data <- data %>%
