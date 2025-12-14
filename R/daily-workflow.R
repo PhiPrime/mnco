@@ -77,39 +77,6 @@ dailyData <- function(autoDownload = TRUE) {
     )
   }
 
-  # Check if daily data is already downloaded
-  moveDataDownloads() %>% suppressMessages()
-  missing = try(
-    {
-      getCenterData()
-      getCenterData("assessment")
-      getCenterData("attendance")
-    },
-    silent = T
-  ) %>% inherits("try-error")
-
-  push = TRUE
-  if (!missing) {
-    push <- prompt_user(
-      msg = c(
-        "The daily data is already downloaded. Does it still need to be committed and pushed?\n",
-        tab_message(c(
-          "1. Push (check git log first!)",
-          "2. Don't push"
-        ))
-      ),
-      choices = c(1, 2),
-      prompt1 = "Your choice: ",
-      prompt2 = "Please select a valid choice: "
-    )
-
-    if (push == 1) {
-      push = TRUE
-    } else {
-      push = FALSE
-    }
-  }
-
   closeTab <- function(buffer = 1){
     KeyboardSimulator::keybd.press("Ctrl+w")
     Sys.sleep(buffer)
@@ -135,13 +102,16 @@ dailyData <- function(autoDownload = TRUE) {
     KeyboardSimulator::keybd.release("Alt")
     Sys.sleep(0.1)
   }
-  findAndSelect <- function(phrase){
+  find <- function(phrase){
     KeyboardSimulator::keybd.press("ctrl+f")
     Sys.sleep(0.2)
     KeyboardSimulator::keybd.type_string(phrase)
     Sys.sleep(0.2)
     KeyboardSimulator::keybd.press("esc")
     Sys.sleep(0.2)
+  }
+  findAndSelect <- function(phrase){
+    find(phrase)
     KeyboardSimulator::keybd.press("enter")
     Sys.sleep(0.2)
   }
@@ -287,7 +257,7 @@ dailyData <- function(autoDownload = TRUE) {
       exStuReport <- function()
       {
         browseURL("https://radius.mathnasium.com/StudentReport")
-        Sys.sleep(5)
+        Sys.sleep(6.5)
         searchAndExport(12)
         Sys.sleep(6)
         closeTab()
@@ -301,7 +271,14 @@ dailyData <- function(autoDownload = TRUE) {
         tab(1)
         KeyboardSimulator::keybd.press("up")
         Sys.sleep(1.5)
-        searchAndExport(6)
+
+        find("Clear")
+        tab()
+        Sys.sleep(0.2)
+        KeyboardSimulator::keybd.press("backspace")
+        Sys.sleep(0.2)
+
+        searchAndExport(10)
         closeTab()
       }
 
@@ -349,6 +326,41 @@ dailyData <- function(autoDownload = TRUE) {
     }
     downloadFiles()
   }
+
+  # Check if daily data is already downloaded
+  moveDataDownloads() %>% suppressMessages()
+  missing = try(
+    {
+      getCenterData()
+      getCenterData("assessment")
+      getCenterData("attendance")
+    },
+    silent = T
+  ) %>% inherits("try-error")
+
+  push = TRUE
+  if (!missing) {
+    push <- prompt_user(
+      msg = c(
+        "The daily data is already downloaded. Does it still need to be committed and pushed?\n",
+        tab_message(c(
+          "1. Push (check git log first!)",
+          "2. Don't push"
+        ))
+      ),
+      choices = c(1, 2),
+      prompt1 = "Your choice: ",
+      prompt2 = "Please select a valid choice: "
+    )
+
+    if (push == 1) {
+      push = TRUE
+    } else {
+      push = FALSE
+    }
+  }
+
+
 
   # Commit and push data
   if (push) {
