@@ -204,6 +204,19 @@ dailyData <- function(autoDownload = TRUE) {
       return(whoAmI())
     }
   }
+
+  # Check if daily data is already downloaded
+  moveDataDownloads() %>% suppressMessages()
+  missing = try(
+    {
+      getCenterData()
+      getCenterData("assessment")
+      getCenterData("attendance")
+    },
+    silent = T
+  ) %>% inherits("try-error")
+
+
   # Download daily data from Radius
   if (missing&&!autoDownload) {
 
