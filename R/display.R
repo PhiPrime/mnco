@@ -19,7 +19,13 @@ kablize <- function(todisplay, headerWidth = 13) {
     mutate(dplyr::across(
       where(lubridate::is.Date),
       ~format(.x, "%m-%d-%Y")
-    )) %>%
+    ),
+           dplyr::across(
+             where(is.character),
+             ~stringr::str_replace_all(.x, "([&%#$])", "\\\\\\1"))) %>%
+
+
+
 
     # LaTeX formatting
     kableExtra::kbl(
