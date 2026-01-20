@@ -192,7 +192,7 @@ createTextMessageFiles <- function(flaggedStudents) {
     # NEED TO PULL CENTER NAME TO FILL IN
     messages <- templates %>%
       mutate(across(everything(), ~stringr::str_replace_all(
-        .x, "\\[Center\\]", "Colonial Park"
+        .x, "\\[Center\\]", unique(mnco::getCenterData("student")$Center)[1]
       ))) %>%
       mutate(across(everything(), ~stringr::str_replace_all(
         .x, "\\[StudentFirstName\\]", studentFirstNames
