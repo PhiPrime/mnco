@@ -189,7 +189,7 @@ createTextMessageFiles <- function(flaggedStudents) {
       stringr::str_replace_all("[ -]", "_")
 
     # Fill in templates and create hyperlinks to text files
-    # NEED TO PULL CENTER NAME TO FILL IN
+    # NEED TO PULL CENTER NAME TO FILL IN - hotfixed
     messages <- templates %>%
       mutate(across(everything(), ~stringr::str_replace_all(
         .x, "\\[Center\\]", unique(mnco::getCenterData("student")$Center)[1]
