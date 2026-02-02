@@ -279,19 +279,19 @@ dailyData <- function(autoDownload = TRUE) {
       exAssessmentReport <- function()
       {
         browseURL("https://radius.mathnasium.com/AssessmentReport")
-        Sys.sleep(4.5)
+        Sys.sleep(5.5)
         findAndSelect("Pre/Post")
-        tab(1)
+        tab(1.2)
         KeyboardSimulator::keybd.press("up")
-        Sys.sleep(1.5)
+        Sys.sleep(2)
 
         find("Clear")
         tab()
-        Sys.sleep(0.2)
+        Sys.sleep(0.5)
         KeyboardSimulator::keybd.press("backspace")
-        Sys.sleep(0.2)
+        Sys.sleep(0.5)
 
-        searchAndExport(10)
+        searchAndExport(13)
         closeTab()
       }
 
