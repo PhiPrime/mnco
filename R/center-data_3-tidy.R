@@ -43,12 +43,13 @@ tidyRawData.student <- function(data) {
       Date_of_Birth = as.Date(.data$Date_of_Birth, format = "%m/%d/%Y"),
       Card_Level = as.integer(.data$Card_Level),
       Student_Created_Date = as.Date(.data$Student_Created_Date),
-      Grade = dplyr::case_when(
-        .data$Grade == "Pre K"   ~ "-1",
-        .data$Grade == "K"       ~ "0",
-        .data$Grade == "College" ~ "13",
-        .default = .data$Grade
-      ),
+      Grade = as.numeric(dplyr::case_when(
+        Grade == "Pre K"   ~ "-1",
+        Grade == "K"       ~ "0",
+        Grade == "College" ~ "13",
+        !is.na(suppressWarnings(as.numeric(Grade))) ~ Grade,
+        .default ~ "-1"
+      )),
       Grade = as.integer(.data$Grade)
     )
 
