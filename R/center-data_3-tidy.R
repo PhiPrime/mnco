@@ -48,7 +48,7 @@ tidyRawData.student <- function(data) {
         Grade == "K"       ~ "0",
         Grade == "College" ~ "13",
         !is.na(suppressWarnings(as.numeric(Grade))) ~ Grade,
-        .default ~ "-1"
+        .default = "-1"
       )),
       Grade = as.integer(.data$Grade)
     )
