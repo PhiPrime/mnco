@@ -19,6 +19,7 @@ moveDataDownloads <- function() {
     downloadsDir(),
     pattern = "\\d{1,2}_\\d{1,2}_\\d{4}.xlsx$"
   )
+  files <- files[!which(grepl("_LP ", files))] #Remove Learning Plans
 
   src <- file.path(downloadsDir(), files)
   dest <- file.path(rawDataDir(), files)
