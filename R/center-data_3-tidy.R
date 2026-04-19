@@ -193,9 +193,9 @@ tidyRawData.enrollment <- function (data) {
     Delivery = as.factor(.data$Delivery),
 
     Grade = dplyr::case_when(
-      .data$Grade == "Pre K"   ~ "-1",
-      .data$Grade == "K"       ~ "0",
-      .data$Grade == "College" ~ "13",
+      as.character(.data$Grade) == "Pre K"   ~ "-1",
+      as.character(.data$Grade) == "K"       ~ "0",
+      as.character(.data$Grade) == "College" ~ "13",
       .default = .data$Grade
     ),
     Grade = as.integer(.data$Grade)
@@ -228,9 +228,9 @@ tidyRawData.assessment <- function(data) {
       Student    = paste(.data$Student_First_Name, .data$Student_Last_Name),
       Enrollment_Status = as.factor(.data$Enrollment_Status),
       Grade = dplyr::case_when(
-        .data$Grade == "Pre K"   ~ "-1",
-        .data$Grade == "K"       ~ "0",
-        .data$Grade == "College" ~ "13",
+        as.character(.data$Grade) == "Pre K"   ~ "-1",
+        as.character(.data$Grade) == "K"       ~ "0",
+        as.character(.data$Grade) == "College" ~ "13",
         .default = .data$Grade
       ),
       Grade = as.integer(.data$Grade),
@@ -335,9 +335,9 @@ tidyRawData.student2 <- function(data) {
     ) %>%
     mutate(
       Grade = dplyr::case_when(
-        .data$Grade == "Pre K"   ~ "-1",
-        .data$Grade == "K"       ~ "0",
-        .data$Grade == "College" ~ "13",
+        as.character(.data$Grade) == "Pre K"   ~ "-1",
+        as.character(.data$Grade) == "K"       ~ "0",
+        as.character(.data$Grade) == "College" ~ "13",
         .default = .data$Grade
       ),
       Grade = as.integer(.data$Grade)
