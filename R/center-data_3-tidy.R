@@ -196,7 +196,7 @@ tidyRawData.enrollment <- function (data) {
       as.character(.data$Grade) == "Pre K"   ~ "-1",
       as.character(.data$Grade) == "K"       ~ "0",
       as.character(.data$Grade) == "College" ~ "13",
-      .default = .data$Grade
+      .default = as.character(.data$Grade)
     ),
     Grade = as.integer(.data$Grade)
   )
@@ -231,7 +231,7 @@ tidyRawData.assessment <- function(data) {
         as.character(.data$Grade) == "Pre K"   ~ "-1",
         as.character(.data$Grade) == "K"       ~ "0",
         as.character(.data$Grade) == "College" ~ "13",
-        .default = .data$Grade
+        .default = as.character(.data$Grade)
       ),
       Grade = as.integer(.data$Grade),
       Assessment = .data$Assessment_Title,
@@ -338,7 +338,7 @@ tidyRawData.student2 <- function(data) {
         as.character(.data$Grade) == "Pre K"   ~ "-1",
         as.character(.data$Grade) == "K"       ~ "0",
         as.character(.data$Grade) == "College" ~ "13",
-        .default = .data$Grade
+        .default = as.character(.data$Grade)
       ),
       Grade = as.integer(.data$Grade)
     )
